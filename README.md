@@ -5,45 +5,22 @@
 
 ## 찾아보기
 
-- [프로젝트 목록](projects/README.md)
-- [기간별 기록](timeline.md)
-- [작성 방법](writing-guide.md)
-- [프로젝트 양식](templates/project/README.md)
+- [근무 기록](experience.md): 회사 설명, 근무 기간, 역할과 주요 작업
+- [전체 작업 목록](projects/README.md): 작업별 요약과 상세 문서 링크
+- [기간별 기록](timeline.md): 근무 기간과 확인한 작업 기간
+- [작성 방법](writing-guide.md): 짧고 쉽게 기록하는 기준
+- [프로젝트 개요 양식](templates/project/README.md)
+- [작업 양식](templates/task.md)
 
-## 기록할 내용
+## 기록 방식
 
-| 항목 | 적을 내용 |
-| --- | --- |
-| 프로젝트 | 이름, 목적, 관련 저장소 |
-| 프로젝트 구분 | 회사 또는 사이드 |
-| 회사 설명 | 회사가 하는 일을 한 문장으로 설명. 사이드 프로젝트는 해당 없음 |
-| 진행 방식 | 개인 또는 팀 |
-| 기간 | 참여 시작일과 종료일 |
-| 언어와 기술 | 프로젝트에서 쓰는 기술과 내가 직접 사용한 기술 |
-| 시작한 이유 | 이전 상황, 겪은 문제, 바꾸려던 점 |
-| 맡은 일 | 내가 맡은 기능과 실제로 한 작업 |
-| 함께한 작업 | 담당 역할, 나눈 일, 함께 해결한 문제 |
-| 구조 | 주요 폴더, 구성 요소, 데이터가 오가는 순서 |
-| 현재 상태 | 끝낸 일, 진행 중인 일, 남은 일 |
-| 결과 | 바뀐 점, 확인 방법, 관련 커밋과 PR |
+같은 플랫폼이나 프로젝트의 작업은 한 폴더에 모읍니다.
+폴더의 `README.md`에는 짧은 소개와 작업 목록을 적습니다.
+작업마다 파일 하나에 이유, 역할 분담, 기술, 순서도, 결과와 근거를 함께 적습니다.
+짧은 인턴 업무는 근무 기록 안에 둡니다.
 
-회사 이름이나 별칭은 적지 않고 어떤 일을 하는 회사인지만 설명합니다.
-함께한 사람의 이름은 적지 않고 담당 역할과 함께한 일만 적습니다.
-
-## 새 프로젝트 추가
-
-1. `templates/project` 폴더를 `projects/프로젝트이름`으로 복사합니다.
-2. 복사한 파일의 대괄호 안 안내를 실제 내용으로 바꿉니다.
-3. 프로젝트 소개를 적고, 맡은 작업을 하나씩 정리합니다.
-4. [프로젝트 목록](projects/README.md)에 문서 링크를 추가합니다.
-5. [기간별 기록](timeline.md)에 참여 기간과 주요 작업을 적습니다.
-
-저장소의 맨 위 폴더에서 다음 명령으로 복사할 수 있습니다.
-`my-project`는 실제 프로젝트 이름으로 바꿉니다.
-
-```sh
-cp -R templates/project projects/my-project
-```
+회사 이름이나 별칭은 쓰지 않고 어떤 일을 하는 회사인지 설명합니다.
+사람 이름은 쓰지 않고 본인과 다른 담당자가 맡은 일을 적습니다.
 
 ## 파일 구성
 
@@ -51,20 +28,40 @@ cp -R templates/project projects/my-project
 work-history/
 ├── README.md
 ├── AGENTS.md
+├── experience.md
 ├── writing-guide.md
 ├── timeline.md
 ├── projects/
-│   └── README.md
+│   ├── README.md
+│   └── platform-operations/
+│       ├── README.md
+│       ├── initial-admin.md
+│       ├── settlement.md
+│       ├── admin-improvement.md
+│       ├── data-analytics.md
+│       ├── deployment.md
+│       └── event-system.md
 └── templates/
+    ├── task.md
     └── project/
-        ├── README.md
-        ├── architecture.md
-        ├── contributions.md
-        └── history.md
+        └── README.md
 ```
 
-프로젝트 폴더의 `README.md`에는 전체 내용을 짧게 적습니다.
-`architecture.md`에는 구조를, `contributions.md`에는 내가 한 작업을 적습니다.
-`history.md`에는 주요 커밋과 PR을 묶어 정리합니다.
+## 새 작업 추가
 
-현재는 빈 양식만 준비되어 있습니다. 실제 프로젝트 기록은 아직 추가하지 않았습니다.
+1. 새 프로젝트 묶음이면 `templates/project` 폴더를 `projects/프로젝트이름`으로 복사합니다.
+2. `templates/task.md`를 해당 폴더에 작업 이름으로 복사합니다.
+3. 양식 안내를 실제 내용으로 바꾸고, 프로젝트 개요로 돌아가는 링크를 연결합니다.
+4. 프로젝트 개요와 [전체 작업 목록](projects/README.md)에 짧은 요약과 링크를 추가합니다.
+5. [근무 기록](experience.md)에는 주요 작업 링크를, [기간별 기록](timeline.md)에는 확인한 기간을 적습니다.
+
+저장소의 맨 위 폴더에서 아래 명령으로 시작할 수 있습니다.
+`my-project`와 `my-task`는 실제 프로젝트와 작업에 맞게 바꿉니다.
+
+```sh
+cp -R templates/project projects/my-project
+cp templates/task.md projects/my-project/my-task.md
+```
+
+구체적인 설명을 고칠 때는 해당 작업 파일을 수정합니다.
+근무 기록과 목록에는 같은 설명을 길게 복사하지 않습니다.
