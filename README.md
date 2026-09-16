@@ -33,6 +33,14 @@ work-history/
 ├── timeline.md
 ├── projects/
 │   ├── README.md
+│   ├── education-services/
+│   │   ├── README.md
+│   │   ├── promotion.md
+│   │   ├── assessment-renewal.md
+│   │   ├── notifications.md
+│   │   ├── art-service-renewal.md
+│   │   ├── b2c-admin.md
+│   │   └── class-app-server.md
 │   └── platform-operations/
 │       ├── README.md
 │       ├── initial-admin.md

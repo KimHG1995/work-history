@@ -4,6 +4,21 @@
 
 ## 회사 프로젝트
 
+### 교육 서비스 개발과 운영 개선
+
+근무 기간은 2024-01 ~ 2025-10입니다. [작업 개요](education-services/README.md)에서 전체 내용을 확인할 수 있습니다.
+
+| 작업 | 요약 |
+| --- | --- |
+| [쿠폰 이벤트 시스템](education-services/promotion.md) | 쿠폰 정책과 발급 이력을 정리하고, 제휴 결제 자료 등록과 쿠폰 안내 기능을 만들었습니다. |
+| [AI 심리검사 서비스 개편](education-services/assessment-renewal.md) | Java Spring 서버를 NestJS와 Drizzle로 전환해 여러 서비스가 사용할 공통 서버를 만들고 운영에 배포했습니다. |
+| [통합 알림 시스템](education-services/notifications.md) | 공통 발송과 이력 추적, 배포 자동화를 구현하고 운영 서버에 배포했습니다. |
+| [미술 교육 서비스 개편](education-services/art-service-renewal.md) | Java 서버를 NestJS와 Prisma로 전환하고 관리자 페이지와 대시보드를 만들었습니다. |
+| [개인 고객 서비스 관리자 페이지](education-services/b2c-admin.md) | 인수한 프로젝트의 구조를 정리하고 수업, 출석, 사용자 등급 관리 기능을 개발했습니다. |
+| [개인 고객 수강 앱 서버](education-services/class-app-server.md) | 중단된 프로젝트를 인수해 1:1 수업 예약부터 종료와 출결까지 서버 기능을 정리했습니다. |
+
+### 단기 구인구직 플랫폼 운영 개선
+
 [단기 구인구직 플랫폼 운영 개선](platform-operations/README.md)의 세부 작업입니다.
 근무 기간은 2021-07 ~ 2024-01입니다. 정확한 작업 기간은 각 문서에 따로 적었습니다.
 

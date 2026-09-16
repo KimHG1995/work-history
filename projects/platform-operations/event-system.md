@@ -50,7 +50,3 @@ flowchart TD
     backend --> operation["이벤트 운영"]
     frontend --> operation
 ```
-
-## 기록 근거
-
-본인이 제공한 경력 문서와 대화를 기준으로 적었습니다. 관련 커밋과 PR은 아직 연결하지 않았습니다.
