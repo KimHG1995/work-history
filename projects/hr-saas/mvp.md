@@ -9,36 +9,35 @@ HR 서비스 PoC를 개발했습니다.
 
 | 항목 | 내용 |
 | --- | --- |
-| 프로젝트 구분 | 사이드, 본업 병행 |
 | 작업 기간 | 2025-09 ~ 2025-11 |
 | 맡은 범위 | 관리자와 사용자 웹, 앱 서버, DB, 인증, 스토리지, 배포 |
-| 개발 상태 | MVP 개발 후 작업물 전달, 프로젝트 완료 |
-| 배포 상태 | 실제 접속 가능한 환경에 배포해 제품 흐름 검증 |
+| 개발 상태 | MVP 개발과 작업물 전달 완료 |
+| 운영 상태 | 접속 가능한 환경에 배포해 제품 흐름 검증 후 프로젝트 종료 |
 
 ## 왜 시작했는지
 
 HR 서비스 PoC 개발을 위해 시작했습니다.
 
-## 맡은 역할
+## 역할 분담
 
 관리자와 사용자 웹부터 서버, DB, 인증, 파일 저장과 배포까지 설계하고 개발했습니다.
 
 ## 기술 스택
 
-| 구분 | 기술 | 사용한 곳 |
-| --- | --- | --- |
-| 언어 | TypeScript | 웹과 서버 개발 |
-| 프론트엔드 | Next.js | 관리자 웹과 사용자 웹 |
-| 백엔드 | NestJS, Prisma, Zod | 앱 서버, 업무 로직, DB 접근, 입력값 검증 |
-| API 스펙 | Swagger, OpenAPI, openapi-typescript-codegen | API 문서와 TypeScript 타입, Axios 호출 코드 생성 |
-| 공통 코드 관리 | pnpm workspace, Turborepo | 관리자와 사용자 웹의 공통 패키지와 빌드 관리 |
-| 데이터베이스 | Supabase PostgreSQL | 사용자, 회사, 계약과 현장 업무 데이터 |
-| 인증 | Supabase Auth | 사용자 인증 |
-| 스토리지 | Supabase Storage, S3 방식 파일 저장 | 계약 문서와 작업 보고 파일 |
-| 배포 | Vercel, Render | 웹 배포, 백엔드 무료 티어 배포 |
-| 도메인과 라우팅 | Cloudflare | 백엔드 접속 경로 연결 |
+| 구분 | 기술 |
+| --- | --- |
+| 언어 | TypeScript |
+| 프론트엔드 | Next.js |
+| 백엔드 | NestJS, Prisma, Zod |
+| API 스펙 | Swagger, OpenAPI, openapi-typescript-codegen |
+| 공통 코드 관리 | pnpm workspace, Turborepo |
+| 데이터베이스 | Supabase PostgreSQL |
+| 인증 | Supabase Auth |
+| 스토리지 | Supabase Storage, S3 방식 파일 저장 |
+| 배포 | Vercel, Render |
+| 도메인과 라우팅 | Cloudflare |
 
-## 어떻게 구현했는지
+## 어떻게 해결했는지
 
 ### 서버와 프론트엔드 구조
 
