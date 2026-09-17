@@ -43,3 +43,9 @@
 | [출결 상태와 단체 인증 처리 개선](projects/civil-defense/attendance.md) | 2025-11 이후 근무 중 진행, 운영 반영 완료 |
 | [예약과 취소의 동시 요청 처리 개선](projects/civil-defense/reservation.md) | 2025-11 이후 근무 중 진행, 운영 반영 완료 |
 | [민방위 서비스 개발과 운영](projects/civil-defense/operations.md) | 2025-11 ~ 현재 |
+
+### 예비군 서비스
+
+| 작업 | 확인한 작업 기간 |
+| --- | --- |
+| [예비군 서비스 개발과 운영](projects/reserve-service/operations.md) | 2025-11 ~ 현재 |

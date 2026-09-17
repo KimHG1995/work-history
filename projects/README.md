@@ -17,6 +17,14 @@
 | [예약과 취소의 동시 요청 처리 개선](civil-defense/reservation.md) | 트랜잭션과 DB 잠금으로 예약 상태와 잔여 인원 변경 처리 |
 | [민방위 서비스 개발과 운영](civil-defense/operations.md) | 운영팀 요청 기능 개발, 기존 코드와 API 개선, 운영 이슈 대응 |
 
+### 예비군 서비스 개발과 운영
+
+2025-11 ~ 현재 | [작업 개요](reserve-service/README.md)
+
+| 작업 | 요약 |
+| --- | --- |
+| [예비군 서비스 개발과 운영](reserve-service/operations.md) | React 웹과 Node.js 서버의 풀스택 개발, 운영 요구사항 반영과 이슈 대응 |
+
 ### 교육 서비스 개발과 운영 개선
 
 2024-01 ~ 2025-10 | [작업 개요](education-services/README.md)
