@@ -5,15 +5,32 @@ import path from 'node:path';
 const projects = path.resolve(import.meta.dirname, '../../projects');
 const title = file => readFileSync(file, 'utf8').match(/^# (.+)$/m)?.[1] ?? path.basename(file, '.md');
 const groups = readdirSync(projects, { withFileTypes: true }).filter(entry => entry.isDirectory());
-const sidebar = groups.map(group => ({
+const projectGroups = new Map(groups.map(group => [group.name, {
   text: title(path.join(projects, group.name, 'README.md')),
   collapsed: false,
   items: [
-    { text: '작업 개요', link: `/projects/${group.name}/` },
+    { text: '프로젝트 개요', link: `/projects/${group.name}/` },
     ...readdirSync(path.join(projects, group.name)).filter(name => name.endsWith('.md') && name !== 'README.md')
       .map(name => ({ text: title(path.join(projects, group.name, name)), link: `/projects/${group.name}/${name.replace(/\.md$/, '')}` }))
   ]
-}));
+}]));
+const groupedNames = new Set(['civil-defense', 'reserve-service', 'education-services', 'platform-operations', 'hr-saas']);
+const childGroup = (name, text) => ({ ...projectGroups.get(name), text });
+const sidebar = [
+  {
+    text: '공공 교육 서비스',
+    collapsed: false,
+    items: [childGroup('civil-defense', '민방위 서비스'), childGroup('reserve-service', '예비군 서비스')]
+  },
+  projectGroups.get('education-services'),
+  projectGroups.get('platform-operations'),
+  {
+    text: '사이드 프로젝트',
+    collapsed: false,
+    items: [projectGroups.get('hr-saas')]
+  },
+  ...groups.filter(group => !groupedNames.has(group.name)).map(group => projectGroups.get(group.name))
+];
 
 export default defineConfig({
   lang: 'ko-KR',
