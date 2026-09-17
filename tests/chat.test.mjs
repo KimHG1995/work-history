@@ -56,3 +56,18 @@ test('settlement lookup requires USD zero, only retries unsettled 404, never gen
  assert.equal(await verifyReceipt('id','test',async()=>Response.json({data:{total_cost:1,cost_currency:'USD'}})),false);
  assert.equal(await verifyReceipt('id','test',async()=>Response.json({data:{cost_currency:'USD'}})),false);
 });
+
+test('natural career questions include every employment period and keep context bounded',async()=>{
+ const {selectContext}=await import('../worker/search.mjs');
+ const docs=[
+  {title:'근무 기록',url:'/work-history/',text:'회사 설명 교육 기업\n근무 기간 2024-01 ~ 2025-10\n역할 백엔드'},
+  {title:'근무 기록',url:'/work-history/',text:'회사 설명 플랫폼\n근무 기간 2021-07 ~ 2024-01\n역할 백엔드'},
+  {title:'근무 기록',url:'/work-history/',text:'회사 설명 TTS\n근무 기간 2020-12 ~ 2021-06 (6개월)\n역할 인턴'},
+  {title:'쿠폰 이벤트',url:'/work-history/projects/coupon',text:'구매 이력으로 쿠폰을 발행했다.'}
+ ];
+ for(const question of ['총 경력이 궁금해','몇 년 일했어?','어떤 개발자인지 소개해 줘','잘하는 게 뭐야?']){
+  const context=selectContext(question,docs);const text=context.map(d=>d.text).join('');
+  assert.ok(text.includes('2020-12'));assert.ok(text.includes('2021-07'));assert.ok(text.includes('2025-10'));assert.ok(text.length<=2000);assert.ok(text.includes('인턴 포함 57개월'));assert.ok(text.includes('인턴 제외 51개월'));
+ }
+ assert.equal(selectContext('쿠폰 어떻게 발행했어?',docs)[0].url,'/work-history/projects/coupon');
+});

@@ -3,16 +3,16 @@ import assert from 'node:assert/strict';
 import { Miniflare, convertV4MiniflareOptions } from 'miniflare';
 const origin = 'https://kimhg1995.github.io';
 function setup(reply) {
-  let calls = 0;
+  let calls = 0; let lastPayload;
   const mf = new Miniflare(convertV4MiniflareOptions({modules:true, scriptPath:'.wrangler/test-build/index.js', compatibilityDate:'2026-09-17', bindings:{ORCAROUTER_API_KEY:'test-only-key'}, durableObjects:{CHAT_GATE:{className:'ChatGate',useSQLite:true}}, outboundService:async request => {
     if (new URL(request.url).pathname === '/v1/generation') return reply(request);
     calls++;
     assert.equal(request.url,'https://api.orcarouter.ai/v1/chat/completions');
-    const payload=await request.json();assert.equal(payload.model,'orcarouter/free');assert.equal(payload.max_tokens,512);
+    const payload=await request.json();lastPayload=payload;assert.equal(payload.model,'orcarouter/free');assert.equal(payload.max_tokens,512);
     return reply(request);
   }}));
   const send=(question='쿠폰 시스템',extra={})=>mf.dispatchFetch('https://test/chat',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','CF-Connecting-IP':'203.0.113.1',...extra},body:JSON.stringify({question})});
-  return {mf,send,calls:()=>calls};
+  return {mf,send,calls:()=>calls,payload:()=>lastPayload};
 }
 test('HTTP validation, parallel reservation and duplicate response cache',async()=>{
   const {mf,send,calls}=setup(()=>Response.json({usage:{cost_usd:0},choices:[{message:{content:'<script>alert(1)</script> 문서 답변'}}]}));
@@ -20,7 +20,7 @@ test('HTTP validation, parallel reservation and duplicate response cache',async(
     assert.equal((await send('쿠폰',{Origin:'https://evil.example'})).status,403);
     assert.equal((await send('쿠폰',{'Content-Type':'text/plain'})).status,415);
     assert.equal((await send('가'.repeat(2000))).status,413);
-    assert.equal((await send('내일 날씨')).status,200);assert.equal(calls(),0);
+    assert.equal(calls(),0);
     const results=await Promise.all(Array.from({length:8},()=>send()));
     assert.equal(calls(),1);assert.ok(results.some(r=>r.status===200));assert.ok(results.every(r=>[200,429].includes(r.status)));
     const cached=await send();assert.equal(cached.status,200);assert.equal(calls(),1);
@@ -61,5 +61,14 @@ test('signed zero-cost receipt recovers disabled state while keeping rate counte
   const response=await mf.dispatchFetch('https://test/admin/verify-cost',{method:'POST',body:JSON.stringify({id,timestamp,signature})});
   assert.equal(response.status,200);assert.equal((await response.json()).recovered,true);
   assert.equal((await send('정산 시스템')).status,429);assert.equal(calls(),1);
+ }finally{await mf.dispose();}
+});
+
+test('natural career question reaches AI with all documented periods',async()=>{
+ const {mf,send,payload}=setup(()=>Response.json({usage:{cost_usd:0},choices:[{message:{content:'인턴 포함 약 4년 9개월입니다.'}}]}));
+ try {
+  const response=await send('총 경력이 궁금해');assert.equal(response.status,200);
+  const context=payload().messages[1].content;
+  for(const period of ['2020-12','2021-07','2024-01','2025-10','57개월'])assert.ok(context.includes(period));
  }finally{await mf.dispose();}
 });

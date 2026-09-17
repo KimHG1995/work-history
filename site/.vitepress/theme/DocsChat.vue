@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onUnmounted } from 'vue';
 import { withBase } from 'vitepress';
-import { search } from '../../../worker/search.mjs';
+import { selectContext } from '../../../worker/search.mjs';
 import ChatMascot from './ChatMascot.vue';
 const dialog = ref(null);
 const question = ref('');
@@ -12,6 +12,11 @@ const remaining = ref(0);
 const api = import.meta.env.VITE_CHAT_API_URL || '';
 let index; let timer; let controller;
 const disabled = computed(() => loading.value || remaining.value > 0 || !question.value.trim());
+function onQuestionKeydown(event) {
+  if (event.key !== 'Enter' || event.shiftKey || event.isComposing || event.keyCode === 229) return;
+  event.preventDefault();
+  ask();
+}
 function open() { dialog.value.showModal(); }
 function close() { dialog.value.close(); }
 function wait(seconds) {
@@ -28,7 +33,7 @@ async function ask() {
       if (!response.ok) throw new Error('index');
       index = await response.json();
     }
-    sources.value = search(question.value, index);
+    sources.value = selectContext(question.value, index);
     if (!sources.value.length) {
       answer.value = '공개 문서에서 관련 내용을 찾지 못했습니다. 프로젝트명이나 기술 이름을 넣어 질문해 주세요.';
       return;
@@ -41,7 +46,10 @@ async function ask() {
       const body = await response.json();
       answer.value = typeof body.answer === 'string' ? body.answer : (typeof body.message === 'string' ? body.message : 'AI 답변을 받지 못했습니다. 아래 문서를 확인해 주세요.');
       // Links come from the local document index, never from model output.
-      if (Array.isArray(body.sources)) sources.value = body.sources.filter(source => index.some(doc => doc.url === source.url && doc.title === source.title));
+      if (Array.isArray(body.sources)) sources.value = body.sources.flatMap(source => {
+        const doc = index.find(doc => doc.url === source.url);
+        return doc ? [{title: doc.title, url: doc.url}] : [];
+      });
       if (Number.isFinite(body.retryAfter) && body.retryAfter > 0) wait(Math.min(86400, Math.ceil(body.retryAfter)));
       else if (response.ok) wait(10);
     } finally { clearTimeout(timeout); }
@@ -60,7 +68,8 @@ async function ask() {
     <header><div><h2 id="chat-title">경력 문서에 질문하기</h2><p>공개된 프로젝트와 경험을 찾아 답합니다.</p></div><button class="chat-close" aria-label="질문 창 닫기" @click="close">닫기</button></header>
     <form @submit.prevent="ask">
       <label for="chat-question">궁금한 내용</label>
-      <textarea id="chat-question" v-model="question" maxlength="500" rows="3" placeholder="쿠폰 시스템은 어떻게 개발했나요?" :disabled="loading" />
+      <textarea id="chat-question" v-model="question" @keydown="onQuestionKeydown" aria-describedby="chat-keyboard-hint" maxlength="500" rows="3" placeholder="총 경력이 궁금해" :disabled="loading" />
+      <p id="chat-keyboard-hint" class="chat-note">Enter로 전송, Shift+Enter로 줄바꿈</p>
       <p class="chat-note">질문과 관련 문서 일부가 AI 제공자에게 전송됩니다. 개인정보는 입력하지 마세요.</p>
       <button type="submit" class="chat-submit" :disabled="disabled">{{ loading ? '문서에서 답을 찾고 있습니다…' : remaining ? `${remaining}초 후 다시 질문` : '질문하기' }}</button>
     </form>

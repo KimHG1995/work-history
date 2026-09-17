@@ -2,7 +2,7 @@ import { DurableObject } from 'cloudflare:workers';
 import docs from './generated/docs.json';
 import { verifyReceipt } from './cost.mjs';
 import { reserve, finish } from './policy.mjs';
-import { search } from './search.mjs';
+import { selectContext } from './search.mjs';
 import { validateQuestion, makePayload, providerResult } from './chat.mjs';
 
 const origin = 'https://kimhg1995.github.io';
@@ -58,7 +58,7 @@ export default {
     let question;
     try { question = validateQuestion(JSON.parse(await readBounded(request.body, 4096))); }
     catch (e) { return json({message: '질문을 500자 이내로 입력해 주세요.'}, e.message === 'large' ? 413 : 400); }
-    const found = search(question, docs);
+    const found = selectContext(question, docs);
     const sources = found.map(({title, url}) => ({title, url}));
     if (!found.length) return json({answer: '공개 문서에서 관련 내용을 찾지 못했습니다. 프로젝트명이나 기술 이름을 넣어 질문해 주세요.', sources});
     if (!env.ORCAROUTER_API_KEY) return json({...unavailable, sources}, 503);
