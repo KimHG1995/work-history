@@ -18,5 +18,5 @@ AI 코딩 도구의 작업 규칙, 코드 검사와 TypeScript 코드 분석 환
 | 작업 | 요약 |
 | --- | --- |
 | [Codex 코드 검사 설정](codex-quality.md) | 프로젝트별 검사 설정과 작업 범위에 따른 코드 검토 절차 구성 |
-| [Claude Code 작업 규칙과 검증 설정](claude-workflow.md) | 규칙과 스킬을 분리하고 편집 전후 검사 훅과 반복 작업 도구 구성 |
+| [Claude Code 작업 규칙과 검증 설정](claude-workflow.md) | 요구사항 확인, 개발과 검증 흐름을 재사용하는 Claude Code 설정 구성 |
 | [TypeScript 코드 분석용 MCP 연결](typescript-graph.md) | 기존 서버 버전을 유지하는 TypeScript 7 기반 MCP 코드 분석 환경 연결 |
