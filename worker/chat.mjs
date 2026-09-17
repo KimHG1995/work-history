@@ -11,10 +11,10 @@ export function makePayload(question,docs){
 export function providerResult(status,body,retryHeader){
  const code = ['err_free_access_denied','err_free_rate','err_free_prompt_cap'].includes(body?.error?.metadata?.reason) ? body.error.metadata.reason : undefined;
  if(status===429){const seconds=Number(retryHeader||body?.error?.metadata?.retry_after_seconds);return {ok:false,status:429,code,message:'무료 AI 요청이 많습니다. 잠시 후 다시 질문해 주세요.',retryAfter:Number.isFinite(seconds)&&seconds>0?Math.ceil(seconds):60};}
- if(status!==200)return {ok:false,status:503,message:'지금은 AI 답변을 제공하기 어렵습니다. 아래 문서를 확인해 주세요.'};
+ if(status!==200)return {ok:false,status:503,code:code || `provider_http_${status}`,message:'지금은 AI 답변을 제공하기 어렵습니다. 아래 문서를 확인해 주세요.'};
  const cost=body?.usage?.cost_usd;
- if(cost===undefined||cost===null||cost===''||!Number.isFinite(Number(cost))||Number(cost)!==0)return {ok:false,status:503,disable:true,message:'무료 응답 확인이 되지 않아 AI 답변을 중단했습니다.'};
+ if(cost===undefined||cost===null||cost===''||!Number.isFinite(Number(cost))||Number(cost)!==0)return {ok:false,status:503,disable:true,code:'cost_unverified',message:'무료 응답 확인이 되지 않아 AI 답변을 중단했습니다.'};
  const answer=body?.choices?.[0]?.message?.content;
- if(typeof answer!=='string'||!answer.trim())return {ok:false,status:503,message:'답변을 만들지 못했습니다. 아래 문서를 확인해 주세요.'};
+ if(typeof answer!=='string'||!answer.trim())return {ok:false,status:503,code:'empty_answer',message:'답변을 만들지 못했습니다. 아래 문서를 확인해 주세요.'};
  return {ok:true,status:200,answer:answer.slice(0,4000),cost:0};
 }

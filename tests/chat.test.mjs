@@ -37,6 +37,7 @@ test('search finds Korean topic with particles and excludes unrelated questions'
  assert.deepEqual(search('내일 날씨',docs),[]);
 });
 test('provider failures never expose raw messages, missing or nonzero cost is rejected',()=>{
+ assert.equal(providerResult(400,{error:{metadata:{reason:'err_free_prompt_cap'}}},null).code,'err_free_prompt_cap');
  assert.equal(providerResult(429,{error:{code:'free_rate_limited',metadata:{reason:'err_free_access_denied'}}},null).code,'err_free_access_denied');
  assert.equal(providerResult(429,{error:{message:'secret',metadata:{retry_after_seconds:30}}},null).retryAfter,30);
  assert.equal(providerResult(200,{choices:[{message:{content:'답변'}}],usage:{cost_usd:0}},null).answer,'답변');

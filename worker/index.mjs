@@ -76,7 +76,7 @@ export class ChatGate extends DurableObject {
       if (next.ok) await txn.put('policy', next.state);
       return next;
     });
-    if (!slot.ok) return json({message: slot.disabled ? unavailable.message : '요청이 많습니다. 잠시 후 다시 질문해 주세요.', retryAfter: slot.retryAfter, sources}, slot.disabled ? 503 : 429);
+    if (!slot.ok) return json({message: slot.disabled ? unavailable.message : '요청이 많습니다. 잠시 후 다시 질문해 주세요.', code: slot.disabled ? 'cost_unverified' : slot.reason, retryAfter: slot.retryAfter, sources}, slot.disabled ? 503 : 429);
     let result;
     try {
       const response = await fetch('https://api.orcarouter.ai/v1/chat/completions', {
@@ -86,7 +86,7 @@ export class ChatGate extends DurableObject {
       let body = {};
       try { body = JSON.parse(await readBounded(response.body, 65536)); } catch {}
       result = providerResult(response.status, body, response.headers.get('Retry-After'));
-    } catch { result = {ok: false, status: 503, ...unavailable}; }
+    } catch { result = {ok: false, status: 503, code: 'provider_connection_failed', ...unavailable}; }
     await this.ctx.storage.transaction(async txn => {
       const state = await txn.get('policy') || {};
       const next = finish(state, slot.id, Date.now(), result.retryAfter ? Date.now() + result.retryAfter * 1000 : 0);
