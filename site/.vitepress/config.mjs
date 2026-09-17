@@ -23,6 +23,16 @@ export default defineConfig({
   srcDir: './content',
   cleanUrls: true,
   lastUpdated: false,
+  head: [
+    ['script', { type: 'text/javascript' }, `
+      (function(c,l,a,r,i,t,y){
+        if (location.hostname !== 'kimhg1995.github.io') return;
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+      })(window, document, "clarity", "script", "yjhqhaqtdd");
+    `]
+  ],
   themeConfig: {
     siteTitle: '개발과 작업 기록',
     nav: [{ text: '근무 기록', link: '/' }, { text: '전체 작업', link: '/projects/' }, { text: '기간별 기록', link: '/timeline' }],
