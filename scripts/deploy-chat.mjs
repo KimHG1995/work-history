@@ -34,6 +34,17 @@ function wrangler(args, input) {
 wrangler(['deploy']);
 wrangler(['secret', 'bulk'], JSON.stringify({ORCAROUTER_API_KEY: key}));
 const api = `https://work-history-chat.${subdomain.subdomain}.workers.dev`;
+console.log(`Chat API: ${api}`);
+// A new workers.dev route may not be available immediately after deployment.
+// GET never calls AI; wait for the route before making the single live call.
+let ready = false;
+for (let attempt = 0; attempt < 12; attempt++) {
+  const probe = await fetch(`${api}/chat`, {headers: {Origin: 'https://kimhg1995.github.io'}, signal: AbortSignal.timeout(10000)});
+  if (probe.status === 405) { ready = true; break; }
+  if (![404, 502, 503].includes(probe.status)) throw new Error(`Worker readiness failed (${probe.status}).`);
+  await new Promise(resolve => setTimeout(resolve, 5000));
+}
+if (!ready) throw new Error('Worker route is not ready. No AI call was made.');
 // Exactly one live free call. A failure leaves the existing Pages site intact.
 const response = await fetch(`${api}/chat`, {method: 'POST', headers: {Origin: 'https://kimhg1995.github.io', 'Content-Type': 'application/json'}, body: JSON.stringify({question: '쿠폰 시스템은 어떻게 개발했나요?'}), signal: AbortSignal.timeout(35000)});
 let body = {}; try { body = await response.json(); } catch {}
