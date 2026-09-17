@@ -9,8 +9,8 @@
 - [x] `worker/policy.mjs`, `worker/index.mjs`: 제한을 원자적으로 예약하고 무료 라우터 호출. 키와 원문 질문을 로그에 남기지 않음.
 - [x] `site/.vitepress/theme/DocsChat.vue`: 접근 가능한 질문 패널과 문서 링크, Clarity 마스킹, 오류 안내.
 - [x] `scripts/deploy-chat.mjs`, Worker 설정과 Pages workflow: 무료 계정 검증, Secret 전달, API 주소를 사이트 빌드로 전달.
-- [x] 단위 테스트 6개, Worker 통합 테스트 3개, 사이트 빌드와 데스크톱 및 모바일 브라우저 검증.
-- [ ] 실제 무료 응답 비용 0 확인.
-- [ ] 문서 갱신, 커밋과 푸시, Worker와 GitHub Pages 배포 확인.
+- [x] 단위 테스트 7개, Worker 통합 테스트 5개, 사이트 빌드와 데스크톱 및 모바일 브라우저 검증.
+- [x] 실제 무료 응답과 정산 금액 0 확인.
+- [x] 문서 갱신, 커밋과 푸시, Worker와 GitHub Pages 배포 확인.
 
 제약: `orcarouter/free`만 사용. 초당 1회, 분당 8회, IP별 10초 1회와 분당 3회, 동시 2회. 요청 4KB, 질문 500자, 출력 512토큰, 대기 30초. 유료 전환과 자동 재시도 없음.
