@@ -43,6 +43,15 @@ work-history/
 │   │   ├── art-service-renewal.md
 │   │   ├── b2c-admin.md
 │   │   └── class-app-server.md
+│   ├── civil-defense/
+│   │   ├── README.md
+│   │   ├── reservation-messages.md
+│   │   ├── attendance.md
+│   │   ├── reservation.md
+│   │   └── operations.md
+│   ├── reserve-service/
+│   │   ├── README.md
+│   │   └── operations.md
 │   ├── hr-saas/
 │   │   ├── README.md
 │   │   └── mvp.md
