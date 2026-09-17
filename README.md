@@ -3,6 +3,8 @@
 회사 프로젝트와 사이드 프로젝트에서 무엇을 했는지 정리합니다.
 작업을 시작한 이유부터 결과와 남은 일까지 기록합니다.
 
+[웹사이트에서 보기](https://kimhg1995.github.io/work-history/)
+
 ## 찾아보기
 
 - [근무 기록](experience.md): 회사 설명, 근무 기간, 역할과 주요 작업
@@ -73,3 +75,19 @@ cp templates/task.md projects/my-project/my-task.md
 
 구체적인 설명을 고칠 때는 해당 작업 파일을 수정합니다.
 근무 기록과 목록에는 같은 설명을 길게 복사하지 않습니다.
+
+## 웹사이트 관리
+
+기존 Markdown을 수정하고 `main`에 푸시하면 GitHub Pages가 자동으로 갱신됩니다.
+근무 기록, 기간별 기록, 프로젝트 문서가 웹에 표시됩니다.
+새 프로젝트 폴더와 작업 파일은 메뉴에 자동으로 추가됩니다.
+
+로컬에서 확인할 때는 아래 명령을 사용합니다.
+
+```sh
+npm ci
+npm run docs:dev
+```
+
+배포 파일은 `npm run docs:build`로 생성합니다.
+`site/content`는 자동 생성 폴더이므로 원본 Markdown을 수정합니다.

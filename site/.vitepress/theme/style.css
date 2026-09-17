@@ -1,0 +1,21 @@
+:root {
+  --vp-c-brand-1: #187263;
+  --vp-c-brand-2: #1a8372;
+  --vp-c-brand-3: #209781;
+  --vp-font-family-base: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --vp-sidebar-width: 292px;
+}
+.dark { --vp-c-brand-1: #68d5bb; --vp-c-brand-2: #48b69c; --vp-c-brand-3: #29917d; }
+.vp-doc h1 { letter-spacing: -.04em; line-height: 1.35; }
+.vp-doc h2 { letter-spacing: -.025em; }
+.vp-doc p, .vp-doc li { word-break: keep-all; overflow-wrap: anywhere; line-height: 1.85; }
+.vp-doc table { width: 100%; font-size: 14px; }
+.vp-doc th { white-space: nowrap; }
+.diagram { margin: 24px 0; padding: 20px; border: 1px solid var(--vp-c-divider); border-radius: 12px; background: var(--vp-c-bg-soft); overflow-x: auto; }
+.diagram-canvas { display: flex; justify-content: center; min-width: 460px; }
+.diagram-canvas svg { height: auto; }
+.diagram pre { font-size: 12px; white-space: pre-wrap; }
+@media (max-width: 640px) {
+  .diagram { padding: 12px; }
+  .vp-doc h1 { font-size: 27px; }
+}
