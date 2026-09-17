@@ -35,14 +35,9 @@
 | [개인 고객 서비스 관리자 페이지](projects/education-services/b2c-admin.md) | 인수 후 2025-10까지 개발과 유지보수. 시작 시점 미확인. 서비스는 현재까지 운영 중 |
 | [개인 고객 수강 앱 서버](projects/education-services/class-app-server.md) | 개발 2024-01 ~ 2024-04. 서비스는 2024-04 반영 후 현재까지 운영 중 |
 
-## 사이드 프로젝트
-
-| 기간 | 작업 | 진행 방식 |
-| --- | --- | --- |
-| 2025-09 ~ 2025-11 | [HR 계약과 현장 운영 SaaS MVP 개발](projects/hr-saas/mvp.md) | 본업 병행 |
-
 ### 민방위 서비스
 
 | 작업 | 확인한 작업 기간 |
 | --- | --- |
 | [예약 메시지 발송 비용 개선](projects/civil-defense/reservation-messages.md) | 2025-11 이후 근무 중 진행, 운영 반영 완료 |
+| [출결 상태와 단체 인증 처리 개선](projects/civil-defense/attendance.md) | 2025-11 이후 근무 중 진행, 운영 반영 완료 |

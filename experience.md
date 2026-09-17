@@ -20,6 +20,7 @@
 [민방위 작업 목록](projects/civil-defense/README.md)
 
 - [예약 메시지 발송 비용 개선](projects/civil-defense/reservation-messages.md): LMS 안내를 알림톡으로 전환하고 운영에 반영했습니다.
+- [출결 상태와 단체 인증 처리 개선](projects/civil-defense/attendance.md): 출결 변경에 트랜잭션 적용, 단체 인증 병렬 처리와 실패 목록 분리.
 
 ## 에듀테크 기업 계열사
 

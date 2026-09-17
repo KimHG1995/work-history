@@ -13,6 +13,7 @@
 | 작업 | 요약 |
 | --- | --- |
 | [예약 메시지 발송 비용 개선](civil-defense/reservation-messages.md) | LMS 안내를 알림톡으로 전환하고 운영에 반영 |
+| [출결 상태와 단체 인증 처리 개선](civil-defense/attendance.md) | 출결 변경에 트랜잭션 적용, 단체 인증 병렬 처리와 실패 목록 분리 |
 
 ### 교육 서비스 개발과 운영 개선
 
