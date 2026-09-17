@@ -15,7 +15,7 @@ Clarity 허용 주소는 [Microsoft 안내](https://learn.microsoft.com/en-us/cl
 
 `security/domain-root/robots.txt`는 AI 학습 수집 봇에 `/work-history/` 수집을 거부하는 설정입니다. 일반 검색엔진과 검색용 봇은 허용합니다.
 
-이 파일은 반드시 `https://kimhg1995.github.io/robots.txt`에서 제공해야 합니다. `/work-history/robots.txt`에 배포하는 것으로는 적용되지 않습니다.
+[도메인 최상위 robots.txt](https://kimhg1995.github.io/robots.txt)에 배포했습니다. [루트 저장소](https://github.com/KimHG1995/KimHG1995.github.io)의 `main` 브랜치에서 게시하며, 정책 변경 시 이 저장소의 사본과 함께 갱신합니다.
 
 robots.txt는 요청 차단 기능이 아닙니다. 규칙을 따르지 않는 수집기, 공개 저장소 복제, 사용자가 직접 복사하는 행위는 막지 못합니다. 강제 차단과 요청 횟수 제한에는 별도 CDN이나 서버가 필요합니다. [robots.txt의 한계](https://developers.google.com/search/docs/crawling-indexing/robots/intro)
 
