@@ -4,6 +4,8 @@
 
 Claude Code의 작업 규칙과 반복 작업 절차를 나누고, 코드 편집 전후 검사를 연결한 설정 템플릿을 만들었습니다.
 
+[코드 저장소](https://github.com/KimHG1995/local-claude-setup)
+
 ## 기본 정보
 
 | 항목 | 내용 |
