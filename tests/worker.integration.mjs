@@ -70,6 +70,6 @@ test('natural career question reaches AI with all documented periods',async()=>{
  try {
   const response=await send('총 경력이 궁금해');assert.equal(response.status,200);
   const context=payload().messages[1].content;
-  for(const period of ['2020-12','2021-07','2024-01','2025-10','57개월'])assert.ok(context.includes(period));
+  for(const period of ['2020-12','2021-07','2024-01','2025-10','2025-11 ~ 현재'])assert.ok(context.includes(period));
  }finally{await mf.dispose();}
 });

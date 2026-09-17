@@ -71,3 +71,16 @@ test('natural career questions include every employment period and keep context 
  }
  assert.equal(selectContext('쿠폰 어떻게 발행했어?',docs)[0].url,'/work-history/projects/coupon');
 });
+
+
+test('career overview counts ongoing employment to the supplied month without counting side work',async()=>{
+ const {selectContext}=await import('../worker/search.mjs');
+ const docs=[
+  {title:'근무 기록',url:'/work-history/',text:'회사 설명 공공 교육 서비스\n근무 기간 2025-11 ~ 현재\n역할 백엔드'},
+  {title:'근무 기록',url:'/work-history/',text:'회사 설명 교육 기업\n근무 기간 2024-01 ~ 2025-10\n역할 백엔드'},
+  {title:'근무 기록',url:'/work-history/',text:'사이드 프로젝트\n2025-09 ~ 2025-11'}
+ ];
+ const context=selectContext('총 경력이 궁금해',docs,new Date('2026-09-17T00:00:00Z'));
+ assert.ok(context[0].text.includes('인턴 포함 31개월'));
+ assert.ok(context[0].text.includes('2026-09'));
+});
