@@ -2,7 +2,7 @@
 
 현재 공개된 경력 Markdown을 검색해 관련 내용을 답하고 원문 링크를 제공한다. AI API와 서버는 무료 요금제만 사용한다. 한도를 초과하면 AI 호출을 중단하고 문서 검색 결과를 제공한다.
 
-상태: 설계 완료. 봇 구현과 배포는 아직 진행하지 않음.
+상태: 구현 완료. 실제 무료 응답과 배포 검증 진행 중.
 
 ## 구성
 
@@ -102,9 +102,11 @@
 ## 배포 준비
 
 - OrcaRouter 계정과 Cloudflare 계정은 보유 중이다.
-- 이 컴퓨터의 Wrangler는 로그인되지 않은 상태다. Cloudflare 계정 연결이 필요하다.
-- OrcaRouter API 키는 배포 시 Worker Secret으로 등록한다. 채팅에 키를 붙여 넣지 않는다.
-- Cloudflare 무료 요금제와 OrcaRouter 무료 모델 접근 권한을 확인한 후 배포한다.
+- GitHub Actions에서 Cloudflare API 토큰을 사용해 배포한다. 로컬 로그인은 필요하지 않다.
+- GitHub Secrets의 `ORCAROUTER_API_KEY`를 Worker Secret으로 등록한다. `CLOUDFLARE_API_TOKEN`도 GitHub Secret으로 사용한다.
+- `CLOUDFLARE_ACCOUNT_ID`는 GitHub 변수에 등록한다. Cloudflare 토큰은 Workers Scripts Edit, Account Settings Read와 무료 요금제 조회를 위한 Billing Read 권한이 필요하다.
+- 계정 구독 조회 실패 또는 유료 구독이 있으면 배포를 중단한다. 계정의 workers.dev 주소는 Cloudflare에서 먼저 설정한다.
+- 배포 후 무료 응답 비용 0을 한 번 확인한 뒤 사이트에 API 주소를 연결한다. 실패 시 자동 재호출하지 않는다.
 
 ## 공식 문서
 

@@ -6,3 +6,8 @@ site/.vitepress/dist/
 
 ._*
 Thumbs.db
+
+worker/generated/
+.wrangler/
+.dev.vars*
+.env*

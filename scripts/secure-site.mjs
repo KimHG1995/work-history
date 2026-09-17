@@ -3,7 +3,11 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 
 const output = path.resolve(import.meta.dirname, '../site/.vitepress/dist');
+// The fallback search index must be included in the published site.
+JSON.parse(await readFile(path.join(output, 'chat-docs.json'), 'utf8'));
 let count = 0;
+const chat = process.env.VITE_CHAT_API_URL || '';
+if (chat && !/^https:\/\/work-history-chat\.[a-z0-9-]+\.workers\.dev$/.test(chat)) throw new Error('Invalid chat origin');
 async function secure(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const file = path.join(directory, entry.name);
@@ -21,7 +25,7 @@ async function secure(directory) {
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://*.clarity.ms https://c.bing.com",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.clarity.ms https://c.bing.com",
+      `connect-src 'self' https://*.clarity.ms https://c.bing.com ${chat}`,
       "worker-src 'self' blob:",
       "object-src 'none'",
       "frame-src 'none'",
