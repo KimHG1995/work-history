@@ -2,6 +2,7 @@
 import { ref, computed, onUnmounted } from 'vue';
 import { withBase } from 'vitepress';
 import { search } from '../../../worker/search.mjs';
+import ChatMascot from './ChatMascot.vue';
 const dialog = ref(null);
 const question = ref('');
 const answer = ref('');
@@ -50,7 +51,11 @@ async function ask() {
 </script>
 
 <template>
-  <button class="chat-open" aria-haspopup="dialog" @click="open">문서에 질문하기</button>
+  <button class="chat-open" aria-label="문서에 질문하기" aria-haspopup="dialog" @click="open">
+    <span class="chat-invitation" aria-hidden="true">궁금한 점이 있나요?</span>
+    <ChatMascot />
+    <span class="chat-caption" aria-hidden="true">문서에 질문하기</span>
+  </button>
   <dialog ref="dialog" class="docs-chat" aria-labelledby="chat-title" data-clarity-mask="true">
     <header><div><h2 id="chat-title">경력 문서에 질문하기</h2><p>공개된 프로젝트와 경험을 찾아 답합니다.</p></div><button class="chat-close" aria-label="질문 창 닫기" @click="close">닫기</button></header>
     <form @submit.prevent="ask">
@@ -68,7 +73,14 @@ async function ask() {
 </template>
 
 <style scoped>
-.chat-open { position: fixed; right: 24px; bottom: 24px; z-index: 30; border: 1px solid var(--vp-c-divider); border-radius: 24px; padding: 12px 18px; background: var(--vp-c-brand-1); color: var(--vp-c-white); font-size: 14px; font-weight: 600; box-shadow: 0 4px 18px #0002; }
+.chat-open { position: fixed; right: 22px; bottom: max(18px, env(safe-area-inset-bottom)); z-index: 30; display: flex; flex-direction: column; align-items: center; padding: 6px; border: 0; border-radius: 16px; background: transparent; color: var(--vp-c-text-1); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.chat-caption { padding: 5px 10px; border: 1px solid var(--vp-c-divider); border-radius: 12px; background: var(--vp-c-bg); box-shadow: 0 2px 8px #0000000a; font-size: 11px; font-weight: 600; line-height: 1.4; white-space: nowrap; }
+.chat-invitation { position: absolute; bottom: calc(100% + 4px); right: 0; padding: 9px 12px; border: 1px solid var(--vp-c-divider); border-radius: 12px 12px 3px 12px; background: var(--vp-c-bg); box-shadow: 0 4px 16px #0000000d; font-size: 12px; white-space: nowrap; opacity: 0; transform: translateY(5px); transition: opacity .18s, transform .18s; pointer-events: none; }
+.chat-open:hover .chat-invitation, .chat-open:focus-visible .chat-invitation { opacity: 1; transform: translateY(0); }
+.chat-open:hover .chat-caption { border-color: var(--vp-c-brand-1); }
+.chat-open:active { transform: translateY(2px); }
+@media (prefers-reduced-motion: reduce) { .chat-invitation { transition: none; } }
+
 .docs-chat { margin: auto; width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); padding: 24px; border: 1px solid var(--vp-c-divider); border-radius: 16px; background: var(--vp-c-bg); color: var(--vp-c-text-1); overflow-y: auto; box-shadow: 0 16px 60px #0003; }
 .docs-chat::backdrop { background: #0007; }
 header { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
@@ -85,5 +97,5 @@ textarea:focus-visible, button:focus-visible, a:focus-visible { outline: 2px sol
 h3 { font-weight: 600; margin-top: 16px; }
 ol { padding: 0; list-style: none; }
 a { color: var(--vp-c-brand-1); text-decoration: underline; }
-@media(max-width: 640px) { .chat-open { right: 16px; bottom: 16px; } .docs-chat { padding: 20px; } }
+@media(max-width: 640px) { .chat-open { right: 10px; bottom: max(10px, env(safe-area-inset-bottom)); } .docs-chat { padding: 20px; } }
 </style>
