@@ -18,12 +18,19 @@
 | 인프라와 메시지 | NCP, NCP SENS |
 | 서비스 규모 | 민방위 활성 사용자 150만 명 이상, 예비군 사용자 약 100만 명 |
 
+### 민방위 서비스
+
 [민방위 작업 목록](projects/civil-defense/README.md)
 
 - [예약 메시지 발송 비용 개선](projects/civil-defense/reservation-messages.md): LMS 안내를 알림톡으로 전환하고 운영에 반영했습니다.
 - [출결 상태와 단체 인증 처리 개선](projects/civil-defense/attendance.md): 출결 변경에 트랜잭션 적용, 단체 인증 병렬 처리와 실패 목록 분리.
 - [예약과 취소의 동시 요청 처리 개선](projects/civil-defense/reservation.md): 트랜잭션과 DB 잠금으로 예약 상태와 잔여 인원 변경 처리.
 - [민방위 서비스 개발과 운영](projects/civil-defense/operations.md): 운영팀 요청 기능 개발, 기존 코드와 API 개선, 운영 이슈 대응.
+
+### 예비군 서비스
+
+[예비군 작업 목록](projects/reserve-service/README.md)
+
 - [예비군 서비스 개발과 운영](projects/reserve-service/operations.md): React 웹과 Node.js 서버의 풀스택 개발, 운영 요구사항 반영과 이슈 대응.
 
 ## 에듀테크 기업 계열사
