@@ -35,6 +35,10 @@ async function digest(value) {
 }
 export default {
   async fetch(request, env) {
+    if (request.method === 'GET' && new URL(request.url).pathname === '/health') {
+      try { return await env.CHAT_GATE.get(env.CHAT_GATE.idFromName('global-v1')).fetch('https://internal/health'); }
+      catch { return json({ready:false},503); }
+    }
     if (new URL(request.url).pathname === '/admin/verify-cost') {
       // Only a deployment operator with the secret can request recovery.
       if (request.method !== 'POST' || !env.ORCAROUTER_API_KEY) return new Response(null, {status:403});
@@ -81,6 +85,10 @@ export default {
 export class ChatGate extends DurableObject {
   constructor(ctx, env) { super(ctx, env); this.cache = new Map(); }
   async fetch(request) {
+    if (new URL(request.url).pathname === '/health') {
+      await this.ctx.storage.get('policy');
+      return json({ready:true,release:this.env.RELEASE_SHA || 'dev'});
+    }
     if (new URL(request.url).pathname === '/recover') {
       const {id} = await request.json();
       if (!await verifyReceipt(id, this.env.ORCAROUTER_API_KEY)) return json({recovered:false},503);

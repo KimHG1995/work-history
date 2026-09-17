@@ -17,6 +17,7 @@ function setup(reply) {
 test('HTTP validation, parallel reservation and duplicate response cache',async()=>{
   const {mf,send,calls}=setup(()=>Response.json({usage:{cost_usd:0},choices:[{message:{content:'<script>alert(1)</script> 문서 답변'}}]}));
   try {
+    const health=await mf.dispatchFetch('https://test/health');assert.deepEqual(await health.json(),{ready:true,release:'dev'});assert.equal(calls(),0);
     assert.equal((await send('쿠폰',{Origin:'https://evil.example'})).status,403);
     assert.equal((await send('쿠폰',{'Content-Type':'text/plain'})).status,415);
     assert.equal((await send('가'.repeat(2000))).status,413);
