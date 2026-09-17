@@ -56,7 +56,7 @@ export function selectContext(question,docs,now=new Date()) {
  const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit'}).formatToParts(now);
  const asOf=`${parts.find(p=>p.type==='year').value}-${parts.find(p=>p.type==='month').value}`;
  const hits=search(question,docs);
- const overviewQuestion=/(총.*경력|전체.*경력|경력.*(기간|요약|소개|얼마|몇|궁금)|몇\s*년|연차|어떤\s*개발자|자기\s*소개|경험.*요약)/.test(question);
+ const overviewQuestion=/(총.*경력|전체.*경력|경력.*(기간|요약|소개|얼마|몇|궁금)|몇\s*년|연차|경력\s*(알려|어떻|있|돼|되)|(?:일한|근무한|개발한)\s*지\s*얼마|어떤\s*개발자|자기\s*소개|경험.*요약)/.test(question);
  if(hits.length&&!overviewQuestion)return hits;
  const employment=docs.filter(d=>d.url==='/work-history/'&&/근무 기간\s+\d{4}-\d{2}/.test(d.text));
  if(!employment.length)return hits;
@@ -64,7 +64,8 @@ export function selectContext(question,docs,now=new Date()) {
  const regular=monthsCovered(employment.filter(d=>!/역할\s+인턴/.test(d.text)),asOf);
  const catalog=[...new Set(docs.filter(d=>d.url.includes('/projects/')).map(d=>d.title))].join(', ').slice(0,350);
  const summaries=employment.map(d=>d.text.split('\n').filter(line=>/회사 설명|근무 기간|역할|직급|사용 언어|백엔드|프론트엔드/.test(line)).join('\n'));
- const calculation=`문서의 근무 기간을 월 차이로 계산한 참고값: 인턴 포함 ${months}개월, 인턴 제외 ${regular}개월. 같은 기간은 중복 합산하지 않음. 정확한 입퇴사 일자는 없어 대략적인 기간으로 설명할 것. 현재 재직 중인 기간은 ${asOf} 기준으로 계산함. 종료된 근무 이후의 기간과 사이드 프로젝트 기간은 추가 합산하지 말 것.`;
+ const duration=m=>`${m}개월 (약 ${Math.floor(m/12)}년 ${m%12}개월, ${m>0?Math.floor(m/12)+1:0}년 차)`;
+ const calculation=`문서의 근무 기간을 월 차이로 계산한 참고값: 인턴 포함 ${duration(months)}, 인턴 제외 ${duration(regular)}. 기본 답변은 인턴 제외 기준의 기간과 연차를 함께 제시. 연차는 누적 근무 개월을 12로 나눈 몫에 1을 더한 기준이며 회사별 산정과 다를 수 있음. 같은 기간은 중복 합산하지 않음. 정확한 입퇴사 일자는 없어 대략적인 기간으로 설명할 것. 현재 재직 중인 기간은 ${asOf} 기준으로 계산함. 종료된 근무 이후의 기간과 사이드 프로젝트 기간은 추가 합산하지 말 것.`;
  const text=[calculation,...summaries.map(s=>s.slice(0,Math.floor(1350/employment.length))),`작업 목록: ${catalog}`].join('\n\n').slice(0,2000);
  return [{title:'근무 기록과 경력 요약',url:'/work-history/',text}];
 }

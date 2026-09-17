@@ -103,3 +103,20 @@ test('AI and AX questions retrieve side projects as well as company projects',as
 test('English search terms do not match inside unrelated words',()=>{
  assert.deepEqual(search('AI', [{title:'웹 화면',text:'Tailwind CSS를 사용했습니다.',url:'/web'}]),[]);
 });
+
+test('career duration and year-of-career handle casual questions and month boundaries',async()=>{
+ const {selectContext}=await import('../worker/search.mjs');
+ const {readFile}=await import('node:fs/promises');
+ const docs=JSON.parse(await readFile(new URL('../worker/generated/docs.json',import.meta.url),'utf8'));
+ for(const question of ['경력 알려줘','몇년차야?','연차가 어떻게 돼?','백엔드 경력 얼마나 됐어?','개발한 지 얼마나 됐어?']){
+  const context=selectContext(question,docs,new Date('2026-09-18T00:00:00Z'));
+  assert.equal(context[0].title,'근무 기록과 경력 요약');
+  assert.match(context[0].text,/인턴 제외 61개월.*5년 1개월.*6년 차/);
+  assert.match(context[0].text,/인턴 포함 67개월.*5년 7개월.*6년 차/);
+  assert.ok(context[0].text.length<=2000);
+ }
+ const sample=[{title:'근무 기록',url:'/work-history/',text:'근무 기간 2025-09 ~ 현재\n역할 백엔드'}];
+ assert.match(selectContext('몇 년 차?',sample,new Date('2026-08-31T14:00:00Z'))[0].text,/11개월.*0년 11개월.*1년 차/);
+ assert.match(selectContext('몇 년 차?',sample,new Date('2026-08-31T15:00:00Z'))[0].text,/12개월.*1년 0개월.*2년 차/);
+ assert.ok(selectContext('쿠폰 프로젝트 경력',docs)[0].url.endsWith('promotion'));
+});
