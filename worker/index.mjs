@@ -93,7 +93,7 @@ export class ChatGate extends DurableObject {
       if (result.disable) next.disabled = true;
       await txn.put('policy', next);
     });
-    const output = result.ok ? {answer: result.answer, cost: 0} : {message: result.message, retryAfter: result.retryAfter};
+    const output = result.ok ? {answer: result.answer, cost: 0} : {message: result.message, code: result.code, retryAfter: result.retryAfter};
     if (result.ok) {
       if (this.cache.size >= 100) this.cache.delete(this.cache.keys().next().value);
       this.cache.set(cacheKey, {until: now + 60000, result: output});

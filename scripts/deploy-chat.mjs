@@ -48,6 +48,6 @@ if (!ready) throw new Error('Worker route is not ready. No AI call was made.');
 // Exactly one live free call. A failure leaves the existing Pages site intact.
 const response = await fetch(`${api}/chat`, {method: 'POST', headers: {Origin: 'https://kimhg1995.github.io', 'Content-Type': 'application/json'}, body: JSON.stringify({question: '쿠폰 시스템은 어떻게 개발했나요?'}), signal: AbortSignal.timeout(35000)});
 let body = {}; try { body = await response.json(); } catch {}
-if (!response.ok || body.cost !== 0 || typeof body.answer !== 'string' || !body.answer) throw new Error(`Free response verification failed (${response.status}). No automatic retry or paid fallback. Pages deployment stopped.`);
+if (!response.ok || body.cost !== 0 || typeof body.answer !== 'string' || !body.answer) throw new Error(`Free response verification failed (${response.status}, code: ${body.code || 'not provided'}, retryAfter: ${body.retryAfter || 0}s). No automatic retry or paid fallback. Pages deployment stopped.`);
 console.log('Live response verified: reported cost USD 0.');
 await appendFile(githubEnv, `VITE_CHAT_API_URL=${api}\n`);

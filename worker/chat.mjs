@@ -9,7 +9,8 @@ export function makePayload(question,docs){
  ]};
 }
 export function providerResult(status,body,retryHeader){
- if(status===429){const seconds=Number(retryHeader||body?.error?.metadata?.retry_after_seconds);return {ok:false,status:429,message:'무료 AI 요청이 많습니다. 잠시 후 다시 질문해 주세요.',retryAfter:Number.isFinite(seconds)&&seconds>0?Math.ceil(seconds):60};}
+ const code = ['err_free_access_denied','err_free_rate','err_free_prompt_cap'].includes(body?.error?.code) ? body.error.code : undefined;
+ if(status===429){const seconds=Number(retryHeader||body?.error?.metadata?.retry_after_seconds);return {ok:false,status:429,code,message:'무료 AI 요청이 많습니다. 잠시 후 다시 질문해 주세요.',retryAfter:Number.isFinite(seconds)&&seconds>0?Math.ceil(seconds):60};}
  if(status!==200)return {ok:false,status:503,message:'지금은 AI 답변을 제공하기 어렵습니다. 아래 문서를 확인해 주세요.'};
  const cost=body?.usage?.cost_usd;
  if(cost===undefined||cost===null||cost===''||!Number.isFinite(Number(cost))||Number(cost)!==0)return {ok:false,status:503,disable:true,message:'무료 응답 확인이 되지 않아 AI 답변을 중단했습니다.'};
