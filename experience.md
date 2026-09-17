@@ -16,6 +16,7 @@
 | 프론트엔드 | React |
 | 데이터베이스 | MySQL |
 | 인프라와 메시지 | NCP, NCP SENS |
+| 서비스 규모 | 민방위 활성 사용자 150만 명 이상, 예비군 사용자 약 100만 명 |
 
 [민방위 작업 목록](projects/civil-defense/README.md)
 
