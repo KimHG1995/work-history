@@ -28,6 +28,6 @@
 | [관리자 화면과 API 개선](platform-operations/admin-improvement.md) | 기획, API 수정, 구조 전환 지원 | 기능별로 개선 후 운영 반영 |
 | [데이터 분석 환경과 대시보드](platform-operations/data-analytics.md) | DS와 구조 정리, 분석 환경 구성 | 데이터 조회 환경 구축, 대시보드 부담 개선 |
 | [자동 배포](platform-operations/deployment.md) | Bitbucket Pipelines 작성 | 개발 자동 배포, 운영 승인 후 배포 |
-| [이벤트 공통 코드 정리](platform-operations/event-system.md) | 백엔드와 DB 개발 | 비슷한 이벤트에 공통 코드 재사용 |
+| [이벤트 공통 코드 정리](platform-operations/event-system.md) | 영업과 마케팅 요청 정리, 백엔드와 DB 개발 | 비슷한 이벤트에 공통 코드 재사용 |
 
 [TTS 발음 교정과 웹 서비스 유지보수](../experience.md#tts-서비스-기업)

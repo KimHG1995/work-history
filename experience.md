@@ -46,7 +46,7 @@
 - [관리자 화면과 API 개선](projects/platform-operations/admin-improvement.md): 기획과 API 수정을 맡고, 프론트엔드 개발자의 단계별 전환을 지원했습니다.
 - [데이터 분석 환경과 대시보드](projects/platform-operations/data-analytics.md): DS와 데이터 구조를 정하고, 분석 환경 구성과 대시보드 집계 방식을 개선했습니다.
 - [자동 배포](projects/platform-operations/deployment.md): 선임 개발자가 구성한 배포 환경에 맞춰 Bitbucket Pipelines를 작성했습니다.
-- [이벤트 공통 코드 정리](projects/platform-operations/event-system.md): 백엔드와 DB를 맡아 반복되는 이벤트 코드를 재사용하도록 정리했습니다.
+- [이벤트 공통 코드 정리](projects/platform-operations/event-system.md): 영업과 마케팅의 요청을 정리하고, 백엔드와 DB 개발 및 이벤트 공통 코드 정리를 맡았습니다.
 
 ## TTS 서비스 기업
 

@@ -21,7 +21,7 @@
 | [관리자 화면과 API 개선](projects/platform-operations/admin-improvement.md) | 정확한 기간 미확인 |
 | [데이터 분석 환경과 대시보드](projects/platform-operations/data-analytics.md) | 기간 미확인 |
 | [자동 배포](projects/platform-operations/deployment.md) | 정확한 기간 미확인 |
-| [이벤트 공통 코드 정리](projects/platform-operations/event-system.md) | 정확한 기간 미확인 |
+| [이벤트 공통 코드 정리](projects/platform-operations/event-system.md) | 2021-07 ~ 2024-01 근무 중 요청에 따라 진행 |
 
 ### 교육 서비스
 
