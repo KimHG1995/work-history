@@ -6,6 +6,14 @@
 
 ## 회사 프로젝트
 
+### 민방위 서비스 개발과 운영 개선
+
+2025-11 ~ 현재 | [작업 개요](civil-defense/README.md)
+
+| 작업 | 요약 |
+| --- | --- |
+| [예약 메시지 발송 비용 개선](civil-defense/reservation-messages.md) | LMS 안내를 알림톡으로 전환하고 운영에 반영 |
+
 ### 교육 서비스 개발과 운영 개선
 
 2024-01 ~ 2025-10 | [작업 개요](education-services/README.md)

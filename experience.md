@@ -2,6 +2,25 @@
 
 [전체 안내](README.md)로 돌아갑니다.
 
+## 공공 교육 서비스 기업
+
+| 항목 | 내용 |
+| --- | --- |
+| 회사 설명 | 민방위와 예비군 교육 서비스를 개발하고 운영하는 기업 |
+| 근무 기간 | 2025-11 ~ 현재 |
+| 소속 | 개발팀 |
+| 역할 | 백엔드 개발 |
+| 직급 | 대리 |
+| 사용 언어 | TypeScript, Python, Bash |
+| 백엔드 | NestJS, Node.js, TypeORM |
+| 프론트엔드 | React |
+| 데이터베이스 | MySQL |
+| 인프라와 메시지 | NCP, NCP SENS |
+
+[민방위 작업 목록](projects/civil-defense/README.md)
+
+- [예약 메시지 발송 비용 개선](projects/civil-defense/reservation-messages.md): LMS 안내를 알림톡으로 전환하고 운영에 반영했습니다.
+
 ## 에듀테크 기업 계열사
 
 | 항목 | 내용 |

@@ -6,6 +6,7 @@
 
 | 기간 | 역할 | 주요 작업 |
 | --- | --- | --- |
+| 2025-11 ~ 현재 | 백엔드 개발, 대리 | [민방위 서비스 개발과 운영 개선](projects/civil-defense/README.md) |
 | 2020-12 ~ 2021-06 (6개월) | 인턴 | [TTS 발음 교정과 웹 서비스 유지보수](experience.md#tts-서비스-기업) |
 | 2021-07 ~ 2024-01 | 백엔드 개발, 인터널팀 리드 | [단기 구인구직 플랫폼 운영 개선](projects/platform-operations/README.md) |
 | 2024-01 ~ 2025-10 | 백엔드 개발, 대리 | [교육 서비스 개발과 운영 개선](projects/education-services/README.md) |
@@ -39,3 +40,9 @@
 | 기간 | 작업 | 진행 방식 |
 | --- | --- | --- |
 | 2025-09 ~ 2025-11 | [HR 계약과 현장 운영 SaaS MVP 개발](projects/hr-saas/mvp.md) | 본업 병행 |
+
+### 민방위 서비스
+
+| 작업 | 확인한 작업 기간 |
+| --- | --- |
+| [예약 메시지 발송 비용 개선](projects/civil-defense/reservation-messages.md) | 2025-11 이후 근무 중 진행, 운영 반영 완료 |
