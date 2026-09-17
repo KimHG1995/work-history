@@ -119,6 +119,6 @@
 
 [AI 개발 환경 작업 목록](projects/ai-development-setup/README.md)
 
-- [Codex 코드 검사 설정](projects/ai-development-setup/codex-quality.md): 프로젝트별 검사 설정과 코드 검토 절차를 구성했습니다.
+- [Codex 코드 검사 설정](projects/ai-development-setup/codex-quality.md): 개발, 검증과 후속 수정을 연결하는 공통 스킬과 프로젝트별 설정 설치 도구를 구성했습니다.
 - [Claude Code 작업 규칙과 검증 설정](projects/ai-development-setup/claude-workflow.md): 요구사항 확인, 개발과 검증 흐름을 재사용할 수 있도록 규칙, 스킬과 훅을 구성했습니다.
 - [TypeScript 코드 분석용 MCP 연결](projects/ai-development-setup/typescript-graph.md): 기존 서버 버전을 유지하며 TypeScript 7 기반 MCP 분석 환경과 등록 스크립트를 구성했습니다.
