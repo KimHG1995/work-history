@@ -32,4 +32,4 @@
 | [통합 알림 시스템](projects/education-services/notifications.md) | 작업 기간 미확인. 개발 배포 2025-02-19, 운영 배포 2025-03-01 |
 | [계열사 연동 서비스 서버 재구성과 관리자 페이지 개발](projects/education-services/art-service-renewal.md) | 기간 미확인 |
 | [개인 고객 서비스 관리자 페이지](projects/education-services/b2c-admin.md) | 기간 미확인 |
-| [개인 고객 수강 앱 서버](projects/education-services/class-app-server.md) | 기간 미확인 |
+| [개인 고객 수강 앱 서버](projects/education-services/class-app-server.md) | 2024-01 ~ 2024-04 |

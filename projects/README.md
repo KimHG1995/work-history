@@ -17,7 +17,7 @@
 | [통합 알림 시스템](education-services/notifications.md) | 공통 발송과 이력 추적, 배포 자동화를 구현하고 운영 서버에 배포했습니다. |
 | [계열사 연동 서비스 서버 재구성과 관리자 페이지 개발](education-services/art-service-renewal.md) | 기존 기능을 유지하며 Java 서버를 NestJS로 재구성하고, 인프라와 배포 자동화, 자랑하기 웹 페이지와 관리자 페이지를 맡았습니다. |
 | [개인 고객 서비스 관리자 페이지](education-services/b2c-admin.md) | 인수한 프로젝트의 구조를 정리하고 수업, 출석, 사용자 등급 관리 기능을 개발했습니다. |
-| [개인 고객 수강 앱 서버](education-services/class-app-server.md) | 중단된 프로젝트를 인수해 1:1 수업 예약부터 종료와 출결까지 서버 기능을 정리했습니다. |
+| [개인 고객 수강 앱 서버](education-services/class-app-server.md) | 수강 앱 서버를 처음부터 구축하고, 기존 코드 이관과 수강 데이터 및 콘텐츠 마이그레이션을 진행했습니다. |
 
 ### 단기 구인구직 플랫폼 운영 개선
 
