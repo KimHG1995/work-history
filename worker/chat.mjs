@@ -9,7 +9,7 @@ export function makePayload(question,docs){
  ]};
 }
 export function providerResult(status,body,retryHeader){
- const code = ['err_free_access_denied','err_free_rate','err_free_prompt_cap'].includes(body?.error?.code) ? body.error.code : undefined;
+ const code = ['err_free_access_denied','err_free_rate','err_free_prompt_cap'].includes(body?.error?.metadata?.reason) ? body.error.metadata.reason : undefined;
  if(status===429){const seconds=Number(retryHeader||body?.error?.metadata?.retry_after_seconds);return {ok:false,status:429,code,message:'무료 AI 요청이 많습니다. 잠시 후 다시 질문해 주세요.',retryAfter:Number.isFinite(seconds)&&seconds>0?Math.ceil(seconds):60};}
  if(status!==200)return {ok:false,status:503,message:'지금은 AI 답변을 제공하기 어렵습니다. 아래 문서를 확인해 주세요.'};
  const cost=body?.usage?.cost_usd;
