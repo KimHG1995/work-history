@@ -41,3 +41,4 @@
 | --- | --- |
 | [예약 메시지 발송 비용 개선](projects/civil-defense/reservation-messages.md) | 2025-11 이후 근무 중 진행, 운영 반영 완료 |
 | [출결 상태와 단체 인증 처리 개선](projects/civil-defense/attendance.md) | 2025-11 이후 근무 중 진행, 운영 반영 완료 |
+| [예약과 취소의 동시 요청 처리 개선](projects/civil-defense/reservation.md) | 2025-11 이후 근무 중 진행, 운영 반영 완료 |
