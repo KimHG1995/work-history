@@ -116,3 +116,9 @@
 | 기간 | 작업 | 맡은 범위 |
 | --- | --- | --- |
 | 2025-09 ~ 2025-11, 본업 병행 | [HR 계약과 현장 운영 SaaS MVP 개발](projects/hr-saas/mvp.md) | 관리자와 사용자 웹, 서버, DB, 인증, 스토리지와 배포 |
+
+[AI 개발 환경 작업 목록](projects/ai-development-setup/README.md)
+
+- [Codex 코드 검사 설정](projects/ai-development-setup/codex-quality.md): 프로젝트별 검사 설정과 코드 검토 절차를 구성했습니다.
+- [Claude Code 작업 규칙과 검증 설정](projects/ai-development-setup/claude-workflow.md): 작업 규칙, 검사 훅과 반복 작업 도구를 정리했습니다.
+- [TypeScript 코드 분석용 MCP 연결](projects/ai-development-setup/typescript-graph.md): 대상 프로젝트와 분리한 분석 환경과 등록 스크립트를 구성했습니다.

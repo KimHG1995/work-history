@@ -52,6 +52,11 @@ work-history/
 │   ├── reserve-service/
 │   │   ├── README.md
 │   │   └── operations.md
+│   ├── ai-development-setup/
+│   │   ├── README.md
+│   │   ├── codex-quality.md
+│   │   ├── claude-workflow.md
+│   │   └── typescript-graph.md
 │   ├── hr-saas/
 │   │   ├── README.md
 │   │   └── mvp.md

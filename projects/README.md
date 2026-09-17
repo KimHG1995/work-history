@@ -60,3 +60,13 @@
 | 작업 | 요약 |
 | --- | --- |
 | [HR 계약과 현장 운영 SaaS MVP 개발](hr-saas/mvp.md) | HR 서비스 PoC의 웹, 서버, DB, 인증과 배포 환경 개발 |
+
+### AI 개발 환경 설정
+
+[프로젝트 개요](ai-development-setup/README.md)
+
+| 작업 | 요약 |
+| --- | --- |
+| [Codex 코드 검사 설정](ai-development-setup/codex-quality.md) | 프로젝트별 검사 설정과 작업 범위에 따른 코드 검토 절차 구성 |
+| [Claude Code 작업 규칙과 검증 설정](ai-development-setup/claude-workflow.md) | 규칙과 스킬을 분리하고 편집 전후 검사 훅과 반복 작업 도구 구성 |
+| [TypeScript 코드 분석용 MCP 연결](ai-development-setup/typescript-graph.md) | 기존 프로젝트의 의존성을 바꾸지 않는 외부 코드 그래프 분석 환경 구성 |

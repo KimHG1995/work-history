@@ -14,7 +14,7 @@ const projectGroups = new Map(groups.map(group => [group.name, {
       .map(name => ({ text: title(path.join(projects, group.name, name)), link: `/projects/${group.name}/${name.replace(/\.md$/, '')}` }))
   ]
 }]));
-const groupedNames = new Set(['civil-defense', 'reserve-service', 'education-services', 'platform-operations', 'hr-saas']);
+const groupedNames = new Set(['civil-defense', 'reserve-service', 'education-services', 'platform-operations', 'hr-saas', 'ai-development-setup']);
 const childGroup = (name, text) => ({ ...projectGroups.get(name), text });
 const sidebar = [
   {
@@ -27,7 +27,7 @@ const sidebar = [
   {
     text: '사이드 프로젝트',
     collapsed: false,
-    items: [projectGroups.get('hr-saas')]
+    items: [projectGroups.get('hr-saas'), projectGroups.get('ai-development-setup')]
   },
   ...groups.filter(group => !groupedNames.has(group.name)).map(group => projectGroups.get(group.name))
 ];

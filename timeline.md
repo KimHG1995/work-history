@@ -55,3 +55,13 @@
 | 기간 | 작업 | 진행 방식 |
 | --- | --- | --- |
 | 2025-09 ~ 2025-11 | [HR 계약과 현장 운영 SaaS MVP 개발](projects/hr-saas/mvp.md) | 본업 병행 |
+
+### AI 개발 환경 설정
+
+| 작업 기간 | 작업 |
+| --- | --- |
+| | [Codex 코드 검사 설정](projects/ai-development-setup/codex-quality.md) |
+| | [Claude Code 작업 규칙과 검증 설정](projects/ai-development-setup/claude-workflow.md) |
+| 2026-07-22, 약 1일. 커밋 기록 기준 | [TypeScript 코드 분석용 MCP 연결](projects/ai-development-setup/typescript-graph.md) |
+
+Codex와 Claude Code 설정은 유지보수 중입니다.
