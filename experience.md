@@ -20,7 +20,7 @@
 
 [교육 서비스 작업 목록](projects/education-services/README.md)에서 상세 내용을 확인할 수 있습니다.
 
-- [쿠폰 이벤트 시스템](projects/education-services/promotion.md): 쿠폰 정책과 발급 이력을 정리하고, 제휴 결제 자료 등록과 쿠폰 안내 기능을 만들었습니다.
+- [쿠폰 이벤트 시스템](projects/education-services/promotion.md): 쿠폰 구조를 템플릿과 이벤트 기반으로 바꾸고, 관리자 풀스택 개발과 서버, DB 설계를 맡았습니다.
 - [AI 심리검사 서비스 개편](projects/education-services/assessment-renewal.md): Java Spring 서버를 NestJS와 Drizzle로 전환해 여러 서비스가 사용할 공통 서버를 만들고 운영에 배포했습니다.
 - [통합 알림 시스템](projects/education-services/notifications.md): 공통 발송과 이력 추적, 배포 자동화를 구현하고 운영 서버에 배포했습니다.
 - [미술 교육 서비스 개편](projects/education-services/art-service-renewal.md): Java 서버를 NestJS와 Prisma로 전환하고 관리자 페이지와 대시보드를 만들었습니다.
