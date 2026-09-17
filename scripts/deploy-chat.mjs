@@ -6,7 +6,14 @@ if (!token || !key || !githubEnv) throw new Error('Missing deployment secrets or
 async function cf(path) {
   const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/${path}`, {headers: {Authorization: `Bearer ${token}`}, signal: AbortSignal.timeout(15000)});
   const body = await response.json();
-  if (!response.ok || !body.success) throw new Error(`Cloudflare ${path} check failed (${response.status}). Check token permissions. Billing Read is required for subscriptions.`);
+  if (!response.ok || !body.success) {
+    const codes = (Array.isArray(body.errors) ? body.errors : []).map(e => e.code).filter(Number.isInteger).join(', ') || 'none';
+    if (path === 'subscriptions') {
+      const probe = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/workers/scripts`, {headers: {Authorization: `Bearer ${token}`}, signal: AbortSignal.timeout(15000)});
+      console.log(`Read-only Workers access check: HTTP ${probe.status}.`);
+    }
+    throw new Error(`Cloudflare ${path}: HTTP ${response.status}, error codes ${codes}. No deployment performed. Check token permissions and account scope.`);
+  }
   return body;
 }
 // No subscription is the default Workers Free plan. Unknown or paid account
