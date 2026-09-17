@@ -16,7 +16,7 @@
 
 | 작업 | 확인한 작업 기간 |
 | --- | --- |
-| [초기 관리자 페이지](projects/platform-operations/initial-admin.md) | 정확한 기간 미확인 |
+| [관리자 페이지 개발과 기능 추가](projects/platform-operations/initial-admin.md) | 2021-07 ~ 2024-01 근무 중 기능 추가. 초기 개발 기간 미확인 |
 | [급여 정산과 환불](projects/platform-operations/settlement.md) | 약 1개월. 시작일과 종료일 미확인 |
 | [관리자 화면과 API 개선](projects/platform-operations/admin-improvement.md) | 정확한 기간 미확인 |
 | [데이터 분석 환경과 대시보드](projects/platform-operations/data-analytics.md) | 기간 미확인 |

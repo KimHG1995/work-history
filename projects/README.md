@@ -23,7 +23,7 @@
 
 | 작업 | 맡은 일 | 결과 |
 | --- | --- | --- |
-| [초기 관리자 페이지](platform-operations/initial-admin.md) | 기능 정리와 단독 풀스택 개발 | 실제 운영에 사용 |
+| [관리자 페이지 개발과 기능 추가](platform-operations/initial-admin.md) | 초기 단독 개발과 근무 기간 중 풀스택 기능 추가 | 실제 운영에 사용 |
 | [급여 정산과 환불](platform-operations/settlement.md) | 단독 풀스택 개발 | 내부 관리자 페이지에서 지급과 환불 처리 |
 | [관리자 화면과 API 개선](platform-operations/admin-improvement.md) | 기획, API 수정, 구조 전환 지원 | 기능별로 개선 후 운영 반영 |
 | [데이터 분석 환경과 대시보드](platform-operations/data-analytics.md) | DS와 구조 정리, 분석 환경 구성 | 데이터 조회 환경 구축, 대시보드 부담 개선 |

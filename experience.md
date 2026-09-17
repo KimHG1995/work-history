@@ -41,7 +41,7 @@
 관리자 업무를 시스템으로 옮기고, 정산과 데이터 분석, 배포와 이벤트 운영 방식을 개선했습니다.
 [플랫폼 작업 목록](projects/platform-operations/README.md)
 
-- [초기 관리자 페이지](projects/platform-operations/initial-admin.md): DB, 서버, 화면을 혼자 개발해 실제 운영에 사용했습니다.
+- [관리자 페이지 개발과 기능 추가](projects/platform-operations/initial-admin.md): 초기 관리자 페이지를 혼자 개발하고, 근무 기간 동안 필요한 기능을 풀스택으로 추가했습니다.
 - [급여 정산과 환불](projects/platform-operations/settlement.md): 약 한 달간 혼자 개발해 지급과 환불을 내부 관리자 페이지에서 처리하도록 했습니다.
 - [관리자 화면과 API 개선](projects/platform-operations/admin-improvement.md): 기획과 API 수정을 맡고, 프론트엔드 개발자의 단계별 전환을 지원했습니다.
 - [데이터 분석 환경과 대시보드](projects/platform-operations/data-analytics.md): DS와 데이터 구조를 정하고, 분석 환경 구성과 대시보드 집계 방식을 개선했습니다.
