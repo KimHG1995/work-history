@@ -44,3 +44,15 @@ test('provider failures never expose raw messages, missing or nonzero cost is re
  assert.equal(providerResult(200,{choices:[{message:{content:'답변'}}]},null).ok,false);
  assert.equal(providerResult(200,{usage:{cost_usd:1}},null).ok,false);
 });
+
+test('settlement lookup requires USD zero, only retries unsettled 404, never generates again',async()=>{
+ const {verifyReceipt,isZeroCost}=await import('../worker/cost.mjs');
+ assert.equal(isZeroCost(false),false);assert.equal(isZeroCost(' '),false);
+ let calls=0;
+ assert.equal(await verifyReceipt('request-id','test',async url=>{
+  assert.ok(url.startsWith('https://api.orcarouter.ai/v1/generation?id='));calls++;
+  return calls===1?new Response(null,{status:404}):Response.json({data:{total_cost:0,cost_currency:'USD'}});
+ },async()=>{}),true);assert.equal(calls,2);
+ assert.equal(await verifyReceipt('id','test',async()=>Response.json({data:{total_cost:1,cost_currency:'USD'}})),false);
+ assert.equal(await verifyReceipt('id','test',async()=>Response.json({data:{cost_currency:'USD'}})),false);
+});

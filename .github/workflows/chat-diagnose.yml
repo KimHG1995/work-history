@@ -1,5 +1,11 @@
 name: 무료 AI 응답 진단
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      recover:
+        description: 정산 금액 0 확인 후 비용 검사 중단 상태 복구
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -12,4 +18,5 @@ jobs:
           node-version: 22
       - run: node scripts/diagnose-chat.mjs
         env:
+          RECOVER_CHAT: ${{ inputs.recover }}
           ORCAROUTER_API_KEY: ${{ secrets.ORCAROUTER_API_KEY }}

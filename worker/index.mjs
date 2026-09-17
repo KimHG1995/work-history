@@ -1,5 +1,6 @@
 import { DurableObject } from 'cloudflare:workers';
 import docs from './generated/docs.json';
+import { verifyReceipt } from './cost.mjs';
 import { reserve, finish } from './policy.mjs';
 import { search } from './search.mjs';
 import { validateQuestion, makePayload, providerResult } from './chat.mjs';
@@ -34,6 +35,18 @@ async function digest(value) {
 }
 export default {
   async fetch(request, env) {
+    if (new URL(request.url).pathname === '/admin/verify-cost') {
+      // Only a deployment operator with the secret can request recovery.
+      if (request.method !== 'POST' || !env.ORCAROUTER_API_KEY) return new Response(null, {status:403});
+      try {
+        const {id, timestamp, signature} = JSON.parse(await readBounded(request.body, 1024));
+        if (!Number.isFinite(timestamp) || Math.abs(Date.now()-timestamp)>300000 || typeof id!=='string' || !/^[a-f0-9]{64}$/.test(signature)) throw new Error('invalid');
+        const key = await crypto.subtle.importKey('raw', encode.encode(env.ORCAROUTER_API_KEY), {name:'HMAC',hash:'SHA-256'},false,['verify']);
+        const bytes = Uint8Array.from(signature.match(/../g), x=>parseInt(x,16));
+        if (!await crypto.subtle.verify('HMAC', key, bytes, encode.encode(`cost-recovery:${timestamp}:${id}`))) throw new Error('invalid');
+        return await env.CHAT_GATE.get(env.CHAT_GATE.idFromName('global-v1')).fetch('https://internal/recover', {method:'POST',body:JSON.stringify({id})});
+      } catch { return new Response(null,{status:403}); }
+    }
     if (new URL(request.url).pathname !== '/chat') return json({message: 'Not found'}, 404);
     if (request.headers.get('Origin') !== origin) return new Response(null, {status: 403});
     if (request.method === 'OPTIONS') return new Response(null, {status: 204, headers: {
@@ -64,6 +77,15 @@ export default {
 export class ChatGate extends DurableObject {
   constructor(ctx, env) { super(ctx, env); this.cache = new Map(); }
   async fetch(request) {
+    if (new URL(request.url).pathname === '/recover') {
+      const {id} = await request.json();
+      if (!await verifyReceipt(id, this.env.ORCAROUTER_API_KEY)) return json({recovered:false},503);
+      await this.ctx.storage.transaction(async txn=> {
+        const state=await txn.get('policy') || {};
+        await txn.put('policy',{...state,disabled:false});
+      });
+      return json({recovered:true});
+    }
     const {question, found, sources, ipHash, hash} = await request.json();
     const now = Date.now(); const cacheKey = `${ipHash}:${hash}`;
     for (const [key, entry] of this.cache) if (entry.until <= now) this.cache.delete(key);
@@ -85,6 +107,9 @@ export class ChatGate extends DurableObject {
       });
       let body = {};
       try { body = JSON.parse(await readBounded(response.body, 65536)); } catch {}
+      if (response.ok && body?.usage?.cost_usd == null && await verifyReceipt(response.headers.get('X-Orca-Request-Id'), this.env.ORCAROUTER_API_KEY)) {
+        body.usage = {...body.usage, cost_usd:0};
+      }
       result = providerResult(response.status, body, response.headers.get('Retry-After'));
     } catch { result = {ok: false, status: 503, code: 'provider_connection_failed', ...unavailable}; }
     await this.ctx.storage.transaction(async txn => {
