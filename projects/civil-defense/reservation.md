@@ -26,7 +26,6 @@
 | 백엔드 | NestJS, TypeORM |
 | 데이터베이스 | MySQL |
 | 인프라 | NCP |
-| 운영 스크립트 | Python, Bash |
 
 ## 어떻게 해결했는지
 

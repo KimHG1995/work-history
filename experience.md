@@ -11,7 +11,7 @@
 | 소속 | 개발팀 |
 | 역할 | 백엔드 개발 |
 | 직급 | 대리 |
-| 사용 언어 | TypeScript, Python, Bash |
+| 사용 언어 | TypeScript |
 | 백엔드 | NestJS, Node.js, TypeORM |
 | 프론트엔드 | React |
 | 데이터베이스 | MySQL |
