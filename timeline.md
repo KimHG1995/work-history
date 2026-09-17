@@ -35,7 +35,7 @@
 | [쿠폰 이벤트 시스템](projects/education-services/promotion.md) | 제휴 연계 시작 2025-06-02, 개발 배포 2025-06-13, 운영 배포 2025-07-28 |
 | [AI 심리검사 서비스 개편](projects/education-services/assessment-renewal.md) | 합류 2025-02-25, 개발 배포 2025-03-04, 운영 배포 2025-03-06. 전체 종료일 미확인 |
 | [통합 알림 시스템](projects/education-services/notifications.md) | 작업 기간 미확인. 개발 배포 2025-02-19, 운영 배포 2025-03-01 |
-| [미술 교육 서비스 개편](projects/education-services/art-service-renewal.md) | 정확한 작업 기간 확인 필요 |
+| [교육 연동 서비스 서버 전환과 운영 도구 개발](projects/education-services/art-service-renewal.md) | 정확한 작업 기간 확인 필요 |
 | [개인 고객 서비스 관리자 페이지](projects/education-services/b2c-admin.md) | 정확한 작업 기간 확인 필요 |
 | [개인 고객 수강 앱 서버](projects/education-services/class-app-server.md) | 정확한 작업 기간 확인 필요 |
 

@@ -23,7 +23,7 @@
 - [쿠폰 이벤트 시스템](projects/education-services/promotion.md): 쿠폰 구조를 템플릿과 이벤트 기반으로 바꾸고, 관리자 풀스택 개발과 서버, DB 설계를 맡았습니다.
 - [AI 심리검사 서비스 개편](projects/education-services/assessment-renewal.md): Java Spring 서버를 NestJS와 Drizzle로 전환해 여러 서비스가 사용할 공통 서버를 만들고 운영에 배포했습니다.
 - [통합 알림 시스템](projects/education-services/notifications.md): 공통 발송과 이력 추적, 배포 자동화를 구현하고 운영 서버에 배포했습니다.
-- [미술 교육 서비스 개편](projects/education-services/art-service-renewal.md): Java 서버를 NestJS와 Prisma로 전환하고 관리자 페이지와 대시보드를 만들었습니다.
+- [교육 연동 서비스 서버 전환과 운영 도구 개발](projects/education-services/art-service-renewal.md): 기존 Java 서버를 동일한 기능 사양으로 전환하고, 인프라와 배포 자동화, 자랑하기 웹과 관리자 페이지를 개발했습니다.
 - [개인 고객 서비스 관리자 페이지](projects/education-services/b2c-admin.md): 인수한 프로젝트의 구조를 정리하고 수업, 출석, 사용자 등급 관리 기능을 개발했습니다.
 - [개인 고객 수강 앱 서버](projects/education-services/class-app-server.md): 중단된 프로젝트를 인수해 1:1 수업 예약부터 종료와 출결까지 서버 기능을 정리했습니다.
 
