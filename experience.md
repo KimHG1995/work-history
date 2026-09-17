@@ -11,10 +11,10 @@
 | 역할 | 백엔드 개발 |
 | 직급 | 대리 |
 | 사용 언어 | TypeScript |
-| 서버 개발 기술 | NestJS, Prisma, Drizzle |
-| 데이터 저장 | MySQL, DynamoDB, S3 |
+| 백엔드 | NestJS, Prisma, Drizzle |
+| 데이터베이스와 스토리지 | MySQL, DynamoDB, S3 |
 | 메시지 처리와 알림 | AWS SQS, Biztalk, Twilio, SendGrid |
-| 프로젝트 화면 기술 | React, Next.js, TailwindCSS, Refine, MUI Pro |
+| 프론트엔드 | React, Next.js, TailwindCSS, Refine, MUI Pro |
 
 [교육 서비스 작업 목록](projects/education-services/README.md)
 
@@ -58,8 +58,9 @@
 | 주요 분야 | TTS. 글을 사람이 말하는 듯한 음성으로 바꾸는 기술 |
 | 맡은 업무 | TTS 발음 교정 기능 개발, 웹 서비스 유지보수와 기능 개선 |
 | 사용 언어 | TypeScript |
-| 화면 개발 기술 | React, React Admin, MobX |
-| 서버 개발 기술 | NestJS, Express, MongoDB |
+| 프론트엔드 | React, React Admin, MobX |
+| 백엔드 | NestJS, Express |
+| 데이터베이스 | MongoDB |
 
 ### TTS 발음 교정
 

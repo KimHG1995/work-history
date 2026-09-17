@@ -33,12 +33,12 @@
 
 관리자에서는 파일 업로드, 미리보기, 오류 검사, 개별 등록과 일괄 등록, 목록 조회와 삭제 기능을 개발했다.
 
-## 사용 기술
+## 기술 스택
 
 | 구분 | 기술 |
 | --- | --- |
 | 공통 쿠폰 작업 | TypeScript, NestJS, Prisma, MySQL, React, TailwindCSS, Biztalk, Twilio |
-| 제휴 쿠폰 연계에 사용한 기술 | Refine, MUI Pro, Zod, xlsx와 csv 처리 모듈 |
+| 제휴 쿠폰 연계 | Refine, MUI Pro, Zod, xlsx와 csv 처리 모듈 |
 
 ## 처리 방법
 

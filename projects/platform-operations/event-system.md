@@ -15,9 +15,9 @@
 - 맡은 일: 관련 코드를 공통 모듈로 정리해 처리 방식을 맞추고, 비슷한 이벤트를 재사용 가능한 코드로 만들 수 있게 했다.
 - 역할 분담: 디자이너와 내용을 논의하고, 본인은 백엔드 서버와 DB를 맡았다. 화면 개발은 각 이벤트의 프론트엔드 담당자가 진행했다.
 
-## 사용 기술
+## 기술 스택
 
-- 사용 기술: Node.js, MongoDB, AWS Lambda, AWS EventBridge.
+Node.js, MongoDB, AWS Lambda, AWS EventBridge.
 
 ## 처리 방법
 

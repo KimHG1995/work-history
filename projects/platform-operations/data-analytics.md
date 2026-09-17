@@ -14,9 +14,9 @@
 - 함께 정한 내용: DS와 분석에 필요한 데이터 구조를 정립했다.
 - 본인: 데이터 수집과 적재, 대시보드용 가공, 파티셔닝, S3, Athena, Glue 구성을 맡았다.
 
-## 사용 기술
+## 기술 스택
 
-- 사용 기술: AWS S3, AWS Glue, AWS Athena.
+AWS S3, AWS Glue, AWS Athena.
 
 ## 처리 방법
 

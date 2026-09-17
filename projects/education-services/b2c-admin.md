@@ -17,7 +17,7 @@
 - 수업 관리, 출석, 사용자 등급 분류 기능을 구현하고 관리자 서버, API, DB 구조 관리를 맡았다.
 - 화면 개발의 구체적인 범위와 다른 담당자와의 역할 분담은 확인 필요.
 
-## 사용 기술
+## 기술 스택
 
 TypeScript, NestJS, Prisma, MySQL, React, Refine, MUI Pro.
 

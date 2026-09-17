@@ -13,9 +13,9 @@
 
 - 역할 분담: 선임 개발자가 Elastic Beanstalk 구성을 맡고, 본인은 해당 환경으로 배포하는 파이프라인을 작성했다.
 
-## 사용 기술
+## 기술 스택
 
-- 직접 사용한 기술: Bitbucket Pipelines.
+- 직접 사용: Bitbucket Pipelines.
 - 연결한 배포 환경: AWS Elastic Beanstalk.
 
 ## 처리 방법

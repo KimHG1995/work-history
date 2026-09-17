@@ -15,9 +15,9 @@
 - 초기 개발: 사내 사이드 프로젝트로 시작해 DB, 서버, 관리자 화면을 혼자 설계하고 개발했다.
 - 이후 작업: 근무 기간 동안 필요한 기능이 생기면 관리자 화면, 서버, DB를 풀스택으로 개발했다.
 
-## 사용 기술
+## 기술 스택
 
-- 사용 기술: Node.js, Express, Vue.js, Nuxt.js, MongoDB.
+Node.js, Express, Vue.js, Nuxt.js, MongoDB.
 
 ## 처리 방법
 

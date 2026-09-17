@@ -26,13 +26,13 @@
 | 본인 | 기술 선택과 시스템 구조 설계, 공통 알림 기능 구현, GitHub Actions 배포 자동화 |
 | 인프라 담당자 | 인프라 설계와 구성 검토 |
 
-## 사용 기술
+## 기술 스택
 
 | 구분 | 기술과 용도 |
 | --- | --- |
 | 서버 | TypeScript, NestJS, NestJS Workspaces 기반 모노레포 |
 | 작업 전달 | AWS SQS로 메시지 생성과 발송 작업 전달 |
-| 데이터 저장 | DynamoDB로 요청, 템플릿, 발송 이력 관리. S3로 대량 발송 데이터 보관 |
+| 데이터베이스와 스토리지 | DynamoDB로 요청, 템플릿, 발송 이력 관리. S3로 대량 발송 데이터 보관 |
 | 발송 채널 | Biztalk로 문자와 알림톡, Twilio SendGrid로 이메일 |
 | 배포 | GitHub Actions, ECR, ECS, Fargate |
 | 중복 요청 검사 | Valkey에 발송 구분, 대상, 내용을 묶은 해시를 저장하고 TTL 안의 동일 요청 필터링 |
