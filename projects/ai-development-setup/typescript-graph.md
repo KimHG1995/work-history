@@ -54,8 +54,8 @@ TypeScript 코드의 호출 관계와 구조를 AI가 조회할 수 있도록 �
 flowchart LR
     agent["대상 프로젝트의 AI 코딩 도구"] --> mcp["로컬 MCP 등록"]
     mcp --> host["별도로 설치한 분석 서버"]
-    host --> graph["그래프 생성기와 TypeScript 검사기"]
-    graph --> source["대상 프로젝트 코드와 tsconfig 분석"]
+    host --> analyzer["그래프 생성기와 TypeScript 검사기"]
+    analyzer --> source["대상 프로젝트 코드와 tsconfig 분석"]
     source --> result["심볼, 호출 관계와 타입 정보 반환"]
 ```
 
