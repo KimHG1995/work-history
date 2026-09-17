@@ -70,7 +70,11 @@ export default {
       const ipHash = Array.from(new Uint8Array(signed), b => b.toString(16).padStart(2, '0')).join('');
       const stub = env.CHAT_GATE.get(env.CHAT_GATE.idFromName('global-v1'));
       return await stub.fetch('https://internal/chat', {method: 'POST', body: JSON.stringify({question, found, sources, ipHash, hash: await digest(question)})});
-    } catch { return json({...unavailable, sources}, 503); }
+    } catch (error) {
+      const detail=String(error?.message || '');
+      const code=/CPU|cpu/.test(detail) ? 'worker_cpu_limit' : /reset|restart|disconnected|updated/i.test(detail) ? 'worker_restarting' : 'worker_internal';
+      return json({...unavailable, code, sources}, 503);
+    }
   }
 };
 

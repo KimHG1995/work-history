@@ -1,5 +1,7 @@
 import { spawnSync } from 'node:child_process';
-import { appendFile } from 'node:fs/promises';
+import { appendFile, mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 const { CLOUDFLARE_ACCOUNT_ID: account, CLOUDFLARE_API_TOKEN: token, ORCAROUTER_API_KEY: key, GITHUB_ENV: githubEnv } = process.env;
 if (!/^[a-f0-9]{32}$/i.test(account || '')) throw new Error('CLOUDFLARE_ACCOUNT_ID must be the 32-character account ID.');
 if (!token || !key || !githubEnv) throw new Error('Missing deployment secrets or GitHub environment file.');
@@ -31,8 +33,14 @@ function wrangler(args, input) {
   if (child.status !== 0) throw new Error(`Wrangler ${args.slice(0,2).join(' ')} failed. Check Workers Scripts Edit and Account Settings Read token permissions.`);
   console.log(`Wrangler ${args.slice(0,2).join(' ')} completed.`);
 }
-wrangler(['deploy']);
-wrangler(['secret', 'bulk'], JSON.stringify({ORCAROUTER_API_KEY: key}));
+const secretDirectory = await mkdtemp(path.join(tmpdir(), 'work-history-secret-'));
+try {
+  const secretFile = path.join(secretDirectory, 'secrets.json');
+  await writeFile(secretFile, JSON.stringify({ORCAROUTER_API_KEY: key}), {mode:0o600});
+  wrangler(['deploy', '--secrets-file', secretFile]);
+} finally {
+  await rm(secretDirectory, {recursive:true, force:true});
+}
 const api = `https://work-history-chat.${subdomain.subdomain}.workers.dev`;
 console.log(`Chat API: ${api}`);
 // A new workers.dev route may not be available immediately after deployment.
