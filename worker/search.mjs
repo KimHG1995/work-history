@@ -1,22 +1,42 @@
 const ignored=new Set(['어떻게','무엇','어떤','했어','했나요','개발','프로젝트','알려줘','내용','대한','관련','사용','설명','있어']);
+function matches(text,term){
+ // Short English names such as AI must not match Tailwind or mail.
+ if(/^[a-z0-9+#.]+$/.test(term)){
+  const escaped=term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return new RegExp(`(?<![a-z0-9])${escaped}(?![a-z0-9])`,'u').test(text);
+ }
+ return text.includes(term);
+}
 export function search(question,docs){
  const words=question.toLowerCase().normalize('NFKC').match(/[\p{L}\p{N}+#.]+/gu)||[];
  const terms=[...new Set(words.map(w=>w.replace(/(에서는|에서|으로|까지|했던|했던가|인가요|했나요|했어|은|는|을|를|이|가|와|과|에)$/u,'')).filter(w=>w.length>=2&&!ignored.has(w)))];
  if(!terms.length)return [];
- const scored=docs.map(doc=>{
+ // AX is a search synonym, not a claim that an organisation-wide rollout occurred.
+ const expanded=terms.includes('ax')?[...new Set([...terms,'ai','코딩','검증'])]:terms;
+ const groups=new Map();
+ for(const doc of docs){
   const title=doc.title.toLowerCase();const text=doc.text.toLowerCase();
-  const score=terms.reduce((s,t)=>s+(title.includes(t)?8:0)+(text.includes(t)?2:0),0);
-  return {...doc,score};
- }).filter(d=>d.score>0).sort((a,b)=>b.score-a.score);
- const result=[];const urls=new Set();let size=0;
- for(const d of scored){
-  if(urls.has(d.url))continue;
-  const sections=scored.filter(part=>part.url===d.url).slice(0,5);
-  const text=sections.map(part=>part.text).join('\n\n').slice(0,Math.min(1200,2000-size));
-  if(!text)break;result.push({title:d.title,url:d.url,text});urls.add(d.url);size+=text.length;
-  if(result.length===3||size>=2000)break;
+  const metadata=`${doc.group||''} ${doc.category||''}`.toLowerCase();
+  const passageScore=expanded.reduce((s,t)=>s+(matches(text,t)?2:0),0);
+  const score=expanded.reduce((s,t)=>s+(matches(title,t)?8:0)+(matches(metadata,t)?6:0),0)+passageScore;
+  if(!groups.has(doc.url))groups.set(doc.url,{...doc,score:0,sections:[]});
+  const group=groups.get(doc.url);
+  group.score=Math.max(group.score,score);
+  group.sections.push({text:doc.text,score:passageScore});
  }
- return result;
+ // Prefer source project pages over career/timeline pages that repeat their summaries.
+ const selected=[...groups.values()].filter(d=>d.score>0).sort((a,b)=>
+  Number(b.url.includes('/projects/'))-Number(a.url.includes('/projects/'))||b.score-a.score
+ ).slice(0,4);
+ const budget=Math.floor(2000/Math.max(1,selected.length));
+ return selected.map(doc=>{
+  const passages=[...doc.sections].sort((a,b)=>b.score-a.score);
+  const label=[doc.group,doc.category&&`${doc.category} 프로젝트`].filter(Boolean).join(' / ');
+  // Keep the introduction alongside the strongest matching passages.
+  const sections=[...new Set([doc.sections[0].text,...passages.map(p=>p.text)])];
+  const text=[label,...sections].filter(Boolean).join('\n\n').slice(0,budget);
+  return {title:doc.title,url:doc.url,text};
+ });
 }
 
 function monthsCovered(sections, asOf) {

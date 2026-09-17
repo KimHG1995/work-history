@@ -84,3 +84,22 @@ test('career overview counts ongoing employment to the supplied month without co
  assert.ok(context[0].text.includes('인턴 포함 31개월'));
  assert.ok(context[0].text.includes('2026-09'));
 });
+
+test('AI and AX questions retrieve side projects as well as company projects',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const docs=JSON.parse(await readFile(new URL('../worker/generated/docs.json',import.meta.url),'utf8'));
+ for(const question of ['ai, ax 관련 내용이 있어?','AI 관련 경험 알려줘','AX 관련 작업 있어?','사이드 프로젝트 알려줘']){
+  const hits=search(question,docs);
+  for(const slug of ['codex-quality','claude-workflow','typescript-graph'])assert.ok(hits.some(d=>d.url.endsWith(slug)),`${question}: missing ${slug}`);
+  assert.ok(hits.reduce((sum,d)=>sum+d.text.length,0)<=2000);
+ }
+ assert.ok(search('AI 관련 경험 알려줘',docs).some(d=>d.url.endsWith('assessment-renewal')));
+ assert.ok(search('AI 심리검사 서버',docs)[0].url.endsWith('assessment-renewal'));
+ assert.ok(search('Claude Code 훅',docs)[0].url.endsWith('claude-workflow'));
+ assert.ok(search('쿠폰 중복 발송',docs)[0].url.endsWith('promotion'));
+ assert.deepEqual(search('내일 날씨',docs),[]);
+});
+
+test('English search terms do not match inside unrelated words',()=>{
+ assert.deepEqual(search('AI', [{title:'웹 화면',text:'Tailwind CSS를 사용했습니다.',url:'/web'}]),[]);
+});

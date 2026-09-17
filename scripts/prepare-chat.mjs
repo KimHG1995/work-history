@@ -8,9 +8,12 @@ const docs=[];
 for(const file of files){
  const raw=await readFile(path.join(root,file),'utf8');
  const title=raw.match(/^# (.+)/m)?.[1]||file;
+ const overview=file.startsWith('projects/')?await readFile(path.join(root,path.dirname(file),'README.md'),'utf8'):'';
+ const group=overview.match(/^# (.+)/m)?.[1]||'';
+ const category=overview.match(/\| 프로젝트 구분 \| ([^|]+)/)?.[1]?.trim()||'';
  const text=raw.replace(/```[\s\S]*?```/g,'').replace(/\[([^\]]+)\]\([^)]+\)/g,'$1').replace(/[*#`|]/g,'').replace(/\n{3,}/g,'\n\n');
  const url='/work-history/'+(file==='experience.md'?'':file.replace(/\.md$/,''));
- for(const section of text.split(/\n\n/)){if(section.trim().length>25)docs.push({title,text:section.trim(),url});}
+ for(const section of text.split(/\n\n/)){if(section.trim().length>25)docs.push({title,text:section.trim(),url,group,category});}
 }
 await mkdir(path.join(root,'worker/generated'),{recursive:true});
 await mkdir(path.join(root,'site/content/public'),{recursive:true});
