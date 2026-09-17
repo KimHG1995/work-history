@@ -31,5 +31,5 @@
 | [AI 심리검사 서비스 개편](projects/education-services/assessment-renewal.md) | 합류 2025-02-25, 개발 배포 2025-03-04, 운영 배포 2025-03-06. 전체 종료일 미확인 |
 | [통합 알림 시스템](projects/education-services/notifications.md) | 작업 기간 미확인. 개발 배포 2025-02-19, 운영 배포 2025-03-01 |
 | [계열사 연동 서비스 서버 재구성과 관리자 페이지 개발](projects/education-services/art-service-renewal.md) | 기간 미확인 |
-| [개인 고객 서비스 관리자 페이지](projects/education-services/b2c-admin.md) | 기간 미확인 |
+| [개인 고객 서비스 관리자 페이지](projects/education-services/b2c-admin.md) | 인수 후 2025-10까지 개발과 유지보수. 시작 시점 미확인. 서비스는 현재까지 운영 중 |
 | [개인 고객 수강 앱 서버](projects/education-services/class-app-server.md) | 개발 2024-01 ~ 2024-04. 서비스는 2024-04 반영 후 현재까지 운영 중 |

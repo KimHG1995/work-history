@@ -16,7 +16,7 @@
 | [AI 심리검사 서비스 개편](education-services/assessment-renewal.md) | Java Spring 서버를 NestJS와 Drizzle로 전환해 여러 서비스가 사용할 공통 서버를 만들고 운영에 배포했습니다. |
 | [통합 알림 시스템](education-services/notifications.md) | 공통 발송과 이력 추적, 배포 자동화를 구현하고 운영 서버에 배포했습니다. |
 | [계열사 연동 서비스 서버 재구성과 관리자 페이지 개발](education-services/art-service-renewal.md) | 기존 기능을 유지하며 Java 서버를 NestJS로 재구성하고, 인프라와 배포 자동화, 자랑하기 웹 페이지와 관리자 페이지를 맡았습니다. |
-| [개인 고객 서비스 관리자 페이지](education-services/b2c-admin.md) | 인수한 프로젝트의 구조를 정리하고 수업, 출석, 사용자 등급 관리 기능을 개발했습니다. |
+| [개인 고객 서비스 관리자 페이지](education-services/b2c-admin.md) | 관련 부서와 필요한 기능을 논의해 풀스택으로 개발하고, 퇴사 전까지 기능 추가와 유지보수를 맡았습니다. |
 | [개인 고객 수강 앱 서버](education-services/class-app-server.md) | 선임 개발자의 DB와 아키텍처 설계를 지원하고, 서버 신규 개발과 사용 가능한 수강 데이터 및 콘텐츠 마이그레이션을 맡았습니다. |
 
 ### 단기 구인구직 플랫폼 운영 개선
