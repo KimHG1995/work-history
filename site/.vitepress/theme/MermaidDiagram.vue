@@ -48,7 +48,12 @@ onBeforeUnmount(() => { mounted = false; revision++; closeViewer(); });
 
 <template>
   <figure class="diagram" aria-label="업무 처리 순서도">
-    <div v-if="svg && !failed" class="diagram-toolbar"><button type="button" @click="openViewer">크게 보기</button></div>
+    <div v-if="svg && !failed" class="diagram-toolbar">
+      <button class="diagram-expand" type="button" aria-label="크게 보기" @click="openViewer">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5M10.5 7.5v6M7.5 10.5h6" /></svg>
+        <span class="diagram-tooltip" aria-hidden="true">크게 보기</span>
+      </button>
+    </div>
     <div v-if="svg && !failed && !expanded" class="diagram-canvas" v-html="svg" />
     <pre v-if="!svg || failed">{{ source }}</pre>
     <figcaption v-if="failed">순서도를 표시하지 못해 원문을 보여줍니다.</figcaption>
@@ -70,6 +75,9 @@ onBeforeUnmount(() => { mounted = false; revision++; closeViewer(); });
 
 <style scoped>
 .diagram-toolbar { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+.diagram-expand { position: relative; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; }
+.diagram-tooltip { position: absolute; right: 0; top: calc(100% + 6px); z-index: 1; padding: 4px 8px; border-radius: 6px; background: var(--vp-c-text-1); color: var(--vp-c-bg); font-size: 12px; opacity: 0; visibility: hidden; pointer-events: none; }
+.diagram-expand:hover .diagram-tooltip, .diagram-expand:focus-visible .diagram-tooltip { opacity: 1; visibility: visible; }
 button { border: 1px solid var(--vp-c-divider); border-radius: 6px; padding: 5px 10px; background: var(--vp-c-bg); color: var(--vp-c-text-1); cursor: pointer; font-size: 14px; white-space: nowrap; }
 button:hover { border-color: var(--vp-c-brand-1); }
 button:focus-visible { outline: 2px solid var(--vp-c-brand-1); outline-offset: 2px; }
