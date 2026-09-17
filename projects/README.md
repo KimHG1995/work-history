@@ -6,7 +6,7 @@
 
 ### 교육 서비스 개발과 운영 개선
 
-근무 기간은 2024-01 ~ 2025-10입니다. [작업 개요](education-services/README.md)에서 전체 내용을 확인할 수 있습니다.
+2024-01 ~ 2025-10 | [작업 개요](education-services/README.md)
 
 | 작업 | 요약 |
 | --- | --- |
@@ -19,8 +19,7 @@
 
 ### 단기 구인구직 플랫폼 운영 개선
 
-[단기 구인구직 플랫폼 운영 개선](platform-operations/README.md)의 세부 작업입니다.
-근무 기간은 2021-07 ~ 2024-01입니다. 정확한 작업 기간은 각 문서에 따로 적었습니다.
+2021-07 ~ 2024-01 | [작업 개요](platform-operations/README.md)
 
 | 작업 | 맡은 일 | 결과 |
 | --- | --- | --- |
@@ -31,5 +30,4 @@
 | [자동 배포](platform-operations/deployment.md) | Bitbucket Pipelines 작성 | 개발 자동 배포, 운영 승인 후 배포 |
 | [이벤트 공통 코드 정리](platform-operations/event-system.md) | 백엔드와 DB 개발 | 비슷한 이벤트에 공통 코드 재사용 |
 
-짧은 인턴 업무는 [근무 기록](../experience.md)에 정리했습니다.
-새 작업은 [작업 양식](../templates/task.md)을 복사해 추가합니다.
+[TTS 발음 교정과 웹 서비스 유지보수](../experience.md#tts-서비스-기업)

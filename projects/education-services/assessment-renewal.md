@@ -31,7 +31,7 @@
 ## 사용 기술
 
 TypeScript, NestJS, Drizzle ORM, MySQL, AWS SDK v3, AWS SQS.
-기존 분석 대상은 Java Spring 서버입니다. SQS의 구체적인 처리 대상은 확인 필요입니다.
+SQS의 구체적인 처리 대상은 확인 필요입니다.
 
 ## 처리 방법
 

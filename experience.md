@@ -2,8 +2,6 @@
 
 [전체 안내](README.md)로 돌아갑니다.
 
-최근 근무부터 정리했습니다.
-
 ## 에듀테크 기업 계열사
 
 | 항목 | 내용 |
@@ -18,7 +16,7 @@
 | 메시지 처리와 알림 | AWS SQS, Biztalk, Twilio, SendGrid |
 | 프로젝트 화면 기술 | React, Next.js, TailwindCSS, Refine, MUI Pro |
 
-[교육 서비스 작업 목록](projects/education-services/README.md)에서 상세 내용을 확인할 수 있습니다.
+[교육 서비스 작업 목록](projects/education-services/README.md)
 
 - [쿠폰 이벤트 시스템](projects/education-services/promotion.md): 쿠폰 구조를 템플릿과 이벤트 기반으로 바꾸고, 관리자 풀스택 개발과 서버, DB 설계를 맡았습니다.
 - [AI 심리검사 서비스 개편](projects/education-services/assessment-renewal.md): Java Spring 서버를 NestJS와 Drizzle로 전환해 여러 서비스가 사용할 공통 서버를 만들고 운영에 배포했습니다.
@@ -40,12 +38,10 @@
 | 사용 언어 | JavaScript, TypeScript |
 | 코드 관리 | Bitbucket |
 
-서비스 규모와 투자 단계는 회사에 대한 설명이며, 개인 작업 성과와 나눠 기록합니다.
-
 관리자 업무를 시스템으로 옮기고, 정산과 데이터 분석, 배포와 이벤트 운영 방식을 개선했습니다.
-작업별 기술과 역할 분담, 순서도는 [플랫폼 작업 목록](projects/platform-operations/README.md)에서 확인할 수 있습니다.
+[플랫폼 작업 목록](projects/platform-operations/README.md)
 
-- [초기 관리자 페이지](projects/platform-operations/initial-admin.md): DB와 서버와 화면을 혼자 개발해 실제 운영에 사용했습니다.
+- [초기 관리자 페이지](projects/platform-operations/initial-admin.md): DB, 서버, 화면을 혼자 개발해 실제 운영에 사용했습니다.
 - [급여 정산과 환불](projects/platform-operations/settlement.md): 약 한 달간 혼자 개발해 지급과 환불을 내부 관리자 페이지에서 처리하도록 했습니다.
 - [관리자 화면과 API 개선](projects/platform-operations/admin-improvement.md): 기획과 API 수정을 맡고, 프론트엔드 개발자의 단계별 전환을 지원했습니다.
 - [데이터 분석 환경과 대시보드](projects/platform-operations/data-analytics.md): DS와 데이터 구조를 정하고, 분석 환경 구성과 대시보드 집계 방식을 개선했습니다.
@@ -68,7 +64,6 @@
 ### TTS 발음 교정
 
 - 시작한 이유: 원하는 음성 데이터를 직접 추출하기 어려워, 입력 글을 바꿔 발음을 교정할 방법이 필요했다.
-- 맡은 범위: 서버와 DB.
 - 진행 방식: 서버와 DB 개발을 혼자 맡았다.
 - 맡은 일: 서버의 발음 교정 로직과 DB에 교정 정보를 저장하고 조회하는 방식을 설계하고 구현했다.
 - 처리 방법: 원래 글과 유사한 발음이 나는 글을 짝지어 DB에 저장했다. 음성을 만들 때 저장한 내용을 찾아 입력 글을 바꾸도록 했다.
