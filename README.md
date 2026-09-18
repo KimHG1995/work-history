@@ -58,6 +58,9 @@ work-history/
 │   ├── hr-saas/
 │   │   ├── README.md
 │   │   └── mvp.md
+│   ├── loglens/
+│   │   ├── README.md
+│   │   └── mvp.md
 │   └── platform-operations/
 │       ├── README.md
 │       ├── initial-admin.md
