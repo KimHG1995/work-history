@@ -46,6 +46,14 @@
 
 ## 사이드 프로젝트
 
+### loglens API 로그 분석 백엔드
+
+2026-07 | [프로젝트 개요](loglens/README.md)
+
+| 작업 | 요약 |
+| --- | --- |
+| [API 로그 분석 백엔드 MVP 개발](loglens/mvp.md) | ClickHouse Materialized View로 로그를 사전 집계하고 트래픽, 지연시간, 에러 리포트와 급증 알림 구현 |
+
 ### HR 계약과 현장 운영 SaaS
 
 2025-09 ~ 2025-11, 본업 병행 | [프로젝트 개요](hr-saas/README.md)
