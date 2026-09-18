@@ -14,7 +14,7 @@ const projectGroups = new Map(groups.map(group => [group.name, {
       .map(name => ({ text: title(path.join(projects, group.name, name)), link: `/projects/${group.name}/${name.replace(/\.md$/, '')}` }))
   ]
 }]));
-const groupedNames = new Set(['public-education', 'education-services', 'platform-operations', 'hr-saas', 'loglens', 'papertrail', 'ai-development-setup']);
+const groupedNames = new Set(['public-education', 'education-services', 'platform-operations', 'hr-saas', 'loglens', 'papertrail', 'netbox-cloud-inventory', 'ai-development-setup']);
 const sidebar = [
   projectGroups.get('public-education'),
   projectGroups.get('education-services'),
@@ -22,7 +22,7 @@ const sidebar = [
   {
     text: '사이드 프로젝트',
     collapsed: false,
-    items: [projectGroups.get('papertrail'), projectGroups.get('loglens'), projectGroups.get('hr-saas'), projectGroups.get('ai-development-setup')]
+    items: [projectGroups.get('papertrail'), projectGroups.get('loglens'), projectGroups.get('netbox-cloud-inventory'), projectGroups.get('hr-saas'), projectGroups.get('ai-development-setup')]
   },
   ...groups.filter(group => !groupedNames.has(group.name)).map(group => projectGroups.get(group.name))
 ];

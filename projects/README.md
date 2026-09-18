@@ -46,6 +46,14 @@
 
 ## 사이드 프로젝트
 
+### NetBox Cloud Inventory
+
+2026-07 | [프로젝트 개요](netbox-cloud-inventory/README.md)
+
+| 작업 | 요약 |
+| --- | --- |
+| [멀티클라우드 인프라 자산 관리 PoC 개발](netbox-cloud-inventory/inventory.md) | AWS와 NAVER Cloud Platform Export를 공통 모델로 정규화하고 Preview 승인 후 NetBox에 멱등 반영하는 수동 Import PoC 구현 |
+
 ### PaperTrail 전자문서 생성과 증적 플랫폼
 
 2026-07 | [프로젝트 개요](papertrail/README.md)

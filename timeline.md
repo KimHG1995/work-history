@@ -49,6 +49,7 @@
 
 | 기간 | 작업 | 진행 방식 |
 | --- | --- | --- |
+| 2026-07 | [NetBox Cloud Inventory](projects/netbox-cloud-inventory/inventory.md) | 개인 사이드 프로젝트 |
 | 2026-07 | [PaperTrail 전자문서 생성과 증적 플랫폼](projects/papertrail/platform.md) | 개인 사이드 프로젝트 |
 | 2026-07 | [loglens API 로그 분석 백엔드](projects/loglens/mvp.md) | 개인 사이드 프로젝트 |
 | 2025-09 ~ 2025-11 | [HR 계약과 현장 운영 SaaS MVP 개발](projects/hr-saas/mvp.md) | 본업 병행 |
