@@ -107,6 +107,10 @@
 
 ## 사이드 프로젝트
 
+[NetBox Cloud Inventory](projects/netbox-cloud-inventory/README.md)
+
+- [멀티클라우드 인프라 자산 관리 PoC 개발](projects/netbox-cloud-inventory/inventory.md): 여러 AWS와 NAVER Cloud Platform 계정의 Export를 공통 모델로 정규화하고 Preview 승인 후 NetBox에 안전하게 반영하는 흐름을 구현했습니다.
+
 [PaperTrail 전자문서 생성과 증적 플랫폼](projects/papertrail/README.md)
 
 - [전자문서 생성과 증적 플랫폼 개발](projects/papertrail/platform.md): 멀티테넌트 문서 생성 API와 비동기 렌더, 해시 기반 증적, 재현성 검증, Webhook과 운영 Admin을 구현했습니다.
