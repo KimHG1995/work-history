@@ -42,6 +42,7 @@
 | [예약 메시지 발송 비용 개선](projects/civil-defense/reservation-messages.md) | 2025-11 이후 근무 중 진행, 운영 중 |
 | [출결 상태와 단체 인증 처리 개선](projects/civil-defense/attendance.md) | 2025-11 이후 근무 중 진행, 운영 중 |
 | [예약과 취소의 동시 요청 처리 개선](projects/civil-defense/reservation.md) | 2025-11 이후 근무 중 진행, 운영 중 |
+| [운영 데이터 집계와 Google Sheets 자동화](projects/civil-defense/google-sheets-automation.md) | 2025-11 이후 근무 중 진행, 운영 중 |
 | [민방위 서비스 개발과 운영](projects/civil-defense/operations.md) | 2025-11 ~ 현재 |
 
 ### 예비군 서비스
