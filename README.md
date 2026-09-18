@@ -43,14 +43,12 @@ work-history/
 │   │   ├── art-service-renewal.md
 │   │   ├── b2c-admin.md
 │   │   └── class-app-server.md
-│   ├── civil-defense/
+│   ├── public-education/
 │   │   ├── README.md
 │   │   ├── reservation-messages.md
 │   │   ├── attendance.md
 │   │   ├── reservation.md
-│   │   └── operations.md
-│   ├── reserve-service/
-│   │   ├── README.md
+│   │   ├── google-sheets-automation.md
 │   │   └── operations.md
 │   ├── ai-development-setup/
 │   │   ├── README.md

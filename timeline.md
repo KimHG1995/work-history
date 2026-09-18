@@ -6,7 +6,7 @@
 
 | 기간 | 역할 | 주요 작업 |
 | --- | --- | --- |
-| 2025-11 ~ 현재 | 백엔드 개발, 대리 | [민방위](projects/civil-defense/README.md), [예비군](projects/reserve-service/README.md) |
+| 2025-11 ~ 현재 | 백엔드 개발, 대리 | [공공 교육 플랫폼](projects/public-education/README.md) |
 | 2024-01 ~ 2025-10 | 백엔드 개발, 대리 | [교육 서비스 개발과 운영 개선](projects/education-services/README.md) |
 | 2021-07 ~ 2024-01 | 백엔드 개발, 인터널팀 리드 | [단기 구인구직 플랫폼 운영 개선](projects/platform-operations/README.md) |
 | 2020-12 ~ 2021-06 (6개월) | 인턴 | [TTS 발음 교정과 웹 서비스 유지보수](experience.md#tts-서비스-기업) |
@@ -35,21 +35,15 @@
 | [개인 고객 서비스 관리자 페이지](projects/education-services/b2c-admin.md) | 인수 후 2025-10까지 개발과 유지보수, 현재 운영 중 |
 | [개인 고객 수강 앱 서버](projects/education-services/class-app-server.md) | 개발 2024-01 ~ 2024-04. 서비스는 2024-04 반영 후 현재까지 운영 중 |
 
-### 민방위 서비스
+### 공공 교육 플랫폼
 
 | 작업 | 확인한 작업 기간 |
 | --- | --- |
-| [예약 메시지 발송 비용 개선](projects/civil-defense/reservation-messages.md) | 2025-11 이후 근무 중 진행, 운영 중 |
-| [출결 상태와 단체 인증 처리 개선](projects/civil-defense/attendance.md) | 2025-11 이후 근무 중 진행, 운영 중 |
-| [예약과 취소의 동시 요청 처리 개선](projects/civil-defense/reservation.md) | 2025-11 이후 근무 중 진행, 운영 중 |
-| [운영 데이터 집계와 Google Sheets 자동화](projects/civil-defense/google-sheets-automation.md) | 2025-11 이후 근무 중 진행, 운영 중 |
-| [민방위 서비스 개발과 운영](projects/civil-defense/operations.md) | 2025-11 ~ 현재 |
-
-### 예비군 서비스
-
-| 작업 | 확인한 작업 기간 |
-| --- | --- |
-| [예비군 서비스 개발과 운영](projects/reserve-service/operations.md) | 2025-11 ~ 현재 |
+| [예약 메시지 발송 비용 개선](projects/public-education/reservation-messages.md) | 2025-11 이후 근무 중 진행, 운영 중 |
+| [출결 상태와 단체 인증 처리 개선](projects/public-education/attendance.md) | 2025-11 이후 근무 중 진행, 운영 중 |
+| [예약과 취소의 동시 요청 처리 개선](projects/public-education/reservation.md) | 2025-11 이후 근무 중 진행, 운영 중 |
+| [운영 데이터 집계와 Google Sheets 자동화](projects/public-education/google-sheets-automation.md) | 2025-11 이후 근무 중 진행, 운영 중 |
+| [공공 교육 플랫폼 개발과 운영](projects/public-education/operations.md) | 2025-11 ~ 현재 |
 
 ## 사이드 프로젝트
 

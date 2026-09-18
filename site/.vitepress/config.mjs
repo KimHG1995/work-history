@@ -14,14 +14,9 @@ const projectGroups = new Map(groups.map(group => [group.name, {
       .map(name => ({ text: title(path.join(projects, group.name, name)), link: `/projects/${group.name}/${name.replace(/\.md$/, '')}` }))
   ]
 }]));
-const groupedNames = new Set(['civil-defense', 'reserve-service', 'education-services', 'platform-operations', 'hr-saas', 'ai-development-setup']);
-const childGroup = (name, text) => ({ ...projectGroups.get(name), text });
+const groupedNames = new Set(['public-education', 'education-services', 'platform-operations', 'hr-saas', 'ai-development-setup']);
 const sidebar = [
-  {
-    text: '공공 교육 서비스',
-    collapsed: false,
-    items: [childGroup('civil-defense', '민방위 서비스'), childGroup('reserve-service', '예비군 서비스')]
-  },
+  projectGroups.get('public-education'),
   projectGroups.get('education-services'),
   projectGroups.get('platform-operations'),
   {

@@ -6,7 +6,7 @@
 
 | 항목 | 내용 |
 | --- | --- |
-| 회사 설명 | 민방위와 예비군 교육 서비스를 개발하고 운영하는 기업 |
+| 회사 설명 | 공공기관 대상 교육 플랫폼을 개발하고 운영하는 기업 |
 | 근무 기간 | 2025-11 ~ 현재 |
 | 소속 | 개발팀 |
 | 역할 | 백엔드 개발 |
@@ -16,23 +16,17 @@
 | 프론트엔드 | React |
 | 데이터베이스 | MySQL |
 | 인프라와 메시지 | NCP, NCP SENS |
-| 서비스 규모 | 민방위 활성 사용자 150만 명 이상, 예비군 사용자 약 100만 명 |
+| 서비스 규모 | 활성 사용자 150만 명 이상 규모 |
 
-### 민방위 서비스
+### 공공 교육 플랫폼
 
-[민방위 작업 목록](projects/civil-defense/README.md)
+[공공 교육 플랫폼 작업 목록](projects/public-education/README.md)
 
-- [예약 메시지 발송 비용 개선](projects/civil-defense/reservation-messages.md): LMS 안내를 알림톡으로 전환하고 운영에 반영했습니다.
-- [출결 상태와 단체 인증 처리 개선](projects/civil-defense/attendance.md): 출결 변경에 트랜잭션 적용, 단체 인증 병렬 처리와 실패 목록 분리.
-- [예약과 취소의 동시 요청 처리 개선](projects/civil-defense/reservation.md): 트랜잭션과 DB 잠금으로 예약 상태와 잔여 인원 변경 처리.
-- [운영 데이터 집계와 Google Sheets 자동화](projects/civil-defense/google-sheets-automation.md): 반복적인 수동 데이터 정리 업무를 분석해 자동화를 제안하고, 18개 시트의 데이터 집계와 이관을 자동화했습니다.
-- [민방위 서비스 개발과 운영](projects/civil-defense/operations.md): 운영팀 요청 기능 개발, 기존 코드와 API 개선, 운영 이슈 대응.
-
-### 예비군 서비스
-
-[예비군 작업 목록](projects/reserve-service/README.md)
-
-- [예비군 서비스 개발과 운영](projects/reserve-service/operations.md): React 웹과 Node.js 서버의 풀스택 개발, 운영 요구사항 반영과 이슈 대응.
+- [예약 메시지 발송 비용 개선](projects/public-education/reservation-messages.md): LMS 안내를 알림톡으로 전환하고 운영에 반영했습니다.
+- [출결 상태와 단체 인증 처리 개선](projects/public-education/attendance.md): 출결 변경에 트랜잭션 적용, 단체 인증 병렬 처리와 실패 목록 분리.
+- [예약과 취소의 동시 요청 처리 개선](projects/public-education/reservation.md): 트랜잭션과 DB 잠금으로 예약 상태와 잔여 인원 변경 처리.
+- [운영 데이터 집계와 Google Sheets 자동화](projects/public-education/google-sheets-automation.md): 반복적인 수동 데이터 정리 업무를 분석해 자동화를 제안하고, 18개 시트의 데이터 집계와 이관을 자동화했습니다.
+- [공공 교육 플랫폼 개발과 운영](projects/public-education/operations.md): 교육, 예약, 출결, 관리자 기능의 웹과 서버 개발, 운영 요구사항 반영과 이슈 대응.
 
 ## 에듀테크 기업 계열사
 
