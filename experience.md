@@ -107,6 +107,10 @@
 
 ## 사이드 프로젝트
 
+[PaperTrail 전자문서 생성과 증적 플랫폼](projects/papertrail/README.md)
+
+- [전자문서 생성과 증적 플랫폼 개발](projects/papertrail/platform.md): 멀티테넌트 문서 생성 API와 비동기 렌더, 해시 기반 증적, 재현성 검증, Webhook과 운영 Admin을 구현했습니다.
+
 [loglens API 로그 분석 백엔드](projects/loglens/README.md)
 
 - [API 로그 분석 백엔드 MVP 개발](projects/loglens/mvp.md): ClickHouse Materialized View로 API 로그를 사전 집계하고 트래픽, 응답시간, 에러 리포트와 급증 알림을 구현했습니다.
