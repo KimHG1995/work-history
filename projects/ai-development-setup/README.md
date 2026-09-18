@@ -38,7 +38,7 @@ flowchart TD
     decision -->|있음| fix["문제 수정"]
     fix --> select
     decision -->|없음| report["변경 내용과 검증 결과 보고"]
-    graph["TypeScript 코드 그래프 MCP"] --> context
+    tsGraph["TypeScript 코드 그래프 MCP"] --> context
 ```
 
 ## AI에게 맡기지 않은 것
