@@ -64,6 +64,9 @@ work-history/
 │   ├── papertrail/
 │   │   ├── README.md
 │   │   └── platform.md
+│   ├── netbox-cloud-inventory/
+│   │   ├── README.md
+│   │   └── inventory.md
 │   └── platform-operations/
 │       ├── README.md
 │       ├── initial-admin.md
