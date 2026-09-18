@@ -61,6 +61,9 @@ work-history/
 │   ├── loglens/
 │   │   ├── README.md
 │   │   └── mvp.md
+│   ├── papertrail/
+│   │   ├── README.md
+│   │   └── platform.md
 │   └── platform-operations/
 │       ├── README.md
 │       ├── initial-admin.md

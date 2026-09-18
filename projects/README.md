@@ -46,6 +46,14 @@
 
 ## 사이드 프로젝트
 
+### PaperTrail 전자문서 생성과 증적 플랫폼
+
+2026-07 | [프로젝트 개요](papertrail/README.md)
+
+| 작업 | 요약 |
+| --- | --- |
+| [전자문서 생성과 증적 플랫폼 개발](papertrail/platform.md) | 멀티테넌트 문서 생성 API와 비동기 렌더, 해시 기반 증적, 재현성 검증, Webhook과 Admin 콘솔 구현 |
+
 ### loglens API 로그 분석 백엔드
 
 2026-07 | [프로젝트 개요](loglens/README.md)
