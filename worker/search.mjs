@@ -19,14 +19,19 @@ export function search(question,docs){
   const metadata=`${doc.group||''} ${doc.category||''}`.toLowerCase();
   const passageScore=expanded.reduce((s,t)=>s+(matches(text,t)?2:0),0);
   const score=expanded.reduce((s,t)=>s+(matches(title,t)?8:0)+(matches(metadata,t)?6:0),0)+passageScore;
-  if(!groups.has(doc.url))groups.set(doc.url,{...doc,score:0,sections:[]});
+  if(!groups.has(doc.url))groups.set(doc.url,{...doc,score:0,sections:[],matchedTerms:new Set()});
   const group=groups.get(doc.url);
   group.score=Math.max(group.score,score);
+  for(const term of expanded){
+   if(matches(title,term)||matches(text,term)||matches(metadata,term))group.matchedTerms.add(term);
+  }
   group.sections.push({text:doc.text,score:passageScore});
  }
- // Prefer source project pages over career/timeline pages that repeat their summaries.
+ // Prefer source project pages, then documents that cover more of the query terms.
  const selected=[...groups.values()].filter(d=>d.score>0).sort((a,b)=>
-  Number(b.url.includes('/projects/'))-Number(a.url.includes('/projects/'))||b.score-a.score
+  Number(b.url.includes('/projects/'))-Number(a.url.includes('/projects/'))||
+  b.matchedTerms.size-a.matchedTerms.size||
+  b.score-a.score
  ).slice(0,4);
  const budget=Math.floor(2000/Math.max(1,selected.length));
  return selected.map(doc=>{
