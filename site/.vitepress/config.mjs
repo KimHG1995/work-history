@@ -22,7 +22,7 @@ const sidebar = [
   {
     text: '사이드 프로젝트',
     collapsed: false,
-    items: [projectGroups.get('papertrail'), projectGroups.get('loglens'), projectGroups.get('netbox-cloud-inventory'), projectGroups.get('hr-saas'), projectGroups.get('ai-development-setup')]
+    items: [projectGroups.get('papertrail'), projectGroups.get('ai-development-setup'), projectGroups.get('loglens'), projectGroups.get('netbox-cloud-inventory'), projectGroups.get('hr-saas')]
   },
   ...groups.filter(group => !groupedNames.has(group.name)).map(group => projectGroups.get(group.name))
 ];
