@@ -4,25 +4,17 @@
 
 ## 회사 프로젝트
 
-### 민방위 서비스 개발과 운영 개선
+### 공공 교육 플랫폼 개발과 운영 개선
 
-2025-11 ~ 현재 | [프로젝트 개요](civil-defense/README.md)
-
-| 작업 | 요약 |
-| --- | --- |
-| [예약 메시지 발송 비용 개선](civil-defense/reservation-messages.md) | 반복 발송 비용을 줄이기 위한 알림톡 전환 제안과 구현 |
-| [출결 상태와 단체 인증 처리 개선](civil-defense/attendance.md) | 출결 상태 변경을 트랜잭션으로 묶고 단체 인증의 병렬 처리와 실패 목록 구현 |
-| [예약과 취소의 동시 요청 처리 개선](civil-defense/reservation.md) | 예약과 취소의 상태 변경, 잔여 인원 갱신을 트랜잭션과 DB 잠금으로 처리 |
-| [운영 데이터 집계와 Google Sheets 자동화](civil-defense/google-sheets-automation.md) | 수동 데이터 정리 업무를 크론으로 자동화하고, 데이터 규모에 따라 애플리케이션 가공과 청크 처리로 18개 Google Sheets 생성 |
-| [민방위 서비스 개발과 운영](civil-defense/operations.md) | 운영팀 요청 기능 개발, API 개선과 운영 이슈 대응 |
-
-### 예비군 서비스 개발과 운영
-
-2025-11 ~ 현재 | [프로젝트 개요](reserve-service/README.md)
+2025-11 ~ 현재 | [프로젝트 개요](public-education/README.md)
 
 | 작업 | 요약 |
 | --- | --- |
-| [예비군 서비스 개발과 운영](reserve-service/operations.md) | React 웹과 Node.js 서버의 풀스택 개발 및 유지보수 |
+| [예약 메시지 발송 비용 개선](public-education/reservation-messages.md) | 반복 발송 비용을 줄이기 위한 알림톡 전환 제안과 구현 |
+| [출결 상태와 단체 인증 처리 개선](public-education/attendance.md) | 출결 상태 변경을 트랜잭션으로 묶고 단체 인증의 병렬 처리와 실패 목록 구현 |
+| [예약과 취소의 동시 요청 처리 개선](public-education/reservation.md) | 예약과 취소의 상태 변경, 잔여 인원 갱신을 트랜잭션과 DB 잠금으로 처리 |
+| [운영 데이터 집계와 Google Sheets 자동화](public-education/google-sheets-automation.md) | 수동 데이터 정리 업무를 크론으로 자동화하고, 데이터 규모에 따라 애플리케이션 가공과 청크 처리로 18개 Google Sheets 생성 |
+| [공공 교육 플랫폼 개발과 운영](public-education/operations.md) | 교육, 예약, 출결, 관리자 기능의 웹과 서버 개발 및 운영 이슈 대응 |
 
 ### 교육 서비스 개발과 운영 개선
 
