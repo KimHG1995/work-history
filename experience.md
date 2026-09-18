@@ -125,7 +125,7 @@
 
 - [API 로그 분석 백엔드 MVP 개발](projects/loglens/mvp.md): ClickHouse Materialized View로 API 로그를 사전 집계하고 트래픽, 응답시간, 에러 리포트와 급증 알림을 구현했습니다.
 
-| 기간 | 작업 | 맡은 범위 |
-| --- | --- | --- |
-| 2025-09 ~ 2025-11, 본업 병행 | [HR 계약과 현장 운영 SaaS MVP 개발](projects/hr-saas/mvp.md) | 관리자와 사용자 웹, 서버, DB, 인증, 스토리지와 배포 |
+[HR 계약과 현장 운영 SaaS](projects/hr-saas/README.md)
+
+- [HR 계약과 현장 운영 SaaS MVP 개발](projects/hr-saas/mvp.md): 2025-09 ~ 2025-11 본업과 병행해 관리자와 사용자 웹, 서버, DB, 인증, 스토리지와 배포 환경을 개발했습니다.
 
