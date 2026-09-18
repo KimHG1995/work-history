@@ -115,6 +115,12 @@
 
 - [전자문서 생성과 증적 플랫폼 개발](projects/papertrail/platform.md): 멀티테넌트 문서 생성 API와 비동기 렌더, 해시 기반 증적, 재현성 검증, Webhook과 운영 Admin을 구현했습니다.
 
+[AI 개발 품질 자동화 환경](projects/ai-development-setup/README.md)
+
+- [Codex 개발 및 검증 루프 자동화](projects/ai-development-setup/codex-quality.md): 구현 이후 변경 범위에 필요한 검사를 선택하고 실패 수정과 재검증까지 이어지는 공통 품질 루프를 구성했습니다.
+- [Claude Code 개발 워크플로 자동화](projects/ai-development-setup/claude-workflow.md): Rules, Skills, Hooks로 요구사항 확인, 안전한 편집, 타입 검사와 테스트 피드백을 연결했습니다.
+- [AI용 TypeScript 코드 그래프 분석 환경](projects/ai-development-setup/typescript-graph.md): 기존 프로젝트 의존성을 바꾸지 않고 함수 호출과 타입 관계를 MCP로 탐색하는 외부 분석 환경을 구성했습니다.
+
 [loglens API 로그 분석 백엔드](projects/loglens/README.md)
 
 - [API 로그 분석 백엔드 MVP 개발](projects/loglens/mvp.md): ClickHouse Materialized View로 API 로그를 사전 집계하고 트래픽, 응답시간, 에러 리포트와 급증 알림을 구현했습니다.
@@ -123,8 +129,3 @@
 | --- | --- | --- |
 | 2025-09 ~ 2025-11, 본업 병행 | [HR 계약과 현장 운영 SaaS MVP 개발](projects/hr-saas/mvp.md) | 관리자와 사용자 웹, 서버, DB, 인증, 스토리지와 배포 |
 
-[AI 개발 환경 작업 목록](projects/ai-development-setup/README.md)
-
-- [Codex 코드 검사 설정](projects/ai-development-setup/codex-quality.md): 개발, 검증과 후속 수정을 연결하는 공통 스킬과 프로젝트별 설정 설치 도구를 구성했습니다.
-- [Claude Code 작업 규칙과 검증 설정](projects/ai-development-setup/claude-workflow.md): 요구사항 확인, 개발과 검증 흐름을 재사용할 수 있도록 규칙, 스킬과 훅을 구성했습니다.
-- [TypeScript 코드 분석용 MCP 연결](projects/ai-development-setup/typescript-graph.md): 기존 서버 버전을 유지하며 TypeScript 7 기반 MCP 분석 환경과 등록 스크립트를 구성했습니다.

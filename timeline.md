@@ -51,15 +51,16 @@
 | --- | --- | --- |
 | 2026-07 | [NetBox Cloud Inventory](projects/netbox-cloud-inventory/inventory.md) | 개인 사이드 프로젝트 |
 | 2026-07 | [PaperTrail 전자문서 생성과 증적 플랫폼](projects/papertrail/platform.md) | 개인 사이드 프로젝트 |
+| 2026-05 ~ 현재 | [AI 개발 품질 자동화 환경](projects/ai-development-setup/README.md) | 개인 개발 도구, 유지보수 중 |
 | 2026-07 | [loglens API 로그 분석 백엔드](projects/loglens/mvp.md) | 개인 사이드 프로젝트 |
 | 2025-09 ~ 2025-11 | [HR 계약과 현장 운영 SaaS MVP 개발](projects/hr-saas/mvp.md) | 본업 병행 |
 
-### AI 개발 환경 설정
+### AI 개발 품질 자동화 환경
 
 | 작업 기간 | 작업 |
 | --- | --- |
-| | [Codex 코드 검사 설정](projects/ai-development-setup/codex-quality.md) |
-| | [Claude Code 작업 규칙과 검증 설정](projects/ai-development-setup/claude-workflow.md) |
-| 2026-07-22, 약 1일. 커밋 기록 기준 | [TypeScript 코드 분석용 MCP 연결](projects/ai-development-setup/typescript-graph.md) |
+| 2026-09 ~ 현재 | [Codex 개발 및 검증 루프 자동화](projects/ai-development-setup/codex-quality.md) |
+| 2026-05 ~ 현재 | [Claude Code 개발 워크플로 자동화](projects/ai-development-setup/claude-workflow.md) |
+| 2026-07-22, 약 1일. 커밋 기록 기준 | [AI용 TypeScript 코드 그래프 분석 환경](projects/ai-development-setup/typescript-graph.md) |
 
-Codex와 Claude Code 설정은 유지보수 중입니다.
+Codex와 Claude Code 설정은 현재도 유지보수 중입니다.
