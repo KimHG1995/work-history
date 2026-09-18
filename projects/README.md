@@ -62,6 +62,16 @@
 | --- | --- |
 | [전자문서 생성과 증적 플랫폼 개발](papertrail/platform.md) | 멀티테넌트 문서 생성 API와 비동기 렌더, 해시 기반 증적, 재현성 검증, Webhook과 Admin 콘솔 구현 |
 
+### AI 개발 품질 자동화 환경
+
+2026-05 ~ 현재 | [프로젝트 개요](ai-development-setup/README.md)
+
+| 작업 | 요약 |
+| --- | --- |
+| [Codex 개발 및 검증 루프 자동화](ai-development-setup/codex-quality.md) | 변경 범위에 맞는 검사를 선택하고 문제 수정과 재검증까지 이어가는 품질 루프 구성 |
+| [Claude Code 개발 워크플로 자동화](ai-development-setup/claude-workflow.md) | Rules, Skills, Hooks로 요구사항 확인부터 타입 검사와 테스트 피드백까지 연결 |
+| [AI용 TypeScript 코드 그래프 분석 환경](ai-development-setup/typescript-graph.md) | 대상 프로젝트 의존성을 변경하지 않고 심볼, 타입과 호출 관계를 MCP로 탐색 |
+
 ### loglens API 로그 분석 백엔드
 
 2026-07 | [프로젝트 개요](loglens/README.md)
@@ -78,12 +88,3 @@
 | --- | --- |
 | [HR 계약과 현장 운영 SaaS MVP 개발](hr-saas/mvp.md) | HR 서비스 PoC의 웹, 서버, DB, 인증과 배포 환경 개발 |
 
-### AI 개발 환경 설정
-
-[프로젝트 개요](ai-development-setup/README.md)
-
-| 작업 | 요약 |
-| --- | --- |
-| [Codex 코드 검사 설정](ai-development-setup/codex-quality.md) | 개발, 검증과 후속 수정을 연결하는 Codex 공통 스킬과 설치 도구 구성 |
-| [Claude Code 작업 규칙과 검증 설정](ai-development-setup/claude-workflow.md) | 요구사항 확인, 개발과 검증 흐름을 재사용하는 Claude Code 설정 구성 |
-| [TypeScript 코드 분석용 MCP 연결](ai-development-setup/typescript-graph.md) | 기존 서버 버전을 유지하는 TypeScript 7 기반 MCP 코드 분석 환경 연결 |
