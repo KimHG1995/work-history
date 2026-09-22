@@ -46,14 +46,6 @@
 
 ## 사이드 프로젝트
 
-### NetBox Cloud Inventory
-
-2026-07 | [프로젝트 개요](netbox-cloud-inventory/README.md)
-
-| 작업 | 요약 |
-| --- | --- |
-| [멀티클라우드 인프라 자산 관리 PoC 개발](netbox-cloud-inventory/inventory.md) | AWS와 NAVER Cloud Platform Export를 공통 모델로 정규화하고 Preview 승인 후 NetBox에 멱등 반영하는 수동 Import PoC 구현 |
-
 ### PaperTrail 전자문서 생성과 증적 플랫폼
 
 2026-07 | [프로젝트 개요](papertrail/README.md)
@@ -80,6 +72,14 @@
 | --- | --- |
 | [API 로그 분석 백엔드 MVP 개발](loglens/mvp.md) | ClickHouse Materialized View로 로그를 사전 집계하고 트래픽, 지연시간, 에러 리포트와 급증 알림 구현 |
 
+### NetBox Cloud Inventory
+
+2026-07 | [프로젝트 개요](netbox-cloud-inventory/README.md)
+
+| 작업 | 요약 |
+| --- | --- |
+| [멀티클라우드 인프라 자산 관리 PoC 개발](netbox-cloud-inventory/inventory.md) | AWS와 NAVER Cloud Platform Export를 공통 모델로 정규화하고 Preview 승인 후 NetBox에 멱등 반영하는 수동 Import PoC 구현 |
+
 ### HR 계약과 현장 운영 SaaS
 
 2025-09 ~ 2025-11, 본업 병행 | [프로젝트 개요](hr-saas/README.md)
@@ -87,4 +87,3 @@
 | 작업 | 요약 |
 | --- | --- |
 | [HR 계약과 현장 운영 SaaS MVP 개발](hr-saas/mvp.md) | HR 서비스 PoC의 웹, 서버, DB, 인증과 배포 환경 개발 |
-
