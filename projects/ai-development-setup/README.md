@@ -52,6 +52,6 @@ flowchart TD
 
 | 작업 | 요약 |
 | --- | --- |
-| [Codex 개발 및 검증 루프 자동화](codex-quality.md) | 변경 범위에 맞는 검사를 선택하고 문제 수정과 재검증까지 이어가는 공통 품질 루프 구성 |
-| [Claude Code 개발 워크플로 자동화](claude-workflow.md) | 작업 규칙, Skills, Hooks와 회귀 테스트로 요구사항 확인부터 검증까지 연결 |
-| [AI용 TypeScript 코드 그래프 분석 환경](typescript-graph.md) | 기존 프로젝트 의존성을 변경하지 않고 TypeScript 7 코드 그래프를 MCP로 연결 |
+| [Codex 개발 및 검증 루프 자동화](codex-quality.md) | 변경 범위에 맞는 검사를 선택하고 문제 수정과 재검증까지 이어가는 품질 루프 구성 |
+| [Claude Code 개발 워크플로 자동화](claude-workflow.md) | Rules, Skills, Hooks로 요구사항 확인부터 타입 검사와 테스트 피드백까지 연결 |
+| [AI용 TypeScript 코드 그래프 분석 환경](typescript-graph.md) | 대상 프로젝트 의존성을 변경하지 않고 심볼, 타입과 호출 관계를 MCP로 탐색 |
