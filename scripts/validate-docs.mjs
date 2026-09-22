@@ -11,7 +11,7 @@ const relative = file => toPosix(path.relative(root, file));
 async function markdownFiles(dir) {
   const files = [];
   for (const entry of await readdir(dir, { withFileTypes: true })) {
-    if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'site') continue;
+    if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'site' || entry.name === 'templates') continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) files.push(...await markdownFiles(full));
     else if (entry.isFile() && entry.name.endsWith('.md')) files.push(full);
