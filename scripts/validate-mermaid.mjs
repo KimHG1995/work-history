@@ -1,6 +1,12 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import mermaid from 'mermaid';
+import DOMPurify from 'dompurify';
+
+// Mermaid의 flowchart parser는 Node에서도 텍스트 정제 훅을 호출합니다.
+// 문법 검증에서는 HTML 렌더링을 하지 않으므로 정제 단계만 우회합니다.
+DOMPurify.addHook = () => {};
+DOMPurify.sanitize = value => value;
+const { default: mermaid } = await import('mermaid');
 
 const root = path.resolve(import.meta.dirname, '..');
 const skipped = new Set(['.git', 'node_modules']);
