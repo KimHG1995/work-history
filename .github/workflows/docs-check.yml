@@ -5,6 +5,7 @@ on:
     paths:
       - '**/*.md'
       - 'scripts/validate-mermaid.mjs'
+      - 'scripts/validate-docs.mjs'
       - 'scripts/prepare-site.mjs'
       - 'scripts/prepare-chat.mjs'
       - 'tests/**'
@@ -25,6 +26,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run test:docs
       - run: npm run test:mermaid
       - run: npm run docs:prepare
       - run: npm test
