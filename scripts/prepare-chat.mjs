@@ -1,5 +1,7 @@
 import {readFile,readdir,mkdir,writeFile} from 'node:fs/promises';
 import path from 'node:path';
+import { readSiteConfig } from './site-config.mjs';
+const site = readSiteConfig();
 const root=path.resolve(import.meta.dirname,'..');
 const files=['experience.md','timeline.md'];
 async function collect(dir){for(const entry of await readdir(path.join(root,dir),{withFileTypes:true})){const file=dir+'/'+entry.name;if(entry.isDirectory())await collect(file);else if(entry.name.endsWith('.md')&&entry.name!=='README.md')files.push(file);}}
@@ -12,7 +14,7 @@ for(const file of files){
  const group=overview.match(/^# (.+)/m)?.[1]||'';
  const category=overview.match(/\| 프로젝트 구분 \| ([^|]+)/)?.[1]?.trim()||'';
  const text=raw.replace(/```[\s\S]*?```/g,'').replace(/\[([^\]]+)\]\([^)]+\)/g,'$1').replace(/[*#`|]/g,'').replace(/\n{3,}/g,'\n\n');
- const url='/work-history/'+(file==='experience.md'?'':file.replace(/\.md$/,''));
+ const url=site.base+(file==='experience.md'?'':file.replace(/\.md$/,''));
  for(const section of text.split(/\n\n/)){if(section.trim().length>25)docs.push({title,text:section.trim(),url,group,category});}
 }
 await mkdir(path.join(root,'worker/generated'),{recursive:true});

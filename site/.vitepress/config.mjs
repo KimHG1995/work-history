@@ -2,6 +2,9 @@ import { defineConfig } from 'vitepress';
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { resolveChatApiUrl } from '../chat.config.mjs';
+import { readSiteConfig, pageUrl, applyPageMetadata } from '../../scripts/site-config.mjs';
+
+const site = readSiteConfig();
 
 const projects = path.resolve(import.meta.dirname, '../../projects');
 const title = file => readFileSync(file, 'utf8').match(/^# (.+)$/m)?.[1] ?? path.basename(file, '.md');
@@ -32,7 +35,15 @@ export default defineConfig({
   lang: 'ko-KR',
   title: '개발과 작업 기록',
   description: '문제를 발견하고 설계, 개발, 운영으로 이어간 기록',
-  base: '/work-history/',
+  base: site.base,
+  sitemap: {
+    hostname: site.origin + site.base,
+    transformItems: items => items.flatMap(item => {
+      const url = pageUrl(site, item.url.replace(/^\//, ''));
+      return url ? [{ ...item, url }] : [];
+    })
+  },
+  transformPageData(page) { applyPageMetadata(page, site); },
   srcDir: './content',
   cleanUrls: true,
   lastUpdated: false,
@@ -44,7 +55,7 @@ export default defineConfig({
   head: [
     ['script', { type: 'text/javascript' }, `
       (function(c,l,a,r,i,t,y){
-        if (location.hostname !== 'kimhg1995.github.io') return;
+        if (location.origin !== ${JSON.stringify(site.origin)}) return;
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
         t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
         y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
@@ -53,7 +64,7 @@ export default defineConfig({
   ],
   themeConfig: {
     siteTitle: '개발과 작업 기록',
-    nav: [{ text: '근무 기록', link: '/' }, { text: '전체 작업', link: '/projects/' }, { text: '기간별 기록', link: '/timeline' }],
+    nav: [{ text: '근무 기록', link: '/' }, { text: '전체 작업', link: '/projects/' }, { text: '기간별 기록', link: '/timeline' }, { text: '사이트 안내', items: [{ text: '소개', link: '/about' }, { text: '개인정보 안내', link: '/privacy' }] }],
     sidebar: [{ text: '기록 살펴보기', items: [{ text: '근무 기록', link: '/' }, { text: '전체 작업 목록', link: '/projects/' }, { text: '기간별 기록', link: '/timeline' }] }, ...sidebar],
     outline: { level: [2, 3], label: '이 페이지에서' },
     search: { provider: 'local', options: { locales: { root: { translations: { button: { buttonText: '검색', buttonAriaLabel: '문서 검색' }, modal: { noResultsText: '검색 결과가 없습니다.', resetButtonTitle: '검색어 지우기', footer: { selectText: '선택', navigateText: '이동', closeText: '닫기' } } } } } } },
