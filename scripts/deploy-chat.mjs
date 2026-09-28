@@ -9,12 +9,12 @@ async function cf(path) {
   const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/${path}`, {headers: {Authorization: `Bearer ${token}`}, signal: AbortSignal.timeout(15000)});
   const body = await response.json();
   if (!response.ok || !body.success) {
-    const codes = (Array.isArray(body.errors) ? body.errors : []).map(e => e.code).filter(Number.isInteger).join(', ') || 'none';
+    const codes = (Array.isArray(body.errors) ? body.errors : []).map(e => e.code).filter(Number.isInteger).join(', ');
     if (path === 'subscriptions') {
       const probe = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/workers/scripts`, {headers: {Authorization: `Bearer ${token}`}, signal: AbortSignal.timeout(15000)});
       console.log(`Read-only Workers access check: HTTP ${probe.status}.`);
     }
-    throw new Error(`Cloudflare ${path}: HTTP ${response.status}, error codes ${codes}. No deployment performed. Check token permissions and account scope.`);
+    throw new Error(`Cloudflare ${path}: HTTP ${response.status}, error codes ${codes || 'none'}. No deployment performed. Check token permissions and account scope.`);
   }
   return body;
 }
@@ -68,5 +68,5 @@ if (process.env.CHAT_VERIFY_LIVE === 'true') {
 }
 await appendFile(githubEnv, `VITE_CHAT_API_URL=${api}\n`);
 if (process.env.GITHUB_STEP_SUMMARY) {
-  await appendFile(process.env.GITHUB_STEP_SUMMARY, `## AI Worker 배포\n\n정적 사이트의 Repository Variable \`VITE_CHAT_API_URL\`에 \`${api}\`를 등록하세요. API 주소는 공개 설정이며 Secret이 아닙니다. 다음 정적 사이트 배포부터 적용됩니다.\n`);
+  await appendFile(process.env.GITHUB_STEP_SUMMARY, `## AI Worker 배포\n\n배포 주소: \`${api}\`\n\n이 주소가 \`site/chat.config.mjs\`의 기본 주소와 같으면 \`VITE_CHAT_API_URL\`을 따로 등록하지 않아도 됩니다. 주소를 바꾼 경우에만 기본 설정 또는 선택적 환경변수를 갱신하세요. 자세한 내용은 \`docs/chat-connection.md\`에 있습니다. 사이트의 주소 설정을 변경했다면 정적 사이트 재배포도 필요합니다.\n`);
 }

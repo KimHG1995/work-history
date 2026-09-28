@@ -1,13 +1,13 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
+import { resolveChatApiUrl } from '../site/chat.config.mjs';
 
 const output = path.resolve(import.meta.dirname, '../site/.vitepress/dist');
 // The fallback search index must be included in the published site.
 JSON.parse(await readFile(path.join(output, 'chat-docs.json'), 'utf8'));
 let count = 0;
-const chat = process.env.VITE_CHAT_API_URL || '';
-if (chat && !/^https:\/\/work-history-chat\.[a-z0-9-]+\.workers\.dev$/.test(chat)) throw new Error('Invalid chat origin');
+const chat = resolveChatApiUrl(process.env.VITE_CHAT_API_URL);
 async function secure(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const file = path.join(directory, entry.name);
