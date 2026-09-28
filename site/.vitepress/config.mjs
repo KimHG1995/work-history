@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress';
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { resolveChatApiUrl } from '../chat.config.mjs';
 
 const projects = path.resolve(import.meta.dirname, '../../projects');
 const title = file => readFileSync(file, 'utf8').match(/^# (.+)$/m)?.[1] ?? path.basename(file, '.md');
@@ -35,6 +36,11 @@ export default defineConfig({
   srcDir: './content',
   cleanUrls: true,
   lastUpdated: false,
+  vite: {
+    define: {
+      'import.meta.env.VITE_CHAT_API_URL': JSON.stringify(resolveChatApiUrl(process.env.VITE_CHAT_API_URL))
+    }
+  },
   head: [
     ['script', { type: 'text/javascript' }, `
       (function(c,l,a,r,i,t,y){
