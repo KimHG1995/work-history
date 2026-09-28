@@ -39,7 +39,11 @@ export default defineConfig({
   sitemap: {
     hostname: site.origin + site.base,
     transformItems: items => items.flatMap(item => {
-      const url = pageUrl(site, item.url.replace(/^\//, ''));
+      // VitePress 1.6.4 supplies '' for the home page and '404' with cleanUrls.
+      // Adapt only sitemap input; keep source-file path validation unchanged.
+      const route = item.url.replace(/^\//, '');
+      const file = route === '' ? 'index.md' : route === '404' ? '404.md' : route;
+      const url = pageUrl(site, file);
       return url ? [{ ...item, url }] : [];
     })
   },
