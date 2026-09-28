@@ -21,7 +21,7 @@
 
 ## 다음 단계 구현: 배포 설정과 AdSense 심사 준비
 
-아래 체크는 후속 작업 브랜치의 구현과 로컬 회귀 테스트 기준입니다. PR 병합이나 계정 연결 완료를 뜻하지 않습니다. 전체 저장소 CI와 실제 빌드 결과는 해당 PR의 실행 결과에 기록합니다.
+아래 체크는 PR #14의 구현과 자동 검증 기준입니다. PR 병합이나 계정 연결 완료를 뜻하지 않습니다. 코드 커밋 `06fbda8`의 전체 저장소 CI에서 기본 GitHub 빌드와 Pages 심사 모드 빌드를 모두 확인했습니다.
 
 - [x] `SITE_TARGET`, `SITE_ORIGIN`, `SITE_BASE`를 검증하고 기존 GitHub 설정을 기본값으로 유지합니다.
 - [x] 실제 Pages Origin을 지정한 경우에만 루트 경로로 빌드합니다. 프로젝트 주소를 추측하지 않습니다.
@@ -33,7 +33,11 @@
 - [x] Pages용 robots는 기존 AI 학습 수집 제한을 루트에 적용합니다. GitHub의 프로젝트 하위 robots를 도메인 루트 정책으로 잘못 제공하지 않습니다.
 - [x] `enabled`와 정적 CSP 완화는 아직 빌드 오류로 차단합니다. 광고 코드를 미리 송출하지 않습니다.
 - [x] 설정 변경 PR에서만 별도의 Pages 심사 모드 빌드를 검사합니다. 일반 콘텐츠 변경과 운영 배포에는 이 추가 빌드를 넣지 않습니다.
+- [x] sitemap의 빈 홈페이지 URL과 확장자가 없는 404 경로를 처리했습니다. 두 대상에서 파일명과 clean URL, 하위 문서, 한국어 경로를 회귀 검사합니다.
+- [x] 문서 48개, Mermaid 36개, 일반 테스트 71개, Worker 모의 통합 테스트 7개가 통과했습니다. 두 대상의 빌드와 HTML 38개씩의 canonical, sitemap, 광고 확인 파일 검사도 통과했습니다.
 - [ ] 이 단계의 PR을 병합하고 기존 GitHub 페이지의 소개, 개인정보 안내, 링크를 운영에서 확인합니다.
+
+검증 근거: [PR #14](https://github.com/KimHG1995/work-history/pull/14), [sitemap 수정 커밋](https://github.com/KimHG1995/work-history/commit/06fbda875fbb2b2267d683f94e44b6e9f9cf762c), [두 대상 빌드 성공 실행](https://github.com/KimHG1995/work-history/actions/runs/36384457939/job/108806805458). 이전에 도구 오류로 반영하지 못했던 sitemap 수정은 이 커밋에 반영했습니다. 로컬에서는 관련 테스트의 실패 2개를 재현한 뒤 수정 후 4개 통과를 확인했습니다. 전체 검증은 GitHub Actions에서 수행했습니다. 별도 독립 리뷰는 받지 않았으며 작성자가 변경 내용을 자체 검토했습니다.
 
 자세한 설정과 검증 방식은 [정적 사이트 심사 준비](static-site-verification.md)에 있습니다.
 
