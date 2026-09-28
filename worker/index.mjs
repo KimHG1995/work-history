@@ -1,10 +1,13 @@
 import { DurableObject } from 'cloudflare:workers';
 import docs from './generated/docs.json';
+import { hashDocuments } from './docs-version.mjs';
 import { verifyReceipt } from './cost.mjs';
 import { reserve, finish } from './policy.mjs';
 import { selectContext } from './search.mjs';
 import { validateQuestion, makePayload, providerResult } from './chat.mjs';
 
+let docsVersion;
+const currentDocsVersion = async () => docsVersion ??= await hashDocuments(docs);
 const origin = 'https://kimhg1995.github.io';
 const unavailable = { message: '지금은 AI 답변을 제공하기 어렵습니다. 관련 문서를 확인해 주세요.' };
 const encode = new TextEncoder();
@@ -59,9 +62,12 @@ export default {
     }});
     if (request.method !== 'POST') return json({message: 'POST only'}, 405);
     if (!request.headers.get('Content-Type')?.startsWith('application/json')) return json({message: 'JSON required'}, 415);
-    let question;
-    try { question = validateQuestion(JSON.parse(await readBounded(request.body, 4096))); }
+    let question; let payload;
+    try { payload = JSON.parse(await readBounded(request.body, 4096)); question = validateQuestion(payload); }
     catch (e) { return json({message: '질문을 500자 이내로 입력해 주세요.'}, e.message === 'large' ? 413 : 400); }
+    if (payload.docsDigest !== undefined && payload.docsDigest !== await currentDocsVersion()) {
+      return json({code:'docs_outdated', message:'문서가 갱신되었습니다. 아래의 최신 문서 링크를 확인해 주세요.'}, 409);
+    }
     const found = selectContext(question, docs);
     const sources = found.map(({title, url}) => ({title, url}));
     if (!found.length) return json({answer: '공개 문서에서 관련 내용을 찾지 못했습니다. 프로젝트명이나 기술 이름을 넣어 질문해 주세요.', sources});
@@ -87,7 +93,7 @@ export class ChatGate extends DurableObject {
   async fetch(request) {
     if (new URL(request.url).pathname === '/health') {
       await this.ctx.storage.get('policy');
-      return json({ready:true,release:this.env.RELEASE_SHA || 'dev'});
+      return json({ready:true,release:this.env.RELEASE_SHA || 'dev',docsDigest:await currentDocsVersion()});
     }
     if (new URL(request.url).pathname === '/recover') {
       const {id} = await request.json();

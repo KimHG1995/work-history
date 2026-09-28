@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Miniflare, convertV4MiniflareOptions } from 'miniflare';
+import { readFileSync } from 'node:fs';
+import { hashDocuments } from '../worker/docs-version.mjs';
+const docsDigest = await hashDocuments(JSON.parse(readFileSync('worker/generated/docs.json', 'utf8')));
 const origin = 'https://kimhg1995.github.io';
 function setup(reply) {
   let calls = 0; let lastPayload;
@@ -17,7 +20,7 @@ function setup(reply) {
 test('HTTP validation, parallel reservation and duplicate response cache',async()=>{
   const {mf,send,calls}=setup(()=>Response.json({usage:{cost_usd:0},choices:[{message:{content:'<script>alert(1)</script> 문서 답변'}}]}));
   try {
-    const health=await mf.dispatchFetch('https://test/health');assert.deepEqual(await health.json(),{ready:true,release:'dev'});assert.equal(calls(),0);
+    const health=await mf.dispatchFetch('https://test/health');assert.deepEqual(await health.json(),{ready:true,release:'dev',docsDigest});assert.equal(calls(),0);
     assert.equal((await send('쿠폰',{Origin:'https://evil.example'})).status,403);
     assert.equal((await send('쿠폰',{'Content-Type':'text/plain'})).status,415);
     assert.equal((await send('가'.repeat(2000))).status,413);
@@ -72,4 +75,21 @@ test('natural career question reaches AI with all documented periods',async()=>{
   const context=payload().messages[1].content;
   for(const period of ['2020-12','2021-07','2024-01','2025-10','2025-11 ~ 현재'])assert.ok(context.includes(period));
  }finally{await mf.dispose();}
+});
+
+test('index mismatch is rejected before model use while matching versions work', async () => {
+  const {mf, calls} = setup(() => Response.json({usage:{cost_usd:0},choices:[{message:{content:'verified'}}]}));
+  const sendVersion = version => mf.dispatchFetch('https://test/chat', {
+    method:'POST', headers:{Origin:origin,'Content-Type':'application/json','CF-Connecting-IP':'203.0.113.4'},
+    body:JSON.stringify({question:'쿠폰 시스템',docsDigest:version})
+  });
+  try {
+    const mismatch = await sendVersion('0'.repeat(64));
+    assert.equal(mismatch.status, 409);
+    assert.equal((await mismatch.json()).code, 'docs_outdated');
+    assert.equal(calls(), 0);
+    const matching = await sendVersion(docsDigest);
+    assert.equal(matching.status, 200);
+    assert.equal(calls(), 1);
+  } finally { await mf.dispose(); }
 });
