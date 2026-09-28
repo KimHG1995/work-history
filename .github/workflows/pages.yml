@@ -4,6 +4,16 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      target:
+        description: 이번 배포 대상 (configured는 저장소 설정 사용)
+        type: choice
+        options: [configured, github, pages]
+        default: configured
+      confirm_pages:
+        description: 기존 Pages 프로젝트에 정적 파일 배포를 승인합니다.
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -18,6 +28,7 @@ jobs:
     timeout-minutes: 15
     outputs:
       site: ${{ steps.changes.outputs.site }}
+      target: ${{ steps.target.outputs.target }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,20 +40,49 @@ jobs:
       - name: 변경 영향 확인
         id: changes
         run: node scripts/ci-changes.mjs "$RUNNER_TEMP/ci-changes.json"
+      - name: 공개 배포 설정 확정
+        id: target
+        if: steps.changes.outputs.site == 'true'
+        run: node scripts/pages-config.mjs "$RUNNER_TEMP/site-deployment.json"
+        env:
+          DEPLOY_TARGET: ${{ inputs.target }}
+          PAGES_DEPLOY_CONFIRMED: ${{ inputs.confirm_pages }}
+          SITE_TARGET: ${{ vars.SITE_TARGET }}
+          SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
+          CLOUDFLARE_PAGES_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT }}
+          ADS_MODE: ${{ vars.ADS_MODE }}
+          ADS_PUBLISHER_ID: ${{ vars.ADS_PUBLISHER_ID }}
+          ADS_CSP_MODE: ${{ vars.ADS_CSP_MODE }}
+          VITE_CHAT_API_URL: ${{ vars.VITE_CHAT_API_URL }}
       - name: 필요한 검사와 정적 빌드
-        run: node scripts/run-ci.mjs "$RUNNER_TEMP/ci-changes.json"
+        run: node scripts/run-ci.mjs "$RUNNER_TEMP/ci-changes.json" "$RUNNER_TEMP/site-deployment.json"
         env:
           VITE_CHAT_API_URL: ${{ vars.VITE_CHAT_API_URL }}
       - uses: actions/configure-pages@v5
-        if: steps.changes.outputs.site == 'true'
+        if: steps.changes.outputs.site == 'true' && steps.target.outputs.target == 'github'
       - uses: actions/upload-pages-artifact@v3
-        if: steps.changes.outputs.site == 'true'
+        if: steps.changes.outputs.site == 'true' && steps.target.outputs.target == 'github'
         with:
           path: site/.vitepress/dist
+      - name: Pages 정적 산출물 검사와 포장
+        if: steps.changes.outputs.site == 'true' && steps.target.outputs.target == 'pages'
+        run: |
+          node scripts/deploy-site.mjs --check "$RUNNER_TEMP/site-deployment.json" site/.vitepress/dist
+          mkdir -p "$RUNNER_TEMP/pages-upload"
+          cp "$RUNNER_TEMP/site-deployment.json" "$RUNNER_TEMP/pages-upload/deployment.json"
+          cp -R site/.vitepress/dist "$RUNNER_TEMP/pages-upload/dist"
+      - uses: actions/upload-artifact@v4
+        if: steps.changes.outputs.site == 'true' && steps.target.outputs.target == 'pages'
+        with:
+          name: cloudflare-pages-${{ github.sha }}
+          path: ${{ runner.temp }}/pages-upload
+          if-no-files-found: error
+          retention-days: 3
+          include-hidden-files: true
   deploy:
     needs: build
-    if: needs.build.outputs.site == 'true'
-    # Docs-only runs never enter the deployment queue.
+    if: needs.build.outputs.site == 'true' && needs.build.outputs.target == 'github'
+    # Both targets share the production queue, but only one runs per build.
     concurrency:
       group: pages
       cancel-in-progress: false
@@ -70,3 +110,35 @@ jobs:
         if: steps.freshness.outputs.deploy == 'true'
         id: deployment
         uses: actions/deploy-pages@v4
+  deploy_cloudflare:
+    needs: build
+    if: needs.build.outputs.site == 'true' && needs.build.outputs.target == 'pages'
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    environment:
+      name: cloudflare-pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: cloudflare-pages-${{ github.sha }}
+          path: ${{ runner.temp }}/pages-upload
+      - name: 업로드 CLI 준비 (사이트 재빌드 없음)
+        run: npm ci --ignore-scripts
+      - name: 검증된 정적 파일만 Pages 업로드
+        run: node scripts/deploy-site.mjs --upload "$RUNNER_TEMP/pages-upload/deployment.json" "$RUNNER_TEMP/pages-upload/dist"
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN }}
+          PAGES_DEPLOY_CONFIRMED: ${{ inputs.confirm_pages }}

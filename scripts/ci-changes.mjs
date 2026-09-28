@@ -31,6 +31,8 @@ export function classifyChanges(paths) {
       set('unit', 'worker', 'workerTest');
     } else if (file === 'scripts/prepare-chat.mjs' || file === 'scripts/prepare-site.mjs' || file === 'scripts/site-config.mjs') {
       set('docsCheck', 'site', 'build', 'unit', 'worker', 'workerTest');
+    } else if (['scripts/deploy-site.mjs', 'scripts/pages-config.mjs', 'scripts/static-output.mjs', 'wrangler.pages.jsonc'].includes(file)) {
+      set('site', 'build', 'unit');
     } else if (file === 'scripts/prepare-public.mjs') {
       set('docsCheck', 'site', 'build', 'unit');
     } else if (['scripts/verify-site-output.mjs', 'scripts/verify-site-variants.mjs'].includes(file)) {

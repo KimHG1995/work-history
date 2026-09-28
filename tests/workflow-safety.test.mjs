@@ -16,7 +16,8 @@ test('required PR validate has no path filter, deployment or external service se
 
 test('site pipeline gates deployment and isolates concurrency from classification', () => {
   const text = read('.github/workflows/pages.yml');
-  assert.doesNotMatch(text, /secrets\.|chat:deploy|ORCAROUTER|CLOUDFLARE/);
+  const githubJobs = text.split('\n  deploy_cloudflare:\n')[0];
+  assert.doesNotMatch(githubJobs, /secrets\.|chat:deploy|ORCAROUTER/);
   assert.match(text, /steps\.changes\.outputs\.site == 'true'/);
   assert.match(text, /needs\.build\.outputs\.site == 'true'/);
   assert.match(text, /vars\.VITE_CHAT_API_URL/);
