@@ -45,7 +45,7 @@ try {
 }
 const api = `https://work-history-chat.${subdomain.subdomain}.workers.dev`;
 console.log(`Chat API: ${api}`);
-// Confirm the deployed Durable Object version twice before the single AI call.
+// Confirm the deployed Durable Object version twice, without a model request.
 // Health probes read storage but do not call the model or reserve rate slots.
 let stable = 0;
 for (let attempt = 0; attempt < 12; attempt++) {
@@ -57,9 +57,16 @@ for (let attempt = 0; attempt < 12; attempt++) {
   await new Promise(resolve => setTimeout(resolve, 5000));
 }
 if (stable < 2) throw new Error('Worker release is not ready. No AI call was made.');
-// Exactly one live free call. A failure leaves the existing Pages site intact.
-const response = await fetch(`${api}/chat`, {method: 'POST', headers: {Origin: 'https://kimhg1995.github.io', 'Content-Type': 'application/json'}, body: JSON.stringify({question: '쿠폰 시스템은 어떻게 개발했나요?'}), signal: AbortSignal.timeout(35000)});
-let body = {}; try { body = await response.json(); } catch {}
-if (!response.ok || body.cost !== 0 || typeof body.answer !== 'string' || !body.answer) throw new Error(`Free response verification failed (${response.status}, code: ${body.code || 'not provided'}, retryAfter: ${body.retryAfter || 0}s). No automatic retry or paid fallback. Pages deployment stopped.`);
-console.log('Live response verified: reported cost USD 0.');
+if (process.env.CHAT_VERIFY_LIVE === 'true') {
+  // Exactly one optional live free call; never used by ordinary CI.
+  const response = await fetch(`${api}/chat`, {method: 'POST', headers: {Origin: 'https://kimhg1995.github.io', 'Content-Type': 'application/json'}, body: JSON.stringify({question: '쿠폰 시스템은 어떻게 개발했나요?'}), signal: AbortSignal.timeout(35000)});
+  let body = {}; try { body = await response.json(); } catch {}
+  if (!response.ok || body.cost !== 0 || typeof body.answer !== 'string' || !body.answer) throw new Error(`Free response verification failed (${response.status}, code: ${body.code || 'not provided'}, retryAfter: ${body.retryAfter || 0}s). No automatic retry or paid fallback. Worker live verification failed; the static site is unchanged.`);
+  console.log('Live response verified: reported cost USD 0.');
+} else {
+  console.log('Live AI verification skipped. No model request was made.');
+}
 await appendFile(githubEnv, `VITE_CHAT_API_URL=${api}\n`);
+if (process.env.GITHUB_STEP_SUMMARY) {
+  await appendFile(process.env.GITHUB_STEP_SUMMARY, `## AI Worker 배포\n\n정적 사이트의 Repository Variable \`VITE_CHAT_API_URL\`에 \`${api}\`를 등록하세요. API 주소는 공개 설정이며 Secret이 아닙니다. 다음 정적 사이트 배포부터 적용됩니다.\n`);
+}

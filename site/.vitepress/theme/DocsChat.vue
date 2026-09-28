@@ -2,6 +2,8 @@
 import { ref, computed, onUnmounted } from 'vue';
 import { withBase } from 'vitepress';
 import { selectContext } from '../../../worker/search.mjs';
+import { hashDocuments } from '../../../worker/docs-version.mjs';
+import { requestCurrentChat } from './chat-request.mjs';
 import ChatMascot from './ChatMascot.vue';
 const dialog = ref(null);
 const question = ref('');
@@ -12,7 +14,7 @@ const remaining = ref(0);
 const elapsed = ref(0);
 const loadingMessage = ref('관련 문서를 찾고 있어요');
 const api = import.meta.env.VITE_CHAT_API_URL || '';
-let index; let timer; let controller; let loadingTimer;
+let index; let docsDigest; let timer; let controller; let loadingTimer;
 const disabled = computed(() => loading.value || remaining.value > 0 || !question.value.trim());
 function onQuestionKeydown(event) {
   if (event.key !== 'Enter' || event.shiftKey || event.isComposing || event.keyCode === 229) return;
@@ -36,6 +38,7 @@ async function ask() {
       const response = await fetch(withBase('/chat-docs.json'));
       if (!response.ok) throw new Error('index');
       index = await response.json();
+      docsDigest = await hashDocuments(index);
     }
     sources.value = selectContext(question.value, index);
     if (!sources.value.length) {
@@ -47,7 +50,8 @@ async function ask() {
     controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 35000);
     try {
-      const response = await fetch(`${api}/chat`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({question: question.value.trim()}), signal: controller.signal});
+      const response = await requestCurrentChat({ api, docsDigest, question: question.value.trim(), signal: controller.signal });
+      if (!response) { answer.value = 'AI 문서가 갱신 중이거나 연결할 수 없습니다. 아래의 최신 문서 링크를 확인해 주세요.'; return; }
       const body = await response.json();
       answer.value = typeof body.answer === 'string' ? body.answer : (typeof body.message === 'string' ? body.message : 'AI 답변을 받지 못했습니다. 아래 문서를 확인해 주세요.');
       // Links come from the local document index, never from model output.

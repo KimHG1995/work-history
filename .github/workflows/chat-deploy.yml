@@ -1,0 +1,50 @@
+name: AI Worker 수동 배포
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 기존 AI Worker 운영 배포를 승인합니다.
+        type: boolean
+        required: true
+        default: false
+      live_verify:
+        description: 배포 후 실제 무료 AI 요청 1회를 추가 검증합니다.
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chat-production
+  cancel-in-progress: false
+
+env:
+  WRANGLER_SEND_METRICS: 'false'
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main' && inputs.confirm
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run docs:prepare
+      - run: npm test
+      - run: npm run test:worker
+      - name: 승인한 Worker 배포
+        run: npm run chat:deploy
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ORCAROUTER_API_KEY: ${{ secrets.ORCAROUTER_API_KEY }}
+          CHAT_VERIFY_LIVE: ${{ inputs.live_verify }}

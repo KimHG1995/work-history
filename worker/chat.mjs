@@ -1,7 +1,15 @@
 import { isZeroCost } from './cost.mjs';
-export function validateQuestion(body){
- if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(k=>k!=='question')||typeof body.question!=='string')throw new Error('invalid');
- const question=body.question.trim();if(!question||[...question].length>500)throw new Error('invalid');return question;
+export function validateQuestion(body) {
+  if (!body || typeof body !== 'object' || Array.isArray(body) ||
+      Object.keys(body).some(key => key !== 'question' && key !== 'docsDigest') ||
+      typeof body.question !== 'string') throw new Error('invalid');
+  // Version metadata is optional for legacy callers, but never loosely coerced.
+  if (Object.hasOwn(body, 'docsDigest') &&
+      (typeof body.docsDigest !== 'string' || body.docsDigest.length !== 64 ||
+       !/^[a-f0-9]{64}$/.test(body.docsDigest))) throw new Error('invalid');
+  const question = body.question.trim();
+  if (!question || [...question].length > 500) throw new Error('invalid');
+  return question;
 }
 export function makePayload(question,docs){
  return {model:'orcarouter/free',max_tokens:512,stream:false,messages:[
