@@ -2,31 +2,35 @@ name: 문서 검증
 
 on:
   pull_request:
-    paths:
-      - '**/*.md'
-      - 'scripts/validate-mermaid.mjs'
-      - 'scripts/validate-docs.mjs'
-      - 'scripts/prepare-site.mjs'
-      - 'scripts/prepare-chat.mjs'
-      - 'tests/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - '.github/workflows/docs-check.yml'
+  merge_group:
 
 permissions:
   contents: read
 
+concurrency:
+  group: pr-check-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  WRANGLER_SEND_METRICS: 'false'
+
 jobs:
+  # Preserve the required check name. Failures propagate; irrelevant steps are omitted.
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm run test:docs
-      - run: npm run test:mermaid
-      - run: npm run docs:prepare
-      - run: npm test
+      - name: 변경 영향 확인
+        id: changes
+        run: node scripts/ci-changes.mjs "$RUNNER_TEMP/ci-changes.json"
+      - name: 필요한 검사만 실행
+        run: node scripts/run-ci.mjs "$RUNNER_TEMP/ci-changes.json"
+        env:
+          VITE_CHAT_API_URL: ${{ vars.VITE_CHAT_API_URL }}
