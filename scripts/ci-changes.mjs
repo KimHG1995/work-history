@@ -29,8 +29,12 @@ export function classifyChanges(paths) {
       set('site', 'build', 'unit', 'worker', 'workerTest');
     } else if (file.startsWith('worker/') || file === 'wrangler.jsonc' || ['scripts/deploy-chat.mjs', 'scripts/diagnose-chat.mjs'].includes(file)) {
       set('unit', 'worker', 'workerTest');
-    } else if (file === 'scripts/prepare-chat.mjs' || file === 'scripts/prepare-site.mjs') {
+    } else if (file === 'scripts/prepare-chat.mjs' || file === 'scripts/prepare-site.mjs' || file === 'scripts/site-config.mjs') {
       set('docsCheck', 'site', 'build', 'unit', 'worker', 'workerTest');
+    } else if (file === 'scripts/prepare-public.mjs') {
+      set('docsCheck', 'site', 'build', 'unit');
+    } else if (['scripts/verify-site-output.mjs', 'scripts/verify-site-variants.mjs'].includes(file)) {
+      set('build', 'unit');
     } else if (file === 'scripts/validate-docs.mjs') {
       set('docsCheck', 'unit');
     } else if (file === 'scripts/validate-mermaid.mjs') {
@@ -43,7 +47,7 @@ export function classifyChanges(paths) {
     } else if (file.startsWith('site/') || file === 'scripts/secure-site.mjs') {
       set('site', 'build', 'unit');
     } else if (file === 'security/domain-root/robots.txt') {
-      set('docsCheck');
+      set('docsCheck', 'site', 'build', 'unit');
     } else {
       // New inputs must not silently bypass checks or deployment.
       return full();

@@ -34,3 +34,5 @@ jobs:
         run: node scripts/run-ci.mjs "$RUNNER_TEMP/ci-changes.json"
         env:
           VITE_CHAT_API_URL: ${{ vars.VITE_CHAT_API_URL }}
+      - name: 설정 변경 시에만 Pages 심사 모드 검증
+        run: node scripts/verify-site-variants.mjs "$RUNNER_TEMP/ci-changes.json"

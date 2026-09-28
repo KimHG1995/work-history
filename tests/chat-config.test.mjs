@@ -16,7 +16,7 @@ function fixture(value) {
   for (const folder of ['scripts', 'site/.vitepress/dist', 'projects', 'node_modules/vitepress']) {
     mkdirSync(path.join(directory, folder), { recursive: true });
   }
-  for (const file of ['scripts/secure-site.mjs', 'site/.vitepress/config.mjs', 'site/chat.config.mjs']) {
+  for (const file of ['scripts/secure-site.mjs', 'site/.vitepress/config.mjs', 'site/chat.config.mjs', 'scripts/site-config.mjs']) {
     if (existsSync(path.join(root, file))) copyFileSync(path.join(root, file), path.join(directory, file));
   }
   // Only the config identity helper is replaced. Production config and CSP code run unchanged.
@@ -26,6 +26,7 @@ function fixture(value) {
   writeFileSync(path.join(directory, 'site/.vitepress/dist/chat-docs.json'), '[]');
   writeFileSync(path.join(directory, 'site/.vitepress/dist/index.html'), '<!doctype html><html><head><script>window.ready=true;</script></head><body>docs</body></html>');
   const env = { ...process.env, CLOUDFLARE_API_TOKEN: 'test-only-cloud-secret', ORCAROUTER_API_KEY: 'test-only-ai-secret' };
+  for (const key of ['SITE_TARGET', 'SITE_ORIGIN', 'SITE_BASE', 'ADS_MODE', 'ADS_PUBLISHER_ID', 'ADS_CSP_MODE']) delete env[key];
   delete env.VITE_CHAT_API_URL;
   if (value !== undefined) env.VITE_CHAT_API_URL = value;
   const node = args => spawnSync(process.execPath, args, { cwd: directory, env, encoding: 'utf8', timeout: 10000 });

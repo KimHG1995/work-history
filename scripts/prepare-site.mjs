@@ -1,6 +1,9 @@
 import { readFile, writeFile, mkdir, readdir, rm } from 'node:fs/promises';
 import path from 'node:path';
+import { readSiteConfig } from './site-config.mjs';
+import { preparePublic } from './prepare-public.mjs';
 
+const config = readSiteConfig();
 const root = path.resolve(import.meta.dirname, '..');
 const output = path.join(root, 'site/content');
 await rm(output, { recursive: true, force: true });
@@ -36,3 +39,5 @@ for (const source of sources) {
   await writeFile(target, content);
 }
 console.log(`Prepared ${sources.length} pages from existing Markdown.`);
+
+await preparePublic(config, root);
