@@ -68,12 +68,18 @@ test('signed zero-cost receipt recovers disabled state while keeping rate counte
  }finally{await mf.dispose();}
 });
 
-test('natural career question reaches AI with all documented periods',async()=>{
- const {mf,send,payload}=setup(()=>Response.json({usage:{cost_usd:0},choices:[{message:{content:'인턴 포함 약 4년 9개월입니다.'}}]}));
+test('natural career questions retain all periods and homepage sources on both sites',async()=>{
+ const {mf,send,payload,calls}=setup(()=>Response.json({usage:{cost_usd:0},choices:[{message:{content:'테스트용 경력 답변'}}]}));
  try {
-  const response=await send('총 경력이 궁금해');assert.equal(response.status,200);
+  const pagesResponse=await send('총 경력이 궁금해',{Origin:pagesOrigin});
+  assert.equal(pagesResponse.status,200);
+  assert.equal((await pagesResponse.json()).sources[0].url,'/');
   const context=payload().messages[1].content;
   for(const period of ['2020-12','2021-07','2024-01','2025-10','2025-11 ~ 현재'])assert.ok(context.includes(period));
+  const githubResponse=await send('총 경력이 궁금해');
+  assert.equal(githubResponse.status,200);
+  assert.equal((await githubResponse.json()).sources[0].url,'/work-history/');
+  assert.equal(calls(),1);
  }finally{await mf.dispose();}
 });
 

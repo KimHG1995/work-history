@@ -90,7 +90,9 @@ async function handleRequest(request, env, site) {
     if (payload.docsDigest !== undefined && payload.docsDigest !== await currentDocsVersion(site)) {
       return json({code:'docs_outdated', message:'문서가 갱신되었습니다. 아래의 최신 문서 링크를 확인해 주세요.'}, 409);
     }
-    const found = selectContext(question, siteDocuments(site));
+    // Shared career-summary logic recognizes the existing GitHub homepage path.
+    // Select context in that layout, then rebase every source to the caller's site.
+    const found = documentsForSite(selectContext(question, siteDocuments(publicSites[0])), site);
     const sources = found.map(({title, url}) => ({title, url}));
     if (!found.length) return json({answer: '공개 문서에서 관련 내용을 찾지 못했습니다. 프로젝트명이나 기술 이름을 넣어 질문해 주세요.', sources});
     if (!env.ORCAROUTER_API_KEY) return json({...unavailable, sources}, 503);
