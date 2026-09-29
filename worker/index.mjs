@@ -1,14 +1,24 @@
 import { DurableObject } from 'cloudflare:workers';
 import docs from './generated/docs.json';
 import { hashDocuments } from './docs-version.mjs';
+import { publicSites, publicSite, documentsForSite, withSiteCors } from './public-sites.mjs';
 import { verifyReceipt } from './cost.mjs';
 import { reserve, finish } from './policy.mjs';
 import { selectContext } from './search.mjs';
 import { validateQuestion, makePayload, providerResult } from './chat.mjs';
 
-let docsVersion;
-const currentDocsVersion = async () => docsVersion ??= await hashDocuments(docs);
-const origin = 'https://kimhg1995.github.io';
+// Cache by the two approved site profiles, never by arbitrary request headers.
+const indexes = new Map();
+const versions = new Map();
+function siteDocuments(site) {
+  if (!indexes.has(site)) indexes.set(site, documentsForSite(docs, site));
+  return indexes.get(site);
+}
+function currentDocsVersion(site = publicSites[0]) {
+  if (!versions.has(site)) versions.set(site, hashDocuments(siteDocuments(site)));
+  return versions.get(site);
+}
+const origin = publicSites[0].origin;
 const unavailable = { message: '지금은 AI 답변을 제공하기 어렵습니다. 관련 문서를 확인해 주세요.' };
 const encode = new TextEncoder();
 function json(body, status = 200) {
@@ -38,8 +48,21 @@ async function digest(value) {
 }
 export default {
   async fetch(request, env) {
+    const pathname = new URL(request.url).pathname;
+    const requestedOrigin = request.headers.get('Origin');
+    const site = publicSite(requestedOrigin);
+    if ((pathname === '/chat' && !site) || (pathname === '/health' && requestedOrigin !== null && !site)) {
+      return new Response(null, {status:403, headers:{Vary:'Origin', 'Cache-Control':'no-store'}});
+    }
+    const response = await handleRequest(request, env, site || publicSites[0]);
+    // Recovery remains signed and has no browser CORS access.
+    return withSiteCors(response, pathname === '/admin/verify-cost' ? null : site);
+  }
+};
+
+async function handleRequest(request, env, site) {
     if (request.method === 'GET' && new URL(request.url).pathname === '/health') {
-      try { return await env.CHAT_GATE.get(env.CHAT_GATE.idFromName('global-v1')).fetch('https://internal/health'); }
+      try { return await env.CHAT_GATE.get(env.CHAT_GATE.idFromName('global-v1')).fetch('https://internal/health', {headers:{'X-Public-Origin':site.origin}}); }
       catch { return json({ready:false},503); }
     }
     if (new URL(request.url).pathname === '/admin/verify-cost') {
@@ -55,7 +78,6 @@ export default {
       } catch { return new Response(null,{status:403}); }
     }
     if (new URL(request.url).pathname !== '/chat') return json({message: 'Not found'}, 404);
-    if (request.headers.get('Origin') !== origin) return new Response(null, {status: 403});
     if (request.method === 'OPTIONS') return new Response(null, {status: 204, headers: {
       'Access-Control-Allow-Origin': origin, 'Access-Control-Allow-Methods': 'POST',
       'Access-Control-Allow-Headers': 'Content-Type', 'Vary': 'Origin'
@@ -65,10 +87,10 @@ export default {
     let question; let payload;
     try { payload = JSON.parse(await readBounded(request.body, 4096)); question = validateQuestion(payload); }
     catch (e) { return json({message: '질문을 500자 이내로 입력해 주세요.'}, e.message === 'large' ? 413 : 400); }
-    if (payload.docsDigest !== undefined && payload.docsDigest !== await currentDocsVersion()) {
+    if (payload.docsDigest !== undefined && payload.docsDigest !== await currentDocsVersion(site)) {
       return json({code:'docs_outdated', message:'문서가 갱신되었습니다. 아래의 최신 문서 링크를 확인해 주세요.'}, 409);
     }
-    const found = selectContext(question, docs);
+    const found = selectContext(question, siteDocuments(site));
     const sources = found.map(({title, url}) => ({title, url}));
     if (!found.length) return json({answer: '공개 문서에서 관련 내용을 찾지 못했습니다. 프로젝트명이나 기술 이름을 넣어 질문해 주세요.', sources});
     if (!env.ORCAROUTER_API_KEY) return json({...unavailable, sources}, 503);
@@ -85,15 +107,15 @@ export default {
       const code=/CPU|cpu/.test(detail) ? 'worker_cpu_limit' : /reset|restart|disconnected|updated/i.test(detail) ? 'worker_restarting' : 'worker_internal';
       return json({...unavailable, code, sources}, 503);
     }
-  }
-};
+}
 
 export class ChatGate extends DurableObject {
   constructor(ctx, env) { super(ctx, env); this.cache = new Map(); }
   async fetch(request) {
     if (new URL(request.url).pathname === '/health') {
       await this.ctx.storage.get('policy');
-      return json({ready:true,release:this.env.RELEASE_SHA || 'dev',docsDigest:await currentDocsVersion()});
+      const site = publicSite(request.headers.get('X-Public-Origin')) || publicSites[0];
+      return json({ready:true,release:this.env.RELEASE_SHA || 'dev',docsDigest:await currentDocsVersion(site)});
     }
     if (new URL(request.url).pathname === '/recover') {
       const {id} = await request.json();
