@@ -17,7 +17,7 @@ test('required PR validate has no path filter, deployment or external service se
 test('site pipeline gates deployment and isolates concurrency from classification', () => {
   const text = read('.github/workflows/pages.yml');
   const githubJobs = text.split('\n  deploy_cloudflare:\n')[0];
-  assert.doesNotMatch(githubJobs, /secrets\.|chat:deploy|ORCAROUTER/);
+  assert.doesNotMatch(githubJobs, /secrets[.\[]|chat:deploy|ORCAROUTER/);
   assert.match(text, /steps\.changes\.outputs\.site == 'true'/);
   assert.match(text, /needs\.build\.outputs\.site == 'true'/);
   assert.match(text, /vars\.VITE_CHAT_API_URL/);
@@ -27,15 +27,14 @@ test('site pipeline gates deployment and isolates concurrency from classificatio
   assert.match(text, /steps\.freshness\.outputs\.deploy == 'true'/);
 });
 
-test('Worker deployment is manual and main-only with opt-in live AI verification', () => {
+test('Worker deployment is manual and main-only without live model requests', () => {
   const text = read('.github/workflows/chat-deploy.yml');
   assert.match(text, /workflow_dispatch:/);
   assert.doesNotMatch(text, /\n  (?:push|pull_request|schedule|workflow_run):/);
   assert.match(text, /inputs\.confirm/);
   assert.match(text, /refs\/heads\/main/);
-  assert.match(text, /live_verify:[\s\S]*default: false/);
-  assert.match(text, /CHAT_VERIFY_LIVE: \$\{\{ inputs\.live_verify \}\}/);
-  assert.match(read('scripts/deploy-chat.mjs'), /process\.env\.CHAT_VERIFY_LIVE === 'true'/);
+  assert.doesNotMatch(text, /live_verify:|CHAT_VERIFY_LIVE/);
+  assert.doesNotMatch(read('scripts/deploy-chat.mjs'), /\$\{api\}\/chat|CHAT_VERIFY_LIVE/);
 });
 
 test('Vue chat uses the local version guard before a model request', () => {

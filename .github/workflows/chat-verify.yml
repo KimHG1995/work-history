@@ -1,0 +1,44 @@
+name: AI 연결 확인 (배포 없음)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 공개 Worker 연결 확인을 승인합니다. 배포하지 않습니다.
+        type: boolean
+        required: true
+        default: false
+      live_verify:
+        description: 실제 무료 AI 요청을 1회 수행합니다. 선택하지 않으면 health와 CORS만 검사합니다.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chat-verification
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/main' && inputs.confirm
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 공개 문서 색인 생성 (의존성 설치 없음)
+        run: node scripts/prepare-chat.mjs
+        env:
+          SITE_TARGET: github
+      - name: 배포 없이 연결과 선택한 무료 응답 확인
+        run: node scripts/verify-chat.mjs
+        env:
+          CHAT_CHECK_CONFIRMED: ${{ inputs.confirm }}
+          CHAT_VERIFY_LIVE: ${{ inputs.live_verify }}
+          VITE_CHAT_API_URL: ${{ vars.VITE_CHAT_API_URL }}

@@ -67,17 +67,9 @@ for (let attempt = 0; attempt < 12; attempt++) {
 }
 if (stable < 2) throw new Error('Worker release, production CORS or document version is not ready. No AI call was made.');
 console.log('Worker health, CORS and document versions verified for GitHub and Pages.');
-if (process.env.CHAT_VERIFY_LIVE === 'true') {
-  // Exactly one optional live free call from the new Pages origin; no retry.
-  const site = publicSites.find(value => value.base === '/');
-  const response = await fetch(`${api}/chat`, {method: 'POST', headers: {Origin: site.origin, 'Content-Type': 'application/json'}, body: JSON.stringify({question: '쿠폰 시스템은 어떻게 개발했나요?', docsDigest:expectedDigests.get(site.origin)}), signal: AbortSignal.timeout(35000)});
-  let body = {}; try { body = await response.json(); } catch {}
-  if (!response.ok || response.headers.get('Access-Control-Allow-Origin') !== site.origin || body.cost !== 0 || typeof body.answer !== 'string' || !body.answer || !Array.isArray(body.sources) || body.sources.length === 0 || body.sources.some(source => typeof source.url !== 'string' || !source.url.startsWith('/') || source.url.startsWith('//') || source.url.startsWith('/work-history/'))) throw new Error(`Free response verification failed (${response.status}, code: ${body.code || 'not provided'}, retryAfter: ${body.retryAfter || 0}s). No automatic retry or paid fallback. Worker live verification failed; the static site is unchanged.`);
-  console.log('Live Pages response verified: matching CORS and sources, reported cost USD 0.');
-} else {
-  console.log('Live AI verification skipped. No model request was made.');
-}
+// Model availability is checked independently, never by re-deploying a healthy Worker.
+console.log('Worker deployment complete. Live AI verification uses the separate AI connection-check workflow.');
 await appendFile(githubEnv, `VITE_CHAT_API_URL=${api}\n`);
 if (process.env.GITHUB_STEP_SUMMARY) {
-  await appendFile(process.env.GITHUB_STEP_SUMMARY, `## AI Worker 배포\n\n배포 주소: \`${api}\`\n\nGitHub와 Pages의 운영 Origin, CORS와 문서 버전을 확인했습니다. 실제 AI 요청은 선택한 경우에만 Pages에서 1회 검증합니다.\n\n이 주소가 \`site/chat.config.mjs\`의 기본 주소와 같으면 \`VITE_CHAT_API_URL\`을 따로 등록하지 않아도 됩니다. 주소를 바꾼 경우에만 기본 설정 또는 선택적 환경변수를 갱신하세요. 자세한 내용은 \`docs/chat-connection.md\`에 있습니다. 사이트의 주소 설정을 변경했다면 정적 사이트 재배포도 필요합니다.\n`);
+  await appendFile(process.env.GITHUB_STEP_SUMMARY, `## AI Worker 배포 완료\n\n배포 주소: \`${api}\`\n\nGitHub와 Pages의 release, CORS와 문서 버전을 확인했습니다. 이 실행은 실제 모델을 호출하지 않습니다.\n\n실제 답변 검증은 별도 \`AI 연결 확인 (배포 없음)\`에서 수행합니다. 검증 실패가 이미 성공한 배포를 되돌리지는 않습니다. 기본 주소를 사용하면 \`VITE_CHAT_API_URL\` 등록은 필요 없습니다.\n`);
 }

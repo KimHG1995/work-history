@@ -97,6 +97,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
       console.log('Pages artifact verified offline; no Cloudflare request was made.');
     } else {
       const result = await deploySite(options);
+      if (process.env.GITHUB_OUTPUT) await appendFile(process.env.GITHUB_OUTPUT, `deployed=${result.deployed}\n`);
       const message = result.deployed ? `Pages upload completed: ${result.origin}` : 'Pages upload skipped: newer site inputs exist.';
       console.log(message);
       if (process.env.GITHUB_STEP_SUMMARY) await appendFile(process.env.GITHUB_STEP_SUMMARY, `## 정적 Pages 배포\n\n${message}\n`);

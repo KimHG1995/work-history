@@ -2,78 +2,65 @@
 
 기준일: 2026-09-29
 
-현재 호스팅은 GitHub Pages입니다. Pages 연결 코드와 실제 계정 생성, 최초 배포는 구분합니다. 검증한 상태는 [진행 체크리스트](progress.md)에 기록합니다.
+## 운영 주소와 일반 배포
 
-## 처음 연결할 때
+확인한 프로젝트는 `work-history`, 운영 주소는 `https://work-history-4gn.pages.dev`입니다. [공개 주소 파일](../site/pages.project.json)을 사용하므로 `SITE_ORIGIN`, `CLOUDFLARE_PAGES_PROJECT`, `VITE_CHAT_API_URL`을 다시 등록하지 않습니다.
 
-프로젝트를 대시보드에서 직접 만들거나 `SITE_ORIGIN`을 먼저 알아낼 필요는 없습니다. GitHub Actions의 `Pages 최초 설정`을 실행하면 프로젝트 조회, 필요한 최초 생성, 실제 주소 확보와 선택한 정적 업로드를 수행합니다.
+일반 [배포 워크플로](../.github/workflows/pages.yml)의 기본 대상은 Cloudflare Pages입니다. 사이트 입력이 변경된 main 커밋만 검증 후 한 번 빌드해 업로드합니다. 내부 가이드 변경은 문서 검사만 수행합니다. PR에서는 운영 배포하지 않습니다. 같은 변경을 두 호스팅에 동시에 자동 배포하지 않습니다.
 
-| 실행 입력 | 선택 |
+기존 GitHub Pages의 마지막 정상본은 그대로 유지합니다. 수동 복구 때만 `문서 사이트 배포`에서 `target=github`를 선택합니다. 로컬 빌드 설정의 기본값은 호환성을 위해 계속 GitHub이며, 운영 워크플로가 최종 빌드에 `SITE_TARGET=pages`를 전달합니다. Repository Variable `SITE_TARGET`을 바꾸어 운영 대상을 전환하는 이전 안내는 더 이상 적용하지 않습니다.
+
+## 배포 토큰
+
+일반 Pages 배포는 실제 최초 업로드에 성공한 Secret 이름 `CLOUDFLARE_API_TOKEN`을 명시적 기본값으로 사용합니다. 다른 Secret을 추가해야만 운영 배포가 되는 상태를 없앴습니다.
+
+전용 토큰으로 분리하려면 해당 계정의 Pages Edit 권한을 가진 토큰을 `CLOUDFLARE_PAGES_API_TOKEN` Secret에 등록하고 Repository Variable `CLOUDFLARE_PAGES_TOKEN_SECRET`을 같은 이름으로 지정합니다. 변수에는 토큰 원문이 아니라 Secret 이름만 넣습니다.
+
+[이름 검증기](../scripts/pages-token.mjs)는 두 이름만 허용합니다. 선택한 Secret이 비어 있으면 중단하며 다른 Secret으로 자동 대체하지 않습니다. 토큰은 최종 업로드 단계에만 전달합니다. 빌드, 테스트, 공개 HTTP 확인에는 전달하지 않습니다. API 키를 로그, 코드, 문서나 채팅에 기록하지 않습니다.
+
+최초 설정 워크플로의 `token_secret` 입력과 일반 배포의 선택 변수는 별개입니다. 현재 기본 운영에는 추가 선택이 필요 없습니다. 기존 토큰을 사용하는 것이 권한이 최소화된 전용 토큰을 발급했다는 뜻은 아닙니다.
+
+## 수동 배포
+
+이미 프로젝트 생성과 최초 업로드를 완료했으므로 `Pages 최초 설정`을 반복하지 않습니다. 사이트만 갱신할 때는 `문서 사이트 배포`에서 다음 값을 사용합니다.
+
+| 입력 | 값 |
 | --- | --- |
-| 브랜치 | `main` |
-| `project_name` | 기본값 `work-history`. 생성하거나 재사용할 프로젝트 이름 |
-| `token_secret` | 실제 업데이트한 Secret 이름. 기본값 `CLOUDFLARE_PAGES_API_TOKEN`, 기존 토큰을 명시적으로 사용할 때만 `CLOUDFLARE_API_TOKEN` 선택 |
-| `confirm` | 생성과 선택한 최초 배포를 승인할 때 체크 |
-| `deploy` | 기본값 체크. 해제하면 프로젝트와 주소만 확인하고 사이트는 업로드하지 않음 |
+| 브랜치 | main |
+| target | configured 또는 pages |
+| confirm_pages | 체크 |
 
-해당 계정의 `CLOUDFLARE_ACCOUNT_ID` Repository Variable과 선택한 Secret이 필요합니다. Pages 권한은 `Account > Cloudflare Pages > Edit`로 제한합니다. 선택한 Secret이 비어 있으면 다른 토큰으로 자동 대체하지 않습니다. 토큰 원문은 채팅, 문서, 코드에 기록하지 않습니다.
+공개 주소를 변경해야 하는 경우 `SITE_ORIGIN`과 `CLOUDFLARE_PAGES_PROJECT`를 함께 명시할 수 있습니다. 저장된 값과 한쪽만 달라지면 중단합니다. AI 허용 Origin과 공개 검증 대상도 함께 검토해야 하므로 다른 주소로 임의 전환하지 않습니다.
 
-기존 토큰 선택은 최초 설정 실행에만 적용됩니다. 일반 배포는 계속 `CLOUDFLARE_PAGES_API_TOKEN`을 사용합니다. Billing 권한, Global API Key, 새 GitHub 관리용 토큰은 추가하지 않습니다.
+## 업로드와 공개 파일 확인
 
-프로젝트가 있으면 읽기 전용으로 확인합니다. 프로젝트 없음 코드와 HTTP 404가 함께 확인된 경우에만 새 Direct Upload 프로젝트를 생성합니다. 권한 오류, 통신 오류, 사용량 제한은 생성 조건이 아닙니다. 기존 Git 연동, 다른 운영 브랜치, Functions, 런타임 연결 설정은 임의로 바꾸지 않습니다.
+업로드 전에 정적 파일 검사, 실제 프로젝트 조회와 최신 main 검사를 수행합니다. Functions 진입점, 심볼릭 링크, 환경 파일, 런타임 설정이 포함되면 업로드하지 않습니다. 격리된 임시 폴더에서 고정 버전 Wrangler와 검증한 프로젝트명을 사용하고 기존 AI Worker 설정을 섞지 않습니다.
 
-생성 후 반환된 실제 `subdomain`을 조회하고 앞에 `https://`를 붙여 `SITE_ORIGIN`으로 사용합니다. 프로젝트 이름으로 주소를 추측하지 않습니다. 미리보기 주소, 경로, 마지막 슬래시는 허용하지 않습니다. 생성 응답이 불확실하면 POST를 재시도하거나 프로젝트를 삭제하지 않습니다. 다시 실행하면 조회부터 시작합니다.
+업로드 성공을 step output으로 남기고, 실제 업로드가 있었을 때만 별도 단계에서 [공개 파일 확인](../scripts/verify-public-site.mjs)을 실행합니다. 홈페이지, 소개와 개인정보 안내, 상세 문서 표본, sitemap, robots, 검색 색인과 참조하는 CSS/JS 표본을 실제 HTTPS로 읽어 이번 산출물의 바이트와 비교합니다. verify 모드에는 ads.txt도 확인합니다.
 
-## 최초 업로드와 주소 보존
+이 검사는 광고나 Clarity 스크립트를 실행하지 않으며 AI에 질문하지 않습니다. 일시적인 전파 지연에는 파일당 GET을 최대 3회 수행합니다. 일치하지 않으면 검사를 실패로 남기고 업로드를 자동 반복하거나 되돌리지 않습니다. 화면 배치, 메뉴 조작과 Clarity의 실제 수집까지 확인한 것으로 간주하지 않습니다.
 
-첫 업로드는 Repository Variable의 광고 상태와 관계없이 `ADS_MODE=off`, strict CSP로 고정합니다. 검증과 빌드는 토큰 없이 실행합니다. 토큰은 프로젝트 확인 단계와 최종 업로드 단계에만 전달합니다. 실제 AI Worker는 이 과정에서 갱신하지 않습니다.
+## 복구
 
-정적 사이트는 1회 빌드합니다. 기존 [배포 스크립트](../scripts/deploy-site.mjs)의 정적 검사와 오래된 배포 방지 검사를 거친 뒤 Pages에만 업로드합니다. 기존 GitHub 사이트와 `SITE_TARGET`은 변경하지 않습니다. 계정 확인과 사이트 업로드 성공, 실제 브라우저 확인은 별개입니다.
+GitHub 복구는 `target=github` 수동 실행으로 최신 main을 기존 주소용으로 다시 빌드하는 방식입니다. 이후 main의 일반 배포 대상은 여전히 Pages입니다. 기본 대상 자체를 되돌리려면 워크플로를 검토한 PR로 변경합니다.
 
-실행 결과의 `pages-bootstrap-실행번호` 산출물에는 `pages-project.json`과 `deployment.json`이 들어갑니다. 토큰과 원본 계정 응답은 제외합니다. 산출물은 사이트 빌드 전에 보존하므로 이후 빌드가 실패해도 확보한 주소를 확인할 수 있습니다. 보존 기간은 30일입니다.
+Pages의 이전 정상본 복구는 Cloudflare의 [롤백 기능](https://developers.cloudflare.com/pages/configuration/rollbacks/)으로 별도 수행합니다. 공개 확인 실패만으로 사이트가 롤백됐다고 판단하지 않습니다.
 
-`pages-project.json`을 검토한 뒤 `site/pages.project.json`으로 PR에 반영하면 일반 배포도 해당 프로젝트명과 주소를 읽습니다. 이는 공개 설정 파일이며 토큰이나 자동 전환 플래그를 담지 않습니다. 이 파일이 반영된 뒤에는 `CLOUDFLARE_PAGES_PROJECT`와 `SITE_ORIGIN`을 수동 등록할 필요가 없습니다. 실제 실행 전에는 이 파일을 임의의 주소로 만들지 않습니다.
+## 최초 설정이 필요한 경우
 
-현재 대화 도구에서 workflow_dispatch 시작을 지원하지 않는 경우에는 최초 `Run workflow` 버튼만 운영자가 실행해야 합니다. 실행 결과 조회, 주소 파일 반영과 후속 검증은 결과를 확인한 뒤 진행합니다. 실행되지 않은 설정을 계정 연결 완료로 표시하지 않습니다.
+현재 프로젝트에는 필요하지 않습니다. 새 프로젝트를 준비할 때만 [Pages 최초 설정](../.github/workflows/pages-bootstrap.yml)을 main에서 명시적으로 승인합니다. 프로젝트명과 사용할 Secret 이름을 선택하면 조회부터 시작하고, 확정적인 프로젝트 없음에만 생성합니다. 실제 subdomain에서 주소를 읽으며 이름으로 추정하지 않습니다.
 
-## 일반 배포와 전환
+생성 후 조회에는 한정된 재시도만 있고 POST는 반복하지 않습니다. 기존 Git 연동, 다른 브랜치나 런타임 설정은 수정하지 않습니다. 처음 업로드는 off와 strict CSP입니다. 공개 주소와 배포 메타데이터만 산출물에 보존하며 토큰이나 전체 계정 응답은 포함하지 않습니다.
 
-기본 대상은 기존 GitHub Pages입니다. `SITE_TARGET` 미등록 또는 `github`이면 기존 주소를 유지합니다. 공개 주소 파일을 반영하는 것만으로 운영 대상을 바꾸지 않습니다.
+## 광고와 사용량
 
-기존 방식대로 Repository Variables의 `CLOUDFLARE_PAGES_PROJECT`, `SITE_ORIGIN`을 둘 다 지정할 수도 있습니다. 한 값만 저장된 공개 파일과 다르게 지정하면 혼합 설정으로 판단해 중단합니다. 공개 설정은 빌드 job이 읽어야 하므로 배포 Environment에만 두지 않습니다.
+현재 실제 광고는 활성화하지 않습니다. 게시자 ID가 준비된 후 `ADS_MODE=verify`로 일반 배포하면 소유권 메타 태그와 ads.txt만 생성합니다. Google 심사, 동의 처리와 정적 CSP 검토를 완료하기 전에는 enabled를 허용하지 않습니다. 공개 안내에는 개발 상태를 반복하지 않고 실제 사용하는 정보 처리만 설명합니다.
 
-`VITE_CHAT_API_URL`은 별도 등록 없이 기존 Worker 주소를 사용합니다. 새 Pages Origin의 CORS와 문서 버전 호환성을 준비하기 전에는 AI 대신 로컬 문서 검색이 제공될 수 있습니다. AI 제공자 키는 사이트에 넣지 않습니다.
-
-새 주소에서 직접 접근, 새로고침, 소개와 개인정보 안내, 검색, sitemap, robots와 Clarity를 검증합니다. 실제 운영 조건과 광고 개인정보 안내도 점검합니다. 전환 승인이 끝난 뒤에만 `SITE_TARGET=pages`로 바꿉니다. 변수 수정 자체가 배포를 실행하지는 않습니다.
-
-연결이 끝난 뒤에는 `문서 사이트 배포`를 사용합니다. 수동 Pages 배포는 `main`, `target=pages`, `confirm_pages=true`입니다. 운영 상태가 Pages로 설정된 경우에는 사이트 입력이 변경된 main 커밋도 같은 경로를 사용합니다. 정상 운영에서 두 플랫폼에 중복 배포하지 않습니다.
-
-## 사용량과 보안
-
-Cloudflare 자체 빌드, PR 미리보기 배포, Pages Functions, 광고용 Worker는 사용하지 않습니다. 최초 설정 워크플로는 수동 실행만 허용합니다. push, PR, 댓글, 주기 실행으로 프로젝트 생성을 시작하지 않습니다. 최초 설정 코드나 가이드만 바뀌면 사이트 빌드와 배포를 생략합니다.
-
-[정적 검사](../scripts/static-output.mjs)는 Functions 진입점, 심볼릭 링크, 환경 파일과 비정적 설정을 거절합니다. 배포 전에 HTML, canonical, sitemap과 광고 모드를 확인합니다. 업로드 시 실제 프로젝트의 이름과 Origin, main 브랜치, Direct Upload 여부를 다시 조회합니다. 일반 배포는 프로젝트를 자동 생성하지 않습니다.
-
-Wrangler 4.133.0의 Pages 명령은 사용자 지정 `--config`를 지원하지 않습니다. [정적 템플릿](../wrangler.pages.jsonc)을 검사한 뒤 격리된 임시 폴더의 `wrangler.json`으로 사용합니다. 기존 AI Worker 설정은 복사하지 않습니다. `--force`는 해당 버전의 새 Workers 배포 자동 전환을 막는 옵션이며 검사와 승인을 우회하지 않습니다.
-
-업로드 직전 최신 main과 조상 관계를 확인합니다. 새 사이트 입력이나 조회 실패가 있으면 오래된 결과물로 덮어쓰지 않습니다. 임시 폴더는 성공과 실패 모두 정리하며 토큰을 다루는 CLI의 원본 출력은 공개 로그에 남기지 않습니다.
-
-## 복구와 광고 심사
-
-최초 Pages 배포에 실패해도 기존 GitHub 사이트는 유지합니다. 프로젝트 생성 뒤 실패했다면 생성된 프로젝트도 삭제하지 않습니다. 원인을 수정한 뒤 같은 이름으로 다시 조회합니다.
-
-전환 후 GitHub로 되돌리려면 `SITE_TARGET=github`로 변경하고 `target=github` 수동 배포를 실행합니다. 최신 main을 GitHub용으로 다시 빌드하는 방식입니다. Pages의 과거 정상 배포 복구는 Cloudflare 롤백 기능으로 별도 수행합니다.
-
-AdSense 등록과 심사는 실제 무료 주소의 운영 확인 뒤 진행합니다. 게시자 ID를 등록하고 `ADS_MODE=verify`로 일반 배포하면 소유권 메타 태그와 `ads.txt`만 생성합니다. 최초 설정 워크플로는 광고 심사용 재배포에 사용하지 않습니다. `enabled`는 동의 처리와 CSP 검토가 끝나기 전까지 차단합니다.
+Cloudflare 자체 빌드, PR 미리보기 배포, Pages Functions와 광고용 Worker는 추가하지 않습니다. 기존 AI Worker는 별도 [수동 배포와 연결 확인](chat-connection.md)으로 관리합니다. [진행 체크리스트](progress.md)에서 코드 준비와 실제 실행 결과를 구분합니다.
 
 ## 근거
 
-- [최초 설정 워크플로](../.github/workflows/pages-bootstrap.yml)
-- [프로젝트 최초 설정](../scripts/bootstrap-pages.mjs), [공개 주소 검증](../scripts/pages-project.mjs)
-- [일반 배포 워크플로](../.github/workflows/pages.yml), [배포 설정](../scripts/pages-config.mjs)
-- [Cloudflare 프로젝트 생성 API](https://developers.cloudflare.com/api/resources/pages/subresources/projects/methods/create/)
-- [Cloudflare 프로젝트 조회 API](https://developers.cloudflare.com/api/resources/pages/subresources/projects/methods/get/)
 - [Direct Upload CI](https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/)
-- [Direct Upload](https://developers.cloudflare.com/pages/get-started/direct-upload/)
-- [Wrangler Pages 구현](https://github.com/cloudflare/workers-sdk/blob/wrangler%404.133.0/packages/wrangler/src/pages/deploy.ts)
-- [Pages 롤백](https://developers.cloudflare.com/pages/configuration/rollbacks/)
+- [Cloudflare 정적 페이지 제공](https://developers.cloudflare.com/pages/configuration/serving-pages/)
+- [GitHub Actions Secret 사용](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets)
+- [배포 스크립트](../scripts/deploy-site.mjs), [정적 검사](../scripts/static-output.mjs)
