@@ -1,10 +1,14 @@
 import { spawnSync } from 'node:child_process';
-import { appendFile, mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { appendFile, mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { publicSites, documentsForSite } from '../worker/public-sites.mjs';
+import { hashDocuments } from '../worker/docs-version.mjs';
 const { CLOUDFLARE_ACCOUNT_ID: account, CLOUDFLARE_API_TOKEN: token, ORCAROUTER_API_KEY: key, GITHUB_ENV: githubEnv } = process.env;
 if (!/^[a-f0-9]{32}$/i.test(account || '')) throw new Error('CLOUDFLARE_ACCOUNT_ID must be the 32-character account ID.');
 if (!token || !key || !githubEnv) throw new Error('Missing deployment secrets or GitHub environment file.');
+const documents = JSON.parse(await readFile(new URL('../worker/generated/docs.json', import.meta.url), 'utf8'));
+const expectedDigests = new Map(await Promise.all(publicSites.map(async site => [site.origin, await hashDocuments(documentsForSite(documents, site))])));
 async function cf(path) {
   const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/${path}`, {headers: {Authorization: `Bearer ${token}`}, signal: AbortSignal.timeout(15000)});
   const body = await response.json();
@@ -45,28 +49,35 @@ try {
 }
 const api = `https://work-history-chat.${subdomain.subdomain}.workers.dev`;
 console.log(`Chat API: ${api}`);
-// Confirm the deployed Durable Object version twice, without a model request.
-// Health probes read storage but do not call the model or reserve rate slots.
+// Verify both production origins twice. These health reads never call the model
+// or reserve rate slots. Version hashes include each site's actual source paths.
 let stable = 0;
 for (let attempt = 0; attempt < 12; attempt++) {
-  const probe = await fetch(`${api}/health`, {signal:AbortSignal.timeout(10000)});
-  let health = {}; try { health = await probe.json(); } catch {}
-  stable = probe.ok && health.ready && health.release === release ? stable + 1 : 0;
+  let ready = true;
+  for (const site of publicSites) {
+    const probe = await fetch(`${api}/health`, {headers:{Origin:site.origin},signal:AbortSignal.timeout(10000)});
+    let health = {}; try { health = await probe.json(); } catch {}
+    ready = ready && probe.ok && health.ready === true && health.release === release &&
+      health.docsDigest === expectedDigests.get(site.origin) && probe.headers.get('Access-Control-Allow-Origin') === site.origin;
+    if (![200,404,502,503].includes(probe.status)) throw new Error(`Worker readiness failed for ${site.origin} (${probe.status}). No AI call was made.`);
+  }
+  stable = ready ? stable + 1 : 0;
   if (stable >= 2) break;
-  if (![200, 404, 502, 503].includes(probe.status)) throw new Error(`Worker readiness failed (${probe.status}).`);
   await new Promise(resolve => setTimeout(resolve, 5000));
 }
-if (stable < 2) throw new Error('Worker release is not ready. No AI call was made.');
+if (stable < 2) throw new Error('Worker release, production CORS or document version is not ready. No AI call was made.');
+console.log('Worker health, CORS and document versions verified for GitHub and Pages.');
 if (process.env.CHAT_VERIFY_LIVE === 'true') {
-  // Exactly one optional live free call; never used by ordinary CI.
-  const response = await fetch(`${api}/chat`, {method: 'POST', headers: {Origin: 'https://kimhg1995.github.io', 'Content-Type': 'application/json'}, body: JSON.stringify({question: '쿠폰 시스템은 어떻게 개발했나요?'}), signal: AbortSignal.timeout(35000)});
+  // Exactly one optional live free call from the new Pages origin; no retry.
+  const site = publicSites.find(value => value.base === '/');
+  const response = await fetch(`${api}/chat`, {method: 'POST', headers: {Origin: site.origin, 'Content-Type': 'application/json'}, body: JSON.stringify({question: '쿠폰 시스템은 어떻게 개발했나요?', docsDigest:expectedDigests.get(site.origin)}), signal: AbortSignal.timeout(35000)});
   let body = {}; try { body = await response.json(); } catch {}
-  if (!response.ok || body.cost !== 0 || typeof body.answer !== 'string' || !body.answer) throw new Error(`Free response verification failed (${response.status}, code: ${body.code || 'not provided'}, retryAfter: ${body.retryAfter || 0}s). No automatic retry or paid fallback. Worker live verification failed; the static site is unchanged.`);
-  console.log('Live response verified: reported cost USD 0.');
+  if (!response.ok || response.headers.get('Access-Control-Allow-Origin') !== site.origin || body.cost !== 0 || typeof body.answer !== 'string' || !body.answer || !Array.isArray(body.sources) || body.sources.length === 0 || body.sources.some(source => typeof source.url !== 'string' || !source.url.startsWith('/') || source.url.startsWith('//') || source.url.startsWith('/work-history/'))) throw new Error(`Free response verification failed (${response.status}, code: ${body.code || 'not provided'}, retryAfter: ${body.retryAfter || 0}s). No automatic retry or paid fallback. Worker live verification failed; the static site is unchanged.`);
+  console.log('Live Pages response verified: matching CORS and sources, reported cost USD 0.');
 } else {
   console.log('Live AI verification skipped. No model request was made.');
 }
 await appendFile(githubEnv, `VITE_CHAT_API_URL=${api}\n`);
 if (process.env.GITHUB_STEP_SUMMARY) {
-  await appendFile(process.env.GITHUB_STEP_SUMMARY, `## AI Worker 배포\n\n배포 주소: \`${api}\`\n\n이 주소가 \`site/chat.config.mjs\`의 기본 주소와 같으면 \`VITE_CHAT_API_URL\`을 따로 등록하지 않아도 됩니다. 주소를 바꾼 경우에만 기본 설정 또는 선택적 환경변수를 갱신하세요. 자세한 내용은 \`docs/chat-connection.md\`에 있습니다. 사이트의 주소 설정을 변경했다면 정적 사이트 재배포도 필요합니다.\n`);
+  await appendFile(process.env.GITHUB_STEP_SUMMARY, `## AI Worker 배포\n\n배포 주소: \`${api}\`\n\nGitHub와 Pages의 운영 Origin, CORS와 문서 버전을 확인했습니다. 실제 AI 요청은 선택한 경우에만 Pages에서 1회 검증합니다.\n\n이 주소가 \`site/chat.config.mjs\`의 기본 주소와 같으면 \`VITE_CHAT_API_URL\`을 따로 등록하지 않아도 됩니다. 주소를 바꾼 경우에만 기본 설정 또는 선택적 환경변수를 갱신하세요. 자세한 내용은 \`docs/chat-connection.md\`에 있습니다. 사이트의 주소 설정을 변경했다면 정적 사이트 재배포도 필요합니다.\n`);
 }

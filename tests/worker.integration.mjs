@@ -68,12 +68,18 @@ test('signed zero-cost receipt recovers disabled state while keeping rate counte
  }finally{await mf.dispose();}
 });
 
-test('natural career question reaches AI with all documented periods',async()=>{
- const {mf,send,payload}=setup(()=>Response.json({usage:{cost_usd:0},choices:[{message:{content:'인턴 포함 약 4년 9개월입니다.'}}]}));
+test('natural career questions retain all periods and homepage sources on both sites',async()=>{
+ const {mf,send,payload,calls}=setup(()=>Response.json({usage:{cost_usd:0},choices:[{message:{content:'테스트용 경력 답변'}}]}));
  try {
-  const response=await send('총 경력이 궁금해');assert.equal(response.status,200);
+  const pagesResponse=await send('총 경력이 궁금해',{Origin:pagesOrigin});
+  assert.equal(pagesResponse.status,200);
+  assert.equal((await pagesResponse.json()).sources[0].url,'/');
   const context=payload().messages[1].content;
   for(const period of ['2020-12','2021-07','2024-01','2025-10','2025-11 ~ 현재'])assert.ok(context.includes(period));
+  const githubResponse=await send('총 경력이 궁금해');
+  assert.equal(githubResponse.status,200);
+  assert.equal((await githubResponse.json()).sources[0].url,'/work-history/');
+  assert.equal(calls(),1);
  }finally{await mf.dispose();}
 });
 
@@ -92,4 +98,90 @@ test('index mismatch is rejected before model use while matching versions work',
     assert.equal(matching.status, 200);
     assert.equal(calls(), 1);
   } finally { await mf.dispose(); }
+});
+
+const pagesOrigin = JSON.parse(readFileSync('site/pages.project.json', 'utf8')).origin;
+const pagesDocs = JSON.parse(readFileSync('worker/generated/docs.json', 'utf8')).map(doc => ({
+  ...doc, url: doc.url.startsWith('/work-history/') ? doc.url.slice('/work-history'.length) : doc.url
+}));
+const pagesDigest = await hashDocuments(pagesDocs);
+
+test('both production origins get matching health and preflight without model requests', async () => {
+  const {mf,calls} = setup(() => { throw Error('No model call is allowed'); });
+  try {
+    for (const [siteOrigin,version] of [[origin,docsDigest],[pagesOrigin,pagesDigest]]) {
+      const health = await mf.dispatchFetch('https://test/health', {headers:{Origin:siteOrigin,'X-Public-Origin':'https://evil.example'}});
+      assert.equal(health.status,200);
+      assert.equal(health.headers.get('Access-Control-Allow-Origin'),siteOrigin);
+      assert.match(health.headers.get('Vary'),/Origin/);
+      assert.equal((await health.json()).docsDigest,version);
+      const preflight = await mf.dispatchFetch('https://test/chat', {method:'OPTIONS',headers:{Origin:siteOrigin,'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'Content-Type'}});
+      assert.equal(preflight.status,204);
+      assert.equal(preflight.headers.get('Access-Control-Allow-Origin'),siteOrigin);
+      assert.equal(preflight.headers.get('Access-Control-Allow-Methods'),'POST');
+    }
+    assert.notEqual(pagesDigest,docsDigest);
+    for (const siteOrigin of ['null','https://evil.example','https://other.pages.dev',pagesOrigin.replace('https://','https://preview.')]) {
+      for (const [route,method] of [['health','GET'],['chat','OPTIONS']]) {
+        const reply = await mf.dispatchFetch(`https://test/${route}`, {method,headers:{Origin:siteOrigin}});
+        assert.equal(reply.status,403);
+        assert.equal(reply.headers.get('Access-Control-Allow-Origin'),null);
+      }
+    }
+    assert.equal(calls(),0);
+  } finally { await mf.dispose(); }
+});
+
+test('Pages requests use their own digest and source paths while sharing cache and rate limits', async () => {
+  const {mf,send,calls} = setup(() => Response.json({usage:{cost_usd:0},choices:[{message:{content:'공개 문서 답변'}}]}));
+  const pagesRequest = version => mf.dispatchFetch('https://test/chat', {
+    method:'POST',headers:{Origin:pagesOrigin,'Content-Type':'application/json','CF-Connecting-IP':'203.0.113.1'},
+    body:JSON.stringify({question:'쿠폰 시스템',docsDigest:version})
+  });
+  try {
+    const mismatch = await pagesRequest(docsDigest);
+    assert.equal(mismatch.status,409);
+    assert.equal(mismatch.headers.get('Access-Control-Allow-Origin'),pagesOrigin);
+    assert.equal((await mismatch.json()).code,'docs_outdated');
+    assert.equal(calls(),0);
+    const first = await pagesRequest(pagesDigest);
+    assert.equal(first.status,200);
+    assert.equal(first.headers.get('Access-Control-Allow-Origin'),pagesOrigin);
+    const firstBody = await first.json();
+    assert.equal(firstBody.cost,0);
+    assert.ok(firstBody.sources.length > 0);
+    assert.ok(firstBody.sources.every(source => source.url.startsWith('/') && !source.url.startsWith('/work-history/')));
+    const githubCached = await send();
+    assert.equal(githubCached.status,200);
+    assert.equal(githubCached.headers.get('Access-Control-Allow-Origin'),origin);
+    assert.ok((await githubCached.json()).sources.every(source => source.url.startsWith('/work-history/')));
+    assert.equal(calls(),1);
+    const limited = await send('정산 시스템');
+    assert.equal(limited.status,429);
+    assert.equal(limited.headers.get('Access-Control-Allow-Origin'),origin);
+    const pagesLimited = await send('정산 시스템',{Origin:pagesOrigin});
+    assert.equal(pagesLimited.status,429);
+    assert.equal(pagesLimited.headers.get('Access-Control-Allow-Origin'),pagesOrigin);
+    assert.equal(calls(),1);
+  } finally { await mf.dispose(); }
+});
+
+test('Pages validation and provider errors keep the correct CORS and hide private messages', async () => {
+  for (const upstreamStatus of [429,500]) {
+    const {mf,send,calls} = setup(() => Response.json({error:{message:'private upstream token'}},{status:upstreamStatus,headers:{'Retry-After':'120'}}));
+    try {
+      for (const [question,extra,status] of [['',{},400],['쿠폰',{'Content-Type':'text/plain'},415],['가'.repeat(2000),{},413]]) {
+        const invalid = await send(question,{Origin:pagesOrigin,...extra});
+        assert.equal(invalid.status,status);
+        assert.equal(invalid.headers.get('Access-Control-Allow-Origin'),pagesOrigin);
+      }
+      assert.equal(calls(),0);
+      const failed = await send('쿠폰 시스템',{Origin:pagesOrigin});
+      assert.equal(failed.status,upstreamStatus === 429 ? 429 : 503);
+      assert.equal(failed.headers.get('Access-Control-Allow-Origin'),pagesOrigin);
+      if (upstreamStatus === 429) assert.equal(failed.headers.get('Retry-After'),'120');
+      assert.doesNotMatch(await failed.text(),/private upstream token/);
+      assert.equal(calls(),1);
+    } finally { await mf.dispose(); }
+  }
 });

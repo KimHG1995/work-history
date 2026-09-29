@@ -64,12 +64,13 @@
 - [x] 검토한 주소 파일을 `site/pages.project.json`에 반영하면 일반 배포도 수동 Origin 등록 없이 사용하도록 구현했습니다.
 - [x] PR #16의 일반 테스트 103개, Worker 모의 테스트 7개와 두 대상 빌드를 확인했습니다.
 - [x] PR #16을 병합하고 기존 GitHub Pages 배포 성공을 확인했습니다. 병합 커밋은 `b8728bb`입니다.
-- [x] 업데이트한 `CLOUDFLARE_API_TOKEN`으로 실제 최초 설정을 실행해 프로젝트 조회 성공을 확인했습니다. 업로드 성공과는 구분합니다.
-- [x] 실행 산출물에서 프로젝트 `work-history`와 실제 Origin `https://work-history-4gn.pages.dev`를 확보했습니다.
-- [x] 확인한 공개 주소를 [사이트 설정 파일](../site/pages.project.json)에 보존하는 변경을 PR #17에 포함했습니다.
-- [ ] 최초 Pages 업로드와 실제 운영 화면을 확인합니다.
+- [x] 업데이트한 `CLOUDFLARE_API_TOKEN`으로 실제 프로젝트 조회와 최초 정적 업로드 성공을 확인했습니다.
+- [x] 프로젝트 `work-history`와 실제 Origin `https://work-history-4gn.pages.dev`를 확보했습니다.
+- [x] 확인한 공개 주소를 [사이트 설정 파일](../site/pages.project.json)에 보존하고 PR #17을 병합했습니다.
+- [x] 수정된 main `1b8c0bb`의 Pages 최초 업로드가 성공했습니다.
+- [ ] 실제 브라우저에서 운영 화면, 직접 접근과 새로고침을 확인합니다.
 
-근거: [PR #16](https://github.com/KimHG1995/work-history/pull/16), [실제 최초 설정과 재실행](https://github.com/KimHG1995/work-history/actions/runs/36504809476). 두 번째 시도에서 프로젝트 재사용, 주소 산출물 저장과 Pages용 빌드가 성공했지만 최종 업로드는 실패했습니다. 프로젝트 주소 확보를 웹사이트 배포 성공으로 표시하지 않습니다.
+근거: [PR #16](https://github.com/KimHG1995/work-history/pull/16), [처음 실패한 실행](https://github.com/KimHG1995/work-history/actions/runs/36504809476), [수정 후 최초 업로드 성공](https://github.com/KimHG1995/work-history/actions/runs/36510678198/job/109221866039). 성공한 실행은 일반 테스트 107개, Worker 모의 테스트 7개와 정적 HTML 38개 검증을 거쳐 실제 업로드까지 완료했습니다. 광고는 `off`이며 AI Worker를 배포한 실행은 아닙니다. 브라우저 화면과 Clarity 수집 여부는 별도 확인 항목입니다.
 
 최초 설정은 push, PR, 댓글이나 정기 작업으로 실행하지 않습니다. 토큰 원문을 대화로 전달하지 않습니다.
 
@@ -80,11 +81,31 @@
 - [x] 업로드 임시 `wrangler.json`의 필수 `name` 누락을 수정했습니다. 검증한 프로젝트명만 추가하고 정적 템플릿의 허용 항목은 유지합니다.
 - [x] 신규 회귀 검사 4개의 실패를 먼저 확인한 뒤, 수정 후 일반 검사 107개 통과를 확인했습니다.
 - [x] 두 대상의 실제 빌드 산출물을 검증했습니다. 실제 잠금 CLI에서도 기존 설정의 필수 name 오류와 수정 설정의 인증 직전 도달을 비교했습니다. CLI에는 실제 인증값을 주지 않고 네트워크 소켓 연결을 차단했습니다.
-- [ ] PR #17의 운영 반영 후 수정된 코드로 최초 업로드를 다시 확인합니다.
+- [x] PR #17 병합 후 기존 GitHub Pages 배포와 수정된 코드의 Pages 최초 업로드 성공을 각각 확인했습니다.
 
-근거: [PR #17](https://github.com/KimHG1995/work-history/pull/17), [수정 전 회귀 실패](https://github.com/KimHG1995/work-history/actions/runs/36506098156), [수정 후 CI 성공](https://github.com/KimHG1995/work-history/actions/runs/36506990729), [Wrangler 필수 name 검사](https://github.com/cloudflare/workers-sdk/blob/wrangler%404.133.0/packages/workers-utils/src/config/validation-pages.ts). CLI 버전 확인 같은 부가 통신 시도 역시 검사 환경에서는 연결을 차단합니다. 운영 배포의 통신이나 보안 설정을 완화하지 않았습니다.
+근거: [PR #17](https://github.com/KimHG1995/work-history/pull/17), [수정 전 회귀 실패](https://github.com/KimHG1995/work-history/actions/runs/36506098156), [수정 후 CI 성공](https://github.com/KimHG1995/work-history/actions/runs/36506990729), [병합 후 GitHub 배포](https://github.com/KimHG1995/work-history/actions/runs/36507397924), [Wrangler 필수 name 검사](https://github.com/cloudflare/workers-sdk/blob/wrangler%404.133.0/packages/workers-utils/src/config/validation-pages.ts). CLI 버전 확인 같은 부가 통신 시도 역시 검사 환경에서는 연결을 차단합니다. 운영 배포의 통신이나 보안 설정을 완화하지 않았습니다.
 
-수정 후에는 `Pages 최초 설정`에서 최신 `main`으로 새 Run workflow를 시작해야 합니다. 예전 실패 실행의 Re-run은 이전 커밋을 다시 사용하므로 수정 검증에 사용하지 않습니다. 현재 프로젝트는 재사용하며 다시 생성하거나 삭제하지 않습니다. 일반 배포의 기본 대상은 아직 GitHub입니다.
+2026-09-29 최신 main의 새 수동 실행으로 최초 업로드를 완료했습니다. 같은 프로젝트를 다시 만들거나 초기화를 반복할 필요는 없습니다. 일반 배포의 기본 대상은 아직 GitHub입니다.
+
+## Pages에서 기존 AI Worker 연결
+
+코드 구현과 실제 Worker 배포를 구분합니다. 기존 Worker는 GitHub Origin만 허용했습니다. 사이트별 경로가 달라 CORS만 추가하면 문서 버전과 출처 경로가 어긋납니다.
+
+- [x] GitHub Origin과 확인한 Pages Origin 두 개만 명시적으로 허용하도록 구현했습니다. 임의의 pages.dev 주소나 미리보기는 허용하지 않습니다.
+- [x] 성공, 오류, OPTIONS와 health 응답에 요청한 사이트의 CORS를 적용하도록 구현했습니다.
+- [x] 사이트별 문서 경로를 맞춘 뒤 해시를 계산하도록 구현했습니다. 문서 본문과 순서는 바꾸지 않습니다.
+- [x] 경력 요약은 기존 경로 기준으로 계산하고 최종 출처만 사이트에 맞추도록 구현했습니다.
+- [x] 기존 `global-v1`의 제한과 응답 캐시를 공유합니다. 사이트를 바꿔도 호출 제한을 별도로 받지 않도록 유지했습니다.
+- [x] 수동 Worker 배포 후 두 Origin의 release, CORS와 문서 해시를 확인하도록 구현했습니다. 선택한 실제 무료 AI 검증은 Pages Origin에서 1회만 요청합니다.
+- [x] 허용 Origin, 문서 경로, 해시와 응답 헤더의 신규 단위 검사 4개를 로컬에서 실패 후 통과로 확인했습니다.
+- [ ] 실제 Worker를 새 코드로 배포하고 두 사이트의 운영 health를 확인합니다.
+- [ ] Pages에서 실제 무료 AI 답변과 출처 링크를 확인합니다.
+
+전체 저장소 검사와 병합 결과는 이 변경의 PR에 기록합니다. Worker 통합 검사는 외부 모델을 모의 처리하며 실제 AI 이용 성공을 뜻하지 않습니다.
+
+다음 수동 실행은 `Pages 최초 설정`이 아니라 `AI Worker 수동 배포`입니다. 최신 main에서 `confirm=true`로 실행하고 실제 무료 답변도 확인할 때만 `live_verify=true`를 선택합니다. 기존 `CLOUDFLARE_API_TOKEN`, `ORCAROUTER_API_KEY`, `CLOUDFLARE_ACCOUNT_ID`를 사용합니다. 기존 토큰의 Worker 배포 권한과 무료 요금제 조회 권한은 이 실행에서 별도로 확인합니다. `VITE_CHAT_API_URL`과 `SITE_ORIGIN`을 새로 등록하지 않습니다.
+
+이번 변경은 Worker와 검사, 진행 문서만 수정합니다. 사이트를 다시 빌드하거나 Pages에 다시 업로드하지 않아도 됩니다. 새 Worker, Pages Functions, 요금제 변경과 광고 활성화는 추가하지 않습니다. CORS 설정 방식은 [Cloudflare 공식 예제](https://developers.cloudflare.com/workers/examples/cors-header-proxy/)를 참고했습니다.
 
 ## 운영 전환과 광고
 
