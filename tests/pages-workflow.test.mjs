@@ -53,3 +53,13 @@ test('Pages deployment changes validate a real alternate artifact only on PRs', 
     assert.equal(needsSiteVariant(impact, 'push'), false, file);
   }
 });
+
+
+test('production Pages deploy is verification-only for the confirmed AdSense publisher', () => {
+  const text = read('.github/workflows/pages.yml');
+  const build = job(text, 'build');
+  assert.match(build, /ADS_MODE: verify/);
+  assert.match(build, /ADS_PUBLISHER_ID: ca-pub-9486681340475427/);
+  assert.match(build, /ADS_CSP_MODE: strict/);
+  assert.doesNotMatch(text, /pagead2\.googlesyndication\.com|adsbygoogle\.js/);
+});
