@@ -67,7 +67,8 @@ export async function deploySite({ root = process.cwd(), output, record, env = p
     await assertStaticOutput(path.join(stage, 'dist'), { root: stage });
     await verifySiteOutput(path.join(stage, 'dist'), readSiteConfig(checked.record.siteEnv));
     await rm(path.join(stage, 'wrangler.pages.jsonc'));
-    await writeFile(path.join(stage, 'wrangler.json'), JSON.stringify(checked.config));
+    // Pages validates the raw top-level name before resolving --project-name.
+    await writeFile(path.join(stage, 'wrangler.json'), JSON.stringify({ ...checked.config, name: checked.record.projectName }));
     await mkdir(path.join(stage, '.home'));
     if (!await freshness()) return { deployed: false, reason: 'newer-site-inputs' };
     let result;

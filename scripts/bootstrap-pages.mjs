@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { appendFile, mkdir, writeFile } from 'node:fs/promises';
+import { setTimeout as sleep } from 'node:timers/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { selectDeployment, validSha, validateDeployment } from './pages-config.mjs';
@@ -13,7 +14,7 @@ function isLatestMain(env) {
 }
 
 /** Only a confirmed, manual main run can create a project. No implicit token fallback. */
-export async function bootstrapPages({ env = process.env, fetchImpl = fetch, current = isLatestMain } = {}) {
+export async function bootstrapPages({ env = process.env, fetchImpl = fetch, current = isLatestMain, pause = sleep } = {}) {
   if (env.GITHUB_EVENT_NAME !== 'workflow_dispatch' || env.GITHUB_REF !== 'refs/heads/main' ||
       env.PAGES_BOOTSTRAP_CONFIRMED !== 'true' || !validSha(env.GITHUB_SHA)) throw new Error('Confirm a manual setup on main first.');
   const tokenSource = env.BOOTSTRAP_TOKEN_SECRET || 'CLOUDFLARE_PAGES_API_TOKEN';
@@ -26,33 +27,40 @@ export async function bootstrapPages({ env = process.env, fetchImpl = fetch, cur
   if (typeof token !== 'string' || !token.trim() || /[\r\n]/.test(token)) throw new Error(`Missing selected Secret: ${tokenSource}`);
   if (!await current(env)) throw new Error('Setup commit is no longer current main; start a new manual run.');
   const base = `https://api.cloudflare.com/client/v4/accounts/${account}/pages/projects`;
-  async function request(url, method = 'GET', allowMissing = false) {
+  async function request(url, method = 'GET', allowMissing = false, phase = 'project-lookup') {
     let response;
     try {
       response = await fetchImpl(url, { method, redirect: 'error', signal: AbortSignal.timeout(15000),
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         ...(method === 'POST' ? { body: JSON.stringify({ name, production_branch: 'main' }) } : {}) });
     } catch {
-      throw new Error(method === 'POST' ? 'Project creation result is uncertain. No retry was made; a new manual run will look up the project first.' : 'Pages project lookup failed; no creation was attempted.');
+      throw new Error(`Pages ${phase}: ${method === 'POST'
+        ? 'creation result is uncertain; no retry was made. A new manual run will look up the project first.'
+        : 'lookup failed; no further creation or automatic retry was attempted.'}`);
     }
     let body;
-    try { body = await response.json(); } catch { throw new Error('Invalid Cloudflare JSON response; raw response withheld.'); }
+    try { body = await response.json(); } catch { throw new Error(`Pages ${phase}: invalid Cloudflare JSON response; raw response withheld.`); }
     const codes = Array.isArray(body?.errors) ? body.errors.map(error => error?.code) : [];
     if (allowMissing && response.status === 404 && body?.success === false && codes.length > 0 && codes.every(code => code === 8000007)) return null;
     if (!response.ok || body?.success !== true) {
       const safeCodes = codes.filter(Number.isInteger).slice(0, 5).join(',') || 'none';
-      throw new Error(`Pages ${method} failed (HTTP ${response.status}, codes ${safeCodes}); no automatic retry or other project changes.`);
+      throw new Error(`Pages ${phase} ${method} failed (HTTP ${response.status}, codes ${safeCodes}); no automatic retry or other project changes.`);
     }
-    if (!body.result || typeof body.result !== 'object' || Array.isArray(body.result)) throw new Error('Cloudflare returned no project record');
+    if (!body.result || typeof body.result !== 'object' || Array.isArray(body.result)) throw new Error(`Pages ${phase}: Cloudflare returned no project record`);
     return body.result;
   }
   let value = await request(`${base}/${name}`, 'GET', true);
   const created = value === null;
   if (created) {
-    await request(base, 'POST');
-    // A successful create may precede subdomain assignment. Read once; on failure
-    // leave the project intact so a later run can safely reuse it.
-    value = await request(`${base}/${name}`);
+    await request(base, 'POST', false, 'project-create');
+    // Retry only confirmed project-not-found readbacks after a successful POST.
+    // Never repeat creation or treat authentication/network errors as propagation.
+    for (let attempt = 0; attempt < 3; attempt++) {
+      value = await request(`${base}/${name}`, 'GET', true, 'project-readback');
+      if (value !== null) break;
+      if (attempt < 2) await pause((attempt + 1) * 1000);
+    }
+    if (value === null) throw new Error('Pages project-readback: created project is not yet readable after 3 checks. Project retained; a new manual run will reuse it.');
   }
   const project = identityFromProject(value, name);
   const deployment = selectDeployment({
