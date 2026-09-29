@@ -3,12 +3,13 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { readSiteConfig } from './site-config.mjs';
 import { resolveChatApiUrl } from '../site/chat.config.mjs';
+import { readPagesProject, validatePagesProject } from './pages-project.mjs';
 
 export const validSha = value => typeof value === 'string' && value.length === 40 && /^[a-f0-9]{40}$/.test(value) && !/^0+$/.test(value);
 const projectPattern = /^[a-z0-9](?:[a-z0-9-]{0,56}[a-z0-9])?$/;
 
 /** Capture public deployment inputs once. No account lookup or credentials in build jobs. */
-export function selectDeployment(env) {
+export function selectDeployment(env, { readProject = () => null } = {}) {
   const configured = env.SITE_TARGET || 'github';
   if (!['github', 'pages'].includes(configured)) throw new Error('Invalid SITE_TARGET');
   const requested = env.GITHUB_EVENT_NAME === 'workflow_dispatch' ? (env.DEPLOY_TARGET || 'configured') : 'configured';
@@ -18,6 +19,18 @@ export function selectDeployment(env) {
     throw new Error('Confirm the manual Pages deployment first.');
   }
   if (!validSha(env.GITHUB_SHA)) throw new Error('Invalid deployment commit');
+  // Read saved public identity only when Pages is selected and inputs are missing.
+  if (target === 'pages' && (!env.SITE_ORIGIN || !env.CLOUDFLARE_PAGES_PROJECT)) {
+    const raw = readProject();
+    if (raw !== null) {
+      const saved = validatePagesProject(raw);
+      if ((env.SITE_ORIGIN && env.SITE_ORIGIN !== saved.origin) ||
+          (env.CLOUDFLARE_PAGES_PROJECT && env.CLOUDFLARE_PAGES_PROJECT !== saved.projectName)) {
+        throw new Error('Override both Pages project and SITE_ORIGIN together');
+      }
+      env = { ...env, SITE_ORIGIN: env.SITE_ORIGIN || saved.origin, CLOUDFLARE_PAGES_PROJECT: env.CLOUDFLARE_PAGES_PROJECT || saved.projectName };
+    }
+  }
   // Pages-only settings may be prepared without changing the live GitHub site.
   const config = readSiteConfig(target === 'github' ? { SITE_TARGET: 'github' } : {
     SITE_TARGET: 'pages', SITE_ORIGIN: env.SITE_ORIGIN, ADS_MODE: env.ADS_MODE,
@@ -49,7 +62,7 @@ export function validateDeployment(record, sha) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   if (!process.argv[2] || !process.env.GITHUB_OUTPUT) throw new Error('Missing deployment output paths');
-  const record = selectDeployment(process.env);
+  const record = selectDeployment(process.env, { readProject: readPagesProject });
   writeFileSync(process.argv[2], JSON.stringify(record));
   appendFileSync(process.env.GITHUB_OUTPUT, `target=${record.siteEnv.SITE_TARGET}\n`);
   console.log(`Static build target: ${record.siteEnv.SITE_TARGET}, ads=${record.siteEnv.ADS_MODE}`);

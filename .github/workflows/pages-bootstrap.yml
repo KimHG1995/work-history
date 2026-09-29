@@ -1,0 +1,95 @@
+name: Pages 최초 설정
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_name:
+        description: 만들거나 확인할 Direct Upload 프로젝트 이름
+        type: string
+        default: work-history
+        required: true
+      token_secret:
+        description: Pages Edit 권한으로 업데이트한 GitHub Secret 이름
+        type: choice
+        options: [CLOUDFLARE_PAGES_API_TOKEN, CLOUDFLARE_API_TOKEN]
+        default: CLOUDFLARE_PAGES_API_TOKEN
+        required: true
+      confirm:
+        description: 프로젝트 생성과 선택한 최초 정적 배포를 승인합니다.
+        type: boolean
+        default: false
+        required: true
+      deploy:
+        description: 실제 주소로 광고 없는 사이트까지 최초 업로드합니다.
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  WRANGLER_SEND_METRICS: 'false'
+
+jobs:
+  bootstrap:
+    if: >-
+      github.ref == 'refs/heads/main' && inputs.confirm &&
+      contains(fromJSON('["CLOUDFLARE_PAGES_API_TOKEN","CLOUDFLARE_API_TOKEN"]'), inputs.token_secret)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: cloudflare-pages
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 계정 작업 전 오프라인 검증
+        run: |
+          npm ci
+          npm run test:docs
+          npm run test:mermaid
+          npm run docs:prepare
+          npm test
+          npm run test:worker
+      - name: 프로젝트 확인 또는 최초 생성과 실제 주소 확보
+        id: project
+        run: node scripts/bootstrap-pages.mjs "$RUNNER_TEMP/pages-bootstrap"
+        env:
+          PAGES_BOOTSTRAP_CONFIRMED: ${{ inputs.confirm }}
+          PAGES_BOOTSTRAP_PROJECT: ${{ inputs.project_name }}
+          BOOTSTRAP_TOKEN_SECRET: ${{ inputs.token_secret }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_API_TOKEN: ${{ secrets[inputs.token_secret] }}
+          VITE_CHAT_API_URL: ${{ vars.VITE_CHAT_API_URL }}
+      - name: 공개 주소 보존 (토큰과 계정 응답 제외)
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-bootstrap-${{ github.run_id }}
+          path: ${{ runner.temp }}/pages-bootstrap/*.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: 광고 없는 정적 빌드
+        if: inputs.deploy
+        run: npm run docs:build
+        env:
+          SITE_TARGET: pages
+          SITE_ORIGIN: ${{ steps.project.outputs.origin }}
+          SITE_BASE: '/'
+          ADS_MODE: 'off'
+          ADS_CSP_MODE: strict
+          VITE_CHAT_API_URL: ${{ steps.project.outputs.chat_api }}
+      - name: 검증된 정적 파일 최초 업로드
+        if: inputs.deploy
+        run: node scripts/deploy-site.mjs --upload "$RUNNER_TEMP/pages-bootstrap/deployment.json" site/.vitepress/dist
+        env:
+          PAGES_DEPLOY_CONFIRMED: ${{ inputs.confirm }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_API_TOKEN: ${{ secrets[inputs.token_secret] }}
