@@ -37,9 +37,12 @@ async function verifyStagedCli(root, output, record) {
       staged = JSON.parse(readFileSync(file, 'utf8'));
       const legacy = { ...staged }; delete legacy.name;
       const guard = path.join(options.cwd, 'deny-network.cjs');
+      // Wrangler may try optional npm update checks even without credentials.
+      // Those attempts must be blocked, not confused with the configuration result.
       writeFileSync(guard, `require('node:net').Socket.prototype.connect = function () {
-        process.stderr.write('TEST_NETWORK_ATTEMPT\\n'); throw Error('Network forbidden in CLI configuration probe');
-      };`);
+        process.stderr.write('TEST_NETWORK_BLOCKED\\n'); throw Error('Network forbidden in CLI configuration probe');
+      };
+      process.stderr.write('TEST_NETWORK_GUARD_ACTIVE\\n');`);
       for (const config of [legacy, staged]) {
         writeFileSync(file, JSON.stringify(config));
         const probe = spawnSync(command, args, { cwd: options.cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 20000,
@@ -55,12 +58,12 @@ async function verifyStagedCli(root, output, record) {
   assert.equal(staged.name, record.projectName);
   for (const probe of probes) {
     assert.equal(probe.status, 1, probe.text);
-    assert.doesNotMatch(probe.text, /TEST_NETWORK_ATTEMPT/, probe.text);
+    assert.match(probe.text, /TEST_NETWORK_GUARD_ACTIVE/, probe.text);
   }
   assert.match(probes[0].text, /Missing top-level field "name"/, probes[0].text);
   assert.doesNotMatch(probes[1].text, /Missing top-level field "name"/, probes[1].text);
   assert.match(probes[1].text, /CLOUDFLARE_API_TOKEN/, probes[1].text);
-  console.log('Real Pages CLI: missing-name baseline reproduced; current staged config reaches the authentication gate without network.');
+  console.log('Real Pages CLI: missing-name baseline reproduced; current staged config reaches the authentication gate with socket connections blocked.');
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
