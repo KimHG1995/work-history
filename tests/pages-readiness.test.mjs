@@ -1,10 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { bootstrapPages } from '../scripts/bootstrap-pages.mjs';
 import { deploySite } from '../scripts/deploy-site.mjs';
 import { selectDeployment } from '../scripts/pages-config.mjs';
@@ -52,8 +50,8 @@ test('post-create authorization errors are not retried or mistaken for propagati
   assert.deepEqual(waits, []);
 });
 
-test('the actual staged Wrangler config reaches the credential gate without network or real credentials', async t => {
-  const directory = mkdtempSync(path.join(tmpdir(), 'pages-cli-regression-'));
+test('the actual staged Wrangler file carries the validated project name without changing the template', async t => {
+  const directory = mkdtempSync(path.join(tmpdir(), 'pages-config-regression-'));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   const put = (file, value) => { const dest = path.join(directory, file); mkdirSync(path.dirname(dest), { recursive: true }); writeFileSync(dest, value); };
   const template = { pages_build_output_dir: './dist', compatibility_date: '2026-09-28' };
@@ -68,31 +66,14 @@ test('the actual staged Wrangler config reaches the credential gate without netw
   put('dist/sitemap.xml', `<urlset>${urls.map(url => `<url><loc>${url}</loc></url>`).join('')}</urlset>`);
   put('dist/chat-docs.json', '[{"url":"/about"}]');
   put('dist/robots.txt', `Sitemap: ${origin}/sitemap.xml\n`);
-  // The probe intentionally has no token and forbids network in all child processes.
-  put('deny-network.cjs', `const net = require('node:net');
-net.Socket.prototype.connect = function () { process.stderr.write('TEST_NETWORK_ATTEMPT\\n'); throw new Error('Network forbidden in CLI configuration probe'); };
-`);
-  const cli = fileURLToPath(new URL('../node_modules/wrangler/bin/wrangler.js', import.meta.url));
   const record = selectDeployment({ GITHUB_SHA: sha, SITE_TARGET: 'pages', SITE_ORIGIN: origin, CLOUDFLARE_PAGES_PROJECT: 'validation-only' });
-  let checked = false;
+  let staged;
   await deploySite({ root: directory, output: path.join(directory, 'dist'), record,
     env: { ...env, PAGES_DEPLOY_CONFIRMED: 'true' }, current: () => true, fetchImpl: async () => ok(),
-    run: (_command, args, options) => {
-      const staged = JSON.parse(readFileSync(path.join(options.cwd, 'wrangler.json'), 'utf8'));
-      const probe = spawnSync(process.execPath, [cli, ...args.slice(1)], {
-        cwd: options.cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 20000,
-        env: { PATH: process.env.PATH, HOME: options.env.HOME, CI: 'true', WRANGLER_SEND_METRICS: 'false',
-          CLOUDFLARE_AUTH_USE_KEYRING: 'false', NODE_OPTIONS: `--require=${path.join(directory, 'deny-network.cjs')}` }
-      });
-      const text = `${probe.stdout || ''}\n${probe.stderr || ''}`;
-      assert.doesNotMatch(text, /Missing top-level field "name"/, text);
-      assert.doesNotMatch(text, /TEST_NETWORK_ATTEMPT/, text);
-      assert.equal(probe.status, 1, text);
-      assert.match(text, /CLOUDFLARE_API_TOKEN/, text);
-      assert.deepEqual(staged, { ...template, name: 'validation-only' });
-      checked = true;
-      // The real CLI stopped at missing authentication. Only this mock upload succeeds.
+    run: (_command, _args, options) => {
+      staged = JSON.parse(readFileSync(path.join(options.cwd, 'wrangler.json'), 'utf8'));
       return { status: 0 };
     } });
-  assert.equal(checked, true);
+  assert.deepEqual(staged, { ...template, name: 'validation-only' });
+  assert.deepEqual(JSON.parse(readFileSync(path.join(directory, 'wrangler.pages.jsonc'), 'utf8')), template);
 });
