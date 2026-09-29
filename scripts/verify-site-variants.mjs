@@ -1,9 +1,10 @@
-import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+import assert from 'node:assert/strict';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { selectDeployment } from './pages-config.mjs';
-import { checkPagesArtifact } from './deploy-site.mjs';
+import { checkPagesArtifact, deploySite } from './deploy-site.mjs';
 
 const inputs = new Set([
   'scripts/site-config.mjs', 'scripts/prepare-public.mjs', 'scripts/prepare-site.mjs',
@@ -18,6 +19,53 @@ export function needsSiteVariant(impact, eventName) {
     (impact.fallback === true || impact.paths.some(file => inputs.has(file) || file.startsWith('site/pages/')));
 }
 
+/** Exercise the exact staged config, not --help. All account access is mocked.
+ * Real CLI children receive no credentials and cannot open a network socket. */
+async function verifyStagedCli(root, output, record) {
+  const probes = [];
+  let staged;
+  await deploySite({ root, output, record,
+    env: { GITHUB_SHA: record.sha, GITHUB_REF: 'refs/heads/main', GITHUB_EVENT_NAME: 'push',
+      CLOUDFLARE_ACCOUNT_ID: 'b'.repeat(32), CLOUDFLARE_PAGES_API_TOKEN: 'offline-probe-only' },
+    current: () => true,
+    fetchImpl: async () => Response.json({ success: true, result: {
+      name: record.projectName, subdomain: new URL(record.siteEnv.SITE_ORIGIN).hostname, production_branch: 'main',
+      source: null, deployment_configs: { production: {}, preview: {} }
+    } }),
+    run: (command, args, options) => {
+      const file = path.join(options.cwd, 'wrangler.json');
+      staged = JSON.parse(readFileSync(file, 'utf8'));
+      const legacy = { ...staged }; delete legacy.name;
+      const guard = path.join(options.cwd, 'deny-network.cjs');
+      // Wrangler may try optional npm update checks even without credentials.
+      // Those attempts must be blocked, not confused with the configuration result.
+      writeFileSync(guard, `require('node:net').Socket.prototype.connect = function () {
+        process.stderr.write('TEST_NETWORK_BLOCKED\\n'); throw Error('Network forbidden in CLI configuration probe');
+      };
+      process.stderr.write('TEST_NETWORK_GUARD_ACTIVE\\n');`);
+      for (const config of [legacy, staged]) {
+        writeFileSync(file, JSON.stringify(config));
+        const probe = spawnSync(command, args, { cwd: options.cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 20000,
+          env: { PATH: process.env.PATH, HOME: options.env.HOME, CI: 'true', WRANGLER_SEND_METRICS: 'false',
+            CLOUDFLARE_AUTH_USE_KEYRING: 'false', NODE_OPTIONS: `--require=${guard}` }
+        });
+        probes.push({ status: probe.status, text: `${probe.stdout || ''}\n${probe.stderr || ''}` });
+      }
+      return { status: 0 }; // Mock upload only; both real CLI processes must stop before authentication.
+    }
+  });
+  assert.equal(probes.length, 2);
+  assert.equal(staged.name, record.projectName);
+  for (const probe of probes) {
+    assert.equal(probe.status, 1, probe.text);
+    assert.match(probe.text, /TEST_NETWORK_GUARD_ACTIVE/, probe.text);
+  }
+  assert.match(probes[0].text, /Missing top-level field "name"/, probes[0].text);
+  assert.doesNotMatch(probes[1].text, /Missing top-level field "name"/, probes[1].text);
+  assert.match(probes[1].text, /CLOUDFLARE_API_TOKEN/, probes[1].text);
+  console.log('Real Pages CLI: missing-name baseline reproduced; current staged config reaches the authentication gate with socket connections blocked.');
+}
+
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   const impact = JSON.parse(readFileSync(process.argv[2], 'utf8'));
   if (needsSiteVariant(impact, process.env.GITHUB_EVENT_NAME)) {
@@ -30,12 +78,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
     execFileSync('npm', ['run', 'docs:build'], { stdio: 'inherit', env });
     const root = path.resolve(import.meta.dirname, '..');
     const record = selectDeployment({ ...env, GITHUB_EVENT_NAME: 'push', CLOUDFLARE_PAGES_PROJECT: 'validation-only' });
-    await checkPagesArtifact({ root, output: path.join(root, 'site/.vitepress/dist'), record, sha: record.sha });
-    // Help validates the pinned CLI syntax without a deployment or account request.
-    execFileSync(process.execPath, [path.join(root, 'node_modules/wrangler/bin/wrangler.js'),
-      'pages', 'deploy', './dist', '--force', '--help'], { stdio: 'pipe', timeout: 30000,
-      env: { PATH: process.env.PATH, CI: 'true', WRANGLER_SEND_METRICS: 'false' } });
-    console.log('Pages static-only upload gate and CLI syntax verified offline.');
+    const output = path.join(root, 'site/.vitepress/dist');
+    await checkPagesArtifact({ root, output, record, sha: record.sha });
+    await verifyStagedCli(root, output, record);
+    console.log('Pages static-only upload gate and actual CLI configuration verified offline.');
   } else {
     console.log('Alternate target build skipped: no relevant configuration changes.');
   }

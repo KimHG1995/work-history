@@ -161,7 +161,7 @@ test('one Pages upload uses isolated config and only the dedicated token; stagin
       assert.equal(options.env.CLOUDFLARE_API_TOKEN, 'pages-test-secret');
       for (const name of ['ORCAROUTER_API_KEY', 'GITHUB_TOKEN', 'NODE_OPTIONS']) assert.equal(options.env[name], undefined);
       assert.notEqual(staged, f.root);
-      assert.deepEqual(JSON.parse(readFileSync(path.join(staged, 'wrangler.json'), 'utf8')), { pages_build_output_dir: './dist', compatibility_date: '2026-09-28' });
+      assert.deepEqual(JSON.parse(readFileSync(path.join(staged, 'wrangler.json'), 'utf8')), { pages_build_output_dir: './dist', compatibility_date: '2026-09-28', name: 'validation-only' });
       assert.equal(existsSync(path.join(staged, 'functions')), false);
       assert.equal(existsSync(path.join(staged, 'wrangler.pages.jsonc')), false);
       assert.equal(existsSync(path.join(staged, 'dist/index.html')), true);
