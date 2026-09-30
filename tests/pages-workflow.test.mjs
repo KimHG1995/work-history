@@ -29,7 +29,7 @@ test('main site changes build and deploy both Cloudflare Pages and GitHub Pages'
   assert.match(githubBuild, /SITE_TARGET: github/);
   assert.match(githubBuild, /npm run docs:build/);
   assert.match(githubBuild, /actions\/upload-pages-artifact@v3/);
-  assert.match(job(text, 'deploy'), /needs: build_github/);
+  assert.match(job(text, 'deploy'), /needs: \[build, build_github\]/);
   assert.match(job(text, 'deploy'), /github\.event_name == 'push'/);
   assert.match(job(text, 'deploy_cloudflare'), /needs\.build\.outputs\.target == 'pages'/);
   assert.match(job(text, 'deploy_cloudflare'), /needs\.build\.outputs\.site == 'true'/);
