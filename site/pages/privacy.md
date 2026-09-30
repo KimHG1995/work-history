@@ -24,4 +24,4 @@ AI 답변을 요청하면 질문과 관련 공개 문서 일부가 Cloudflare Wo
 
 ## 문의
 
-개별 문의는 [kim.h.g199510@gmail.com](mailto:kim.h.g199510@gmail.com)으로 보내 주세요. 문서 수정이나 사이트 오류는 [GitHub Issues](https://github.com/KimHG1995/work-history/issues)로 남겨 주세요. GitHub Issues에 작성한 내용은 공개되므로 민감한 정보는 입력하지 마세요.
+정보 처리와 개인정보 관련 문의는 [kim.h.g199510@gmail.com](mailto:kim.h.g199510@gmail.com)으로 보내 주세요.
