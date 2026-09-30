@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       target:
-        description: 이번 배포 대상 (configured는 운영 Pages, github는 기존 사이트 복구용)
+        description: 이번 배포 대상 (configured는 운영 Pages, github는 GitHub Pages 복구용)
         type: choice
         options: [configured, github, pages]
         default: configured
@@ -80,11 +80,37 @@ jobs:
           if-no-files-found: error
           retention-days: 3
           include-hidden-files: true
-  deploy:
+
+  build_github:
     needs: build
-    if: needs.build.outputs.site == 'true' && needs.build.outputs.target == 'github'
+    if: github.event_name == 'push' && needs.build.outputs.site == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: GitHub Pages용 정적 빌드
+        run: |
+          npm ci
+          npm run docs:build
+        env:
+          SITE_TARGET: github
+          VITE_CHAT_API_URL: ${{ vars.VITE_CHAT_API_URL }}
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/.vitepress/dist
+
+  deploy:
+    needs: [build, build_github]
+    if: github.event_name == 'push' && needs.build.outputs.site == 'true' && needs.build_github.result == 'success'
     concurrency:
-      group: pages
+      group: github-pages
       cancel-in-progress: false
     permissions:
       contents: read
@@ -110,11 +136,43 @@ jobs:
         if: steps.freshness.outputs.deploy == 'true'
         id: deployment
         uses: actions/deploy-pages@v4
+
+  deploy_github_manual:
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && needs.build.outputs.site == 'true' && needs.build.outputs.target == 'github'
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 오래된 사이트 배포 방지
+        id: freshness
+        run: node scripts/check-deploy.mjs
+      - name: GitHub Pages 배포
+        if: steps.freshness.outputs.deploy == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v4
+
   deploy_cloudflare:
     needs: build
     if: needs.build.outputs.site == 'true' && needs.build.outputs.target == 'pages'
     concurrency:
-      group: pages
+      group: cloudflare-pages
       cancel-in-progress: false
     permissions:
       contents: read
