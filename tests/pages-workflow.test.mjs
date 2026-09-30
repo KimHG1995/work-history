@@ -19,23 +19,26 @@ test('guides have zero build or upload; production target applies only to one fi
   }
 });
 
-test('workflow defaults to Pages and retains exactly one target with manual GitHub recovery', () => {
+test('main site changes build and deploy both Cloudflare Pages and GitHub Pages', () => {
   const text = read('.github/workflows/pages.yml');
+  const pagesBuild = job(text, 'build');
+  const githubBuild = job(text, 'build_github');
   assert.doesNotMatch(text, /\n  (?:pull_request|pull_request_target|schedule|workflow_run):/);
-  assert.match(job(text, 'build'), /scripts\/pages-config\.mjs/);
-  assert.match(job(text, 'build'), /SITE_TARGET: pages/);
-  assert.match(job(text, 'deploy'), /needs\.build\.outputs\.target == 'github'/);
+  assert.match(pagesBuild, /scripts\/pages-config\.mjs/);
+  assert.match(pagesBuild, /SITE_TARGET: pages/);
+  assert.match(githubBuild, /SITE_TARGET: github/);
+  assert.match(githubBuild, /npm run docs:build/);
+  assert.match(githubBuild, /actions\/upload-pages-artifact@v3/);
+  assert.match(job(text, 'deploy'), /needs: build_github/);
+  assert.match(job(text, 'deploy'), /github\.event_name == 'push'/);
   assert.match(job(text, 'deploy_cloudflare'), /needs\.build\.outputs\.target == 'pages'/);
-  for (const name of ['deploy', 'deploy_cloudflare']) {
-    assert.match(job(text, name), /needs\.build\.outputs\.site == 'true'/);
-    assert.match(job(text, name), /group: pages\n      cancel-in-progress: false/);
-  }
+  assert.match(job(text, 'deploy_cloudflare'), /needs\.build\.outputs\.site == 'true'/);
   assert.match(text, /confirm_pages:[\s\S]*default: false/);
 });
 
-test('Cloudflare credentials exist only on the Pages upload step, never the build, public check or GitHub job', () => {
+test('Cloudflare credentials exist only on the Pages upload step, never GitHub build or deploy', () => {
   const text = read('.github/workflows/pages.yml');
-  assert.doesNotMatch(job(text, 'build') + job(text, 'deploy'), /secrets[.\[]/);
+  assert.doesNotMatch(job(text, 'build') + job(text, 'build_github') + job(text, 'deploy'), /secrets[.\[]/);
   assert.equal((text.match(/secrets[.\[]/g) || []).length, 1);
   const cloud = job(text, 'deploy_cloudflare');
   assert.match(cloud, /npm ci --ignore-scripts/);
@@ -54,12 +57,14 @@ test('Pages deployment changes validate a real alternate artifact only on PRs', 
   }
 });
 
-
-test('production Pages deploy is verification-only for the confirmed AdSense publisher', () => {
+test('production Cloudflare deploy is verification-only while GitHub stays ads-off', () => {
   const text = read('.github/workflows/pages.yml');
-  const build = job(text, 'build');
-  assert.match(build, /ADS_MODE: verify/);
-  assert.match(build, /ADS_PUBLISHER_ID: ca-pub-9486681340475427/);
-  assert.match(build, /ADS_CSP_MODE: strict/);
+  const pagesBuild = job(text, 'build');
+  const githubBuild = job(text, 'build_github');
+  assert.match(pagesBuild, /ADS_MODE: verify/);
+  assert.match(pagesBuild, /ADS_PUBLISHER_ID: ca-pub-9486681340475427/);
+  assert.match(pagesBuild, /ADS_CSP_MODE: strict/);
+  assert.match(githubBuild, /SITE_TARGET: github/);
+  assert.doesNotMatch(githubBuild, /ADS_MODE: verify|ADS_PUBLISHER_ID/);
   assert.doesNotMatch(text, /pagead2\.googlesyndication\.com|adsbygoogle\.js/);
 });
