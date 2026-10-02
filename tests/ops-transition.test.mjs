@@ -95,11 +95,17 @@ test('published-file verification compares actual bytes, only on the exact produ
   }
   assert.equal(requests,0);
 });
-test('a stale public page fails after bounded reads without uploading or hiding the mismatch', async () => {
+test('public verification tolerates bounded Pages propagation without re-uploading', async () => {
+  const { verifyPublishedFiles } = await load('verify-public-site'); let calls=0; const waits=[];
+  const result=await verifyPublishedFiles({origin:pages.origin,files:[{route:'/',bytes:Buffer.from('new')}],
+    pause:async ms=>waits.push(ms),fetchImpl:async()=>new Response(++calls < 5 ? 'old' : 'new')});
+  assert.equal(result.checked,1);assert.equal(calls,5);assert.deepEqual(waits,[1000,2000,4000,8000]);
+});
+test('a permanently stale public page still fails after a bounded 30-second propagation window', async () => {
   const { verifyPublishedFiles } = await load('verify-public-site'); let calls=0; const waits=[];
   await assert.rejects(verifyPublishedFiles({origin:pages.origin,files:[{route:'/privacy',bytes:Buffer.from('new')}],
     pause:async ms=>waits.push(ms),fetchImpl:async()=>{calls++;return new Response('old');}}),/Published content mismatch/);
-  assert.equal(calls,3);assert.deepEqual(waits,[1000,2000]);
+  assert.equal(calls,6);assert.deepEqual(waits,[1000,2000,4000,8000,15000]);
 });
 test('unsafe public paths cannot escape to other hosts or parent paths', async () => {
   const { verifyPublishedFiles } = await load('verify-public-site');let calls=0;
