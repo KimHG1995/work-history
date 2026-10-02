@@ -57,6 +57,8 @@ export default defineConfig({
     }
   },
   head: [
+    ['link', { rel: 'icon', type: 'image/png', href: `${site.base}favicon.png` }],
+    ['link', { rel: 'apple-touch-icon', href: `${site.base}favicon.png` }],
     ['script', { type: 'text/javascript' }, `
       (function(c,l,a,r,i,t,y){
         if (location.origin !== ${JSON.stringify(site.origin)}) return;
