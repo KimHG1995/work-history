@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="코딩하는 헬멧 개발냥">
+  <g stroke="#111827" stroke-width="18" stroke-linejoin="round" stroke-linecap="round">
+    <path fill="#8B8D98" d="M122 184 86 92l92 44c22-13 49-20 78-20s56 7 78 20l92-44-36 92c19 28 30 61 30 96 0 91-73 164-164 164S92 371 92 280c0-35 11-68 30-96Z"/>
+    <path fill="#FFB3BD" stroke-width="10" d="m119 136-14-34 43 21-29 13Zm274 0 14-34-43 21 29 13Z"/>
+    <path fill="#FFD21F" d="M156 129c8-56 48-88 100-88s92 32 100 88l21 9-10 38H145l-10-38 21-9Z"/>
+    <path fill="#F59E0B" stroke-width="10" d="M170 129h172"/>
+    <path fill="#111827" stroke="none" d="M243 83a13 13 0 1 1 26 0 13 13 0 0 1-26 0Zm-31 18a12 12 0 1 1 24 0 12 12 0 0 1-24 0Zm64 0a12 12 0 1 1 24 0 12 12 0 0 1-24 0Zm-47 26c0-16 12-29 27-29s27 13 27 29c0 12-8 20-27 20s-27-8-27-20Z"/>
+    <path fill="#FFFDF8" d="M168 238c22-25 51-37 88-37s66 12 88 37v92c-20 33-49 50-88 50s-68-17-88-50v-92Z"/>
+    <ellipse fill="#0F172A" cx="203" cy="258" rx="30" ry="38"/>
+    <ellipse fill="#0F172A" cx="309" cy="258" rx="30" ry="38"/>
+    <circle fill="#fff" stroke="none" cx="193" cy="244" r="9"/>
+    <circle fill="#fff" stroke="none" cx="299" cy="244" r="9"/>
+    <circle fill="#FBBF24" stroke="none" cx="211" cy="269" r="7"/>
+    <circle fill="#FBBF24" stroke="none" cx="317" cy="269" r="7"/>
+    <path fill="#111827" stroke="none" d="m246 296 10-7 10 7-10 11-10-11Z"/>
+    <path fill="none" d="M219 311c9 12 21 18 37 18s28-6 37-18"/>
+    <path fill="#FCA5A5" stroke-width="10" d="M230 326c8 9 17 13 26 13s18-4 26-13c-4 20-13 30-26 30s-22-10-26-30Z"/>
+    <ellipse fill="#FCA5A5" stroke="none" cx="169" cy="304" rx="22" ry="13"/>
+    <ellipse fill="#FCA5A5" stroke="none" cx="343" cy="304" rx="22" ry="13"/>
+    <path fill="#252936" d="M151 377c26 34 61 51 105 51s79-17 105-51l30 78H121l30-78Z"/>
+    <path fill="#D1D5DB" d="M172 389h168l18 66H154l18-66Z"/>
+    <path fill="#111827" stroke="none" d="M209 420h22l-17 15 17 15h-22l-17-15 17-15Zm94 0h-22l17 15-17 15h22l17-15-17-15Zm-34-6h17l-27 42h-17l27-42Z"/>
+  </g>
+</svg>
