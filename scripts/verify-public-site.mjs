@@ -25,16 +25,17 @@ async function bodyBytes(response) {
 export async function verifyPublishedFiles({ origin, files, fetchImpl = fetch, pause = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
   if (!publicSites.some(site => site.base === '/' && site.origin === origin) || !Array.isArray(files) || !files.length || files.length > 10 ||
       files.some(file => !safePath(file?.route) || !Buffer.isBuffer(file.bytes))) throw new Error('Invalid public verification inputs');
+  const propagationDelays = [1000, 2000, 4000, 8000, 15000];
   for (const file of files) {
     const expected = hash(file.bytes); let matched = false;
-    for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt <= propagationDelays.length; attempt++) {
       try {
         const response = await fetchImpl(origin + file.route, { method: 'GET', redirect: 'error', cache: 'no-store',
           signal: AbortSignal.timeout(10000), headers: { 'Cache-Control': 'no-cache' } });
         if (response.status === 200 && hash(await bodyBytes(response)) === expected) { matched = true; break; }
         await response.body?.cancel().catch(() => {});
       } catch { /* A read may be retried, never an upload. Raw remote errors stay private. */ }
-      if (attempt < 2) await pause((attempt + 1) * 1000);
+      if (attempt < propagationDelays.length) await pause(propagationDelays[attempt]);
     }
     if (!matched) throw new Error(`Published content mismatch or unavailable: ${file.route}. Upload is not rolled back.`);
   }
