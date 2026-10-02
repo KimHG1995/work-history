@@ -57,6 +57,7 @@ export default defineConfig({
     }
   },
   head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${site.base}favicon.svg` }],
     ['script', { type: 'text/javascript' }, `
       (function(c,l,a,r,i,t,y){
         if (location.origin !== ${JSON.stringify(site.origin)}) return;
