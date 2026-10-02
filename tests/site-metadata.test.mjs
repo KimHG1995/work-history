@@ -43,8 +43,8 @@ for (const target of ['github', 'pages']) for (const format of ['files', 'clean'
       assert.ok(config.page.frontmatter.head.some(([tag, attr]) => tag === 'link' && attr.rel === 'canonical' && attr.href === origin + base + 'projects/demo/'));
       assert.equal(config.page.frontmatter.head.some(([, attr]) => attr.name === 'google-adsense-account'), target === 'pages');
       assert.ok(JSON.stringify(config.nav).includes('/privacy'));
-      assert.ok(config.head.some(([tag, attr]) => tag === 'link' && attr.rel === 'icon' && attr.href === `${base}favicon.ico`));
-      assert.ok(config.head.some(([tag, attr]) => tag === 'link' && attr.rel === 'apple-touch-icon' && attr.href === `${base}apple-touch-icon.png`));
+      assert.ok(config.head.some(([tag, attr]) => tag === 'link' && attr.rel === 'icon' && attr.href === `${base}favicon.png`));
+      assert.ok(config.head.some(([tag, attr]) => tag === 'link' && attr.rel === 'apple-touch-icon' && attr.href === `${base}favicon.png`));
       assert.ok(config.head.some(([tag, , source]) => tag === 'script' && source.includes(`location.origin !== ${JSON.stringify(origin)}`)));
       assert.equal(config.define['import.meta.env.VITE_CHAT_API_URL'], JSON.stringify('https://work-history-chat.kim-h-g199510.workers.dev'));
     } finally { rmSync(dir, { recursive: true, force: true }); }
