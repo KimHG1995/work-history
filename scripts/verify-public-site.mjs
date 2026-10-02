@@ -21,7 +21,7 @@ async function bodyBytes(response) {
   } finally { reader.releaseLock(); }
 }
 
-/** GET only, bounded propagation checks; does not execute analytics or ad scripts. */
+/** GET only, bounded propagation checks after deployment; does not execute analytics or ad scripts. */
 export async function verifyPublishedFiles({ origin, files, fetchImpl = fetch, pause = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
   if (!publicSites.some(site => site.base === '/' && site.origin === origin) || !Array.isArray(files) || !files.length || files.length > 10 ||
       files.some(file => !safePath(file?.route) || !Buffer.isBuffer(file.bytes))) throw new Error('Invalid public verification inputs');

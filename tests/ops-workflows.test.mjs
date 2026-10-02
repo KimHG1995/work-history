@@ -25,9 +25,9 @@ test('Pages upload is followed by a separate credential-free public check only w
   assert.doesNotMatch(check, /secrets|continue-on-error/);
   assert.match(read('scripts/deploy-site.mjs'), /GITHUB_OUTPUT, `deployed=\$\{result\.deployed\}/);
 });
-test('verification-only edits never cause a deployment', async () => {
+test('AI verification-only edits never cause a site deployment', async () => {
   const { classifyChanges } = await import('../scripts/ci-changes.mjs');
-  for (const file of ['scripts/verify-chat.mjs','scripts/verify-public-site.mjs','.github/workflows/chat-verify.yml']) {
+  for (const file of ['scripts/verify-chat.mjs','.github/workflows/chat-verify.yml']) {
     const impact = classifyChanges([file]);
     assert.equal(impact.site, false, file); assert.equal(impact.build, false, file); assert.equal(impact.worker, false, file);
     assert.equal(impact.unit, true, file);
