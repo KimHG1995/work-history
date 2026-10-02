@@ -23,7 +23,7 @@ function setup() {
     'site/pages/privacy.md': '# 개인정보 안내\n\n고정 개인정보 안내 원본\n'
   };
   for (const [name, text] of Object.entries(fixtures)) writeFileSync(path.join(dir, name), text);
-  writeFileSync(path.join(dir, 'site/assets/favicon.png'), 'favicon-fixture');
+  writeFileSync(path.join(dir, 'site/assets/favicon.svg'), '<svg>favicon-fixture</svg>');
   const execute = (script, extra = {}) => {
     const env = { ...process.env };
     for (const key of ['SITE_TARGET', 'SITE_ORIGIN', 'SITE_BASE', 'ADS_MODE', 'ADS_PUBLISHER_ID', 'ADS_CSP_MODE', 'ADS_SLOT_ID']) delete env[key];
@@ -41,7 +41,7 @@ test('public pages survive generated content removal and do not enter the AI cor
       const result = f.execute('scripts/prepare-site.mjs'); assert.equal(result.status, 0, result.stderr);
       assert.match(f.read('site/content/privacy.md'), /고정 개인정보 안내 원본/);
       assert.match(f.read('site/content/about.md'), /고정 소개 원본/);
-      assert.equal(f.read('site/content/public/favicon.png'), 'favicon-fixture');
+      assert.equal(f.read('site/content/public/favicon.svg'), '<svg>favicon-fixture</svg>');
     }
     const indexed = f.execute('scripts/prepare-chat.mjs'); assert.equal(indexed.status, 0, indexed.stderr);
     assert.doesNotMatch(f.read('site/content/public/chat-docs.json'), /고정 개인정보|고정 소개/);
