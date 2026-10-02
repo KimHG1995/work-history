@@ -59,6 +59,13 @@ test('test-only changes never deploy or build the site', () => {
   }
 });
 
+test('public deployment verifier changes rebuild and redeploy the site', () => {
+  const impact = classifyChanges(['scripts/verify-public-site.mjs']);
+  assert.equal(impact.site, true);
+  assert.equal(impact.build, true);
+  assert.equal(impact.unit, true);
+});
+
 test('dependencies and unknown inputs use full verification', () => {
   for (const file of ['package.json', 'package-lock.json', 'new-build-setting.json', '../unsafe']) {
     assert.equal(classifyChanges([file]).site, true);
