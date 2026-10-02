@@ -9,6 +9,7 @@ export async function preparePublic(config, root = path.resolve(import.meta.dirn
   const publicDir = path.join(output, 'public');
   await mkdir(publicDir, { recursive: true });
   for (const name of ['about', 'privacy']) await copyFile(path.join(root, `site/pages/${name}.md`), path.join(output, `${name}.md`));
+  await copyFile(path.join(root, 'site/assets/favicon.png'), path.join(publicDir, 'favicon.png'));
   // Also safe when this generator is run alone after a previous verify build.
   for (const file of ['ads.txt', 'robots.txt']) await rm(path.join(publicDir, file), { force: true });
   if (config.adsMode === 'verify') {
