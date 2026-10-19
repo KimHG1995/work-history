@@ -12,6 +12,10 @@ Microsoft Clarity를 사용해 클릭, 스크롤 등 페이지 이용 정보를 
 
 브라우저 설정에서 쿠키를 제한하거나 삭제할 수 있습니다. 쿠키를 차단해도 문서는 읽을 수 있습니다. 자세한 내용은 [Microsoft 개인정보처리방침](https://www.microsoft.com/privacy/privacystatement)과 [Clarity 개인정보 안내](https://learn.microsoft.com/en-us/clarity/faq#privacy)를 확인해 주세요.
 
+## Google 광고
+
+Cloudflare Pages의 설명이 충분한 문서 하단에 Google AdSense 광고가 표시될 수 있습니다. Google과 광고 파트너가 광고 제공과 측정을 위해 쿠키, 식별자 등을 사용할 수 있습니다. 자세한 내용은 [Google의 파트너 사이트 정보 사용](https://policies.google.com/technologies/partner-sites)을 참고하세요. 방문 지역에 따라 Google 동의 메시지에서 선택할 수 있으며 브라우저 쿠키 제한과 [내 광고 센터](https://myadcenter.google.com/)도 사용할 수 있습니다. 광고 여부와 관계없이 문서를 읽을 수 있습니다.
+
 ## AI 질문 기능
 
 AI 답변을 요청하면 질문과 관련 공개 문서 일부가 Cloudflare Worker를 거쳐 OrcaRouter로 전송됩니다. 이름, 연락처, 비밀번호, API 키 등 개인정보나 비밀값은 입력하지 마세요.
