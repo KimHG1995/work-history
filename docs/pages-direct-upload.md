@@ -54,7 +54,29 @@ Pages의 이전 정상본 복구는 Cloudflare의 [롤백 기능](https://develo
 
 ## 광고와 사용량
 
-현재 실제 광고는 활성화하지 않습니다. 게시자 ID가 준비된 후 `ADS_MODE=verify`로 일반 배포하면 소유권 메타 태그와 ads.txt만 생성합니다. Google 심사, 동의 처리와 정적 CSP 검토를 완료하기 전에는 enabled를 허용하지 않습니다. 공개 안내에는 개발 상태를 반복하지 않고 실제 사용하는 정보 처리만 설명합니다.
+일반 배포의 기본값은 `verify`입니다. 소유권 메타 태그와 ads.txt만 생성합니다. Google 사이트 승인, 게시된 CMP 메시지, 자동 광고 꺼짐과 정적 CSP 검토를 확인한 뒤 다음 Repository Variables로 활성화합니다. 설정 뒤 새 빌드와 배포가 필요합니다.
+
+```ini
+WORK_HISTORY_ADS_MODE=enabled
+WORK_HISTORY_ADS_CSP_MODE=static-ads
+WORK_HISTORY_ADS_SLOT_ID=4869544605
+WORK_HISTORY_ADS_CMP_CONFIRMED=true
+```
+
+실제 CMP 시험은 [적격 문서의 유럽 메시지 미리보기](https://work-history-4gn.pages.dev/projects/public-education/attendance?fc=alwaysshow&fctype=gdpr)에서 수행합니다. 홈과 개인정보 안내는 CMP 실행 대상이 아닙니다. `fc`, `fctype`는 별도 파라미터로 전달합니다.
+
+| 조건 | 확인할 동작 |
+| --- | --- |
+| 한국 IP의 새 브라우저 세션 | 실제 CMP의 최종 비적용 판정 뒤 비개인화 광고 요청 `npa=1` |
+| 유럽 미리보기의 선택 전 또는 거부 | CMP는 표시되지만 광고 SDK, 수동 슬롯 요청 없음 |
+| 유럽 미리보기의 동의 | 유효한 TCF 신호 뒤 SDK와 수동 슬롯 초기화 |
+| SDK 로딩 중 철회 | 지연된 초기화 0회, 광고 영역 제거 |
+| 광고 초기화 후 설정을 열고 재동의 | 문서를 새로 열어 저장된 선택 사용, 같은 문서에서 중복 초기화 없음 |
+| 비운영 Origin 또는 제외 문서 | CMP와 광고 SDK 모두 요청 없음 |
+
+브라우저 검증에서 실제 CMP 스크립트를 사용하되 광고 송출 엔드포인트를 차단하면 시험 노출 없이 연동을 확인할 수 있습니다. 미리보기는 유럽 IP 자체의 판정이나 실제 광고 채움을 보장하지 않습니다. 광고 클릭과 반복 새로고침은 하지 않습니다.
+
+중단할 때는 `WORK_HISTORY_ADS_MODE=verify`, `WORK_HISTORY_ADS_CSP_MODE=strict`, `WORK_HISTORY_ADS_CMP_CONFIRMED=false`로 바꾸고 슬롯 변수를 비운 뒤 새로 배포합니다.
 
 Cloudflare 자체 빌드, PR 미리보기 배포, Pages Functions와 광고용 Worker는 추가하지 않습니다. 기존 AI Worker는 별도 [수동 배포와 연결 확인](chat-connection.md)으로 관리합니다. [진행 체크리스트](progress.md)에서 코드 준비와 실제 실행 결과를 구분합니다.
 

@@ -3,9 +3,11 @@ import assert from 'node:assert/strict';
 import { needsSiteVariant } from '../scripts/verify-site-variants.mjs';
 
 test('ad runtime changes require Pages verification and enabled builds', () => {
-  const impact = { build: true, paths: ['site/.vitepress/theme/ad-runtime.mjs'], fallback: false };
-  for (const event of ['pull_request', 'merge_group']) {
-    assert.equal(needsSiteVariant(impact, event), true);
+  for (const file of ['ad-runtime.mjs', 'ad-scripts.mjs', 'ad-consent.mjs']) {
+    const impact = { build: true, paths: ['site/.vitepress/theme/' + file], fallback: false };
+    for (const event of ['pull_request', 'merge_group']) {
+      assert.equal(needsSiteVariant(impact, event), true);
+    }
   }
 });
 

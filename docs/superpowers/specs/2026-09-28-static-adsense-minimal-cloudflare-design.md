@@ -2,7 +2,7 @@
 
 작성일: 2026-09-28
 
-상태: 구현 전 설계. 이 문서의 추가는 호스팅 이전, 광고 활성화, 보안 완화의 실행을 뜻하지 않습니다.
+상태: 정적 Pages 배포와 문서 광고 보호 기능 구현. 아래 2026-10-19 변경 명세에서 현재 CMP 연결과 지역별 광고 정책을 정리합니다. 코드 검증, Google 승인과 실제 광고 게재는 구분합니다.
 
 기준 코드: `main`의 `abfe15881f1f090e02c9da732c690aa140aec886`.
 
@@ -216,7 +216,7 @@ CI와 브라우저 자동 검증은 광고 SDK와 CMP를 모의 처리합니다.
 | --- | --- | --- | --- | --- |
 | `off` | 없음 | 없음 | 기존 strict | 없음 |
 | `verify` | 없음 | 없음 | 기존 strict | 있음 |
-| `enabled` | 적격 문서만 | 적격 문서 하단 하나 | 적격 문서만 광고용 정적 정책 | 있음 |
+| `enabled` | 적격 문서에서 CMP 먼저, 광고 SDK는 허용 후 | 허용된 적격 문서 하단 하나 | 적격 문서만 광고용 정적 정책 | 있음 |
 
 `enabled`는 `SITE_TARGET=pages`, 정확한 운영 Origin, 지정된 Publisher와 Slot, `ADS_CSP_MODE=static-ads`, `ADS_CMP_CONFIRMED=true`가 모두 있을 때에만 빌드할 수 있다. 일반 배포는 기본 `verify`; 운영자가 광고 승인 상태, Google 인증 CMP 메시지 게시, 보안 예외를 확인한 뒤 GitHub Actions Repository Variables로 명시적으로 활성화해야 한다. 미충족 시 예외를 발생시켜 배포하지 않는다. GitHub 대상은 항상 `off`다.
 
@@ -230,6 +230,24 @@ VitePress SPA 탐색으로 다른 HTML의 CSP가 적용되지 않는 문제를 �
 
 Google의 인증 CMP를 AdSense `개인정보 보호 및 메시지`에서 해당 Pages 사이트에 게시한 사실을 운영자가 확인해야 한다. 이 환경 설정 플래그는 **사용자별 동의 증명 자체가 아니다**. 유럽경제지역, 영국, 스위스의 방문자 동의 처리와 실제 광고 요청 순서는 Google CMP 운영 화면 및 브라우저에서 별도 검증한다. 개인정보 안내에는 Google 광고 및 쿠키, 동의 선택과 철회 경로를 고지한다. 마케팅 쿠키가 거부된 조건에서의 실제 동작을 검사하기 전까지 정책 준수를 단정하지 않는다.
 
+CMP는 Google의 독립 메시지 태그 `https://fundingchoicesmessages.google.com/i/pub-9486681340475427?ers=1`로 시작한다. 승인된 Origin의 적격 문서에서만 동적으로 로드한다. 독립 태그의 `googlefcPresent` 숨김 프레임 표식도 만들어 AdSense가 별도 CMP를 다시 시작하지 않도록 한다. 해당 태그는 메시지 제공과 지원 자원, 동의 상태 저장을 위한 외부 요청을 동의 선택 전에 할 수 있다. 이 요청을 광고 송출 요청과 구분한다. `adsbygoogle.js` 자체와 수동 광고 슬롯 초기화는 방문자 허용 뒤까지 보류한다. Google 메시지 태그에는 `crossorigin=anonymous`를 붙이지 않는다.
+
+`googlefc.callbackQueue`의 `CONSENT_API_READY`에서 TCF `addEventListener`를 연결한다. 이미 준비된 API도 한 번만 구독한다. 컴포넌트 정리 후 도착한 준비 콜백은 구독하거나 광고를 실행하지 않는다. API 준비는 동의 완료가 아니다.
+
+| Google CMP 결과 | 사이트 동작 |
+| --- | --- |
+| EEA, 영국, 스위스 등 `gdprApplies=true` | 성공한 loaded 상태, 유효한 TCF 문자열, `tcloaded` 또는 `useractioncomplete`, 목적 1/3/4와 Google vendor 755 동의가 있어야 광고 허용 |
+| 한국 등 `gdprApplies=false` | 성공한 loaded 상태에 더해 `CONSENT_DATA_READY`가 전달된 뒤 비개인화 광고만 허용 |
+| 미응답, 오류, 적용 여부 미확정, 동의 UI 표시 중, 거부 | 광고 SDK와 슬롯 요청 없음 |
+
+비유럽의 실제 Google 응답에는 `eventStatus`와 TCF 문자열이 없을 수 있다. 초기의 `gdprApplies=false`만 보고 허용하지 않는다. 유럽 메시지 미리보기에서도 이 초기 응답 뒤에 적용 여부가 바뀌므로 최종 데이터 준비를 기다린다. 비적용 신호를 한국 국가 판정이나 다른 지역의 전체 규정 준수 증명으로 해석하지 않는다. Google CMP가 제공하는 다른 지역 메시지와 SDK의 자체 판단도 유지한다.
+
+광고 SDK 삽입 전에 `pauseAdRequests=1`과 기본 비개인화 값을 설정한다. 기존 실행기가 최신 동의와 Origin을 재검사한 뒤에만 개인화 여부를 설정하고 요청을 재개하여 슬롯을 한 번 초기화한다. 철회와 CMP 오류는 즉시 다시 보류하고 광고 DOM을 제거한다. 유럽 방문자는 문서의 `광고 개인정보 설정` 버튼으로 선택을 다시 열 수 있다. 이때 사이트는 먼저 광고를 보류한다. 자동 광고는 계정에서 꺼 두며 코드만으로 계정 상태를 추정하지 않는다.
+
+이미 초기화한 광고를 설정 화면에서 제거한 뒤 다시 동의하면 저장된 선택으로 문서를 새로 연다. 기존 문서의 제거된 슬롯에 두 번째 `push`를 하지 않는다. 시험용 `fc`, `fctype`는 이 이동에서 제거해 미리보기 화면이 반복되지 않도록 한다.
+
+CMP를 홈이나 개인정보 페이지에 전역 삽입하지 않는다. 올바른 메시지 시험 주소는 적격 문서에 `?fc=alwaysshow&fctype=gdpr`를 붙인 형태다. 이 두 값이 정확히 일치할 때 메시지 로더에도 전달한다. 로더에 전달하지 않으면 비유럽 IP의 미리보기에서 철회 API가 제공되지 않을 수 있다. `&`를 `%26`으로 바꾸면 다른 파라미터가 되므로 사용하지 않는다. 디버그 미리보기는 실제 유럽 IP의 지역 판정 검증을 대신하지 않는다.
+
 ### 검증 및 출시 게이트
 
 1. 정책 함수: 충분한 설명이 있는 문서만 포함, 짧은 목록/안내/404 제외, `ads: false` 제외.
@@ -242,6 +260,8 @@ Google의 인증 CMP를 AdSense `개인정보 보호 및 메시지`에서 해당
 - https://support.google.com/adsense/answer/16283098?hl=en
 - https://support.google.com/adsense/answer/13554116?hl=en
 - https://support.google.com/adsense/answer/10924669?hl=en
+- https://support.google.com/adsense/answer/14325056?hl=en
+- https://developers.google.com/funding-choices/fc-api-docs
 - https://vitepress.dev/guide/extending-default-theme
 - https://vitepress.dev/reference/runtime-api
 
@@ -250,7 +270,7 @@ Google의 인증 CMP를 AdSense `개인정보 보호 및 메시지`에서 해당
 
 - 충분한 본문의 임시 기준은 생성 Markdown의 코드 블록과 마크업 표시를 제거한 텍스트가 **500자 이상**인 것이다. `projects/index.md`, `projects/README.md`, `projects/404.md`와 루트 문서는 길이와 상관없이 제외한다. 개별 문서는 `ads: false`로 제외할 수 있다.
 - 빌드할 때 문서별 `work-history-ad=enabled` 메타데이터를 생성하고, CSP는 이 표식으로 선택한다. 검증은 `dist`만 사용하여 배포 작업의 별도 실행 환경에서도 동일하게 검사한다.
-- 광고 스크립트는 HTML head에 넣지 않는다. 운영 Origin 확인과 TCF API에서 목적 1 및 4, Google vendor 755에 대한 명시적 동의가 확인된 뒤 클라이언트에서 로드한다. 미설치, 미응답, 거부, GDPR 적용 대상 여부 미확정 및 GDPR 미적용 상태는 **모두 광고 요청 없음**이다. 이는 수익보다 요청 차단을 우선하는 초기 정책이며, 운영 CMP 연결과 비유럽 지역 처리는 별도 검토 없이는 광고가 나오지 않을 수 있다. TCF 신호만으로 전체 법적 준수를 보장한다고 해석하지 않는다.
+- 외부 Google 태그를 정적 HTML head에 넣지 않는다. 운영 Origin 확인 뒤 독립 CMP를 시작하고 위 지역별 정책에 따라 광고 SDK와 슬롯을 지연한다. `off`, `verify`, 제외 문서와 비운영 Origin에서는 CMP도 시작하지 않는다. TCF 신호만으로 전체 법적 준수를 보장한다고 해석하지 않는다.
 - 404 등 광고 슬롯이 없는 페이지에서도 전체 탐색을 처리하도록 테마 초기화 시 라우터 훅을 등록한다.
 - 롤백 시 GitHub Repository Variables를 `WORK_HISTORY_ADS_MODE=verify`, `WORK_HISTORY_ADS_CSP_MODE=strict`, `WORK_HISTORY_ADS_SLOT_ID` **비움**, `WORK_HISTORY_ADS_CMP_CONFIRMED=false`로 바꾸고 새 빌드 후 재배포한다. 변수만 바꾸어 배포된 HTML이 수정된다고 보지 않는다.
 
