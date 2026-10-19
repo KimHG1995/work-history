@@ -48,7 +48,7 @@ export function pageUrl(config, file) {
 }
 
 export function eligibleAdDocument(relativePath, source = '') {
-  if (!/^projects\/.+\.md$/.test(relativePath) || /\bads:\s*false\b/i.test(source)) return false;
+  if (!/^projects\/.+\.md$/.test(relativePath) || ['projects/index.md', 'projects/README.md', 'projects/404.md'].includes(relativePath) || /^\s*ads:\s*false\s*$/im.test(source)) return false;
   const plain = source.replace(/```[\s\S]*?```/g, ' ').replace(/<[^>]+>|\[[^\]]+\]\([^)]*\)|[#*|_`~>-]/g, ' ').trim();
   return plain.length >= 500;
 }
@@ -61,11 +61,14 @@ export function verificationHead(config) {
 export function applyPageMetadata(page, config, source = '') {
   const canonical = pageUrl(config, page.relativePath);
   page.frontmatter ??= {};
-  if (config.adsMode === 'enabled' && eligibleAdDocument(page.relativePath, source) && page.frontmatter.ads !== false) page.frontmatter.workHistoryAd = true;
+  // Generated routing metadata is authoritative; do not trust old frontmatter flags.
+  delete page.frontmatter.workHistoryAd;
+  const adPage = config.adsMode === 'enabled' && eligibleAdDocument(page.relativePath, source) && page.frontmatter.ads !== false;
+  if (adPage) page.frontmatter.workHistoryAd = true;
   const head = (page.frontmatter.head ?? []).filter(([tag, attrs]) =>
     !(tag === 'link' && attrs?.rel === 'canonical') &&
-    !(tag === 'meta' && attrs?.name === 'google-adsense-account'));
+    !(tag === 'meta' && ['google-adsense-account', 'work-history-ad'].includes(attrs?.name)));
   page.frontmatter.head = [...head, ...(canonical
-    ? [['link', { rel: 'canonical', href: canonical }], ...verificationHead(config)]
+    ? [['link', { rel: 'canonical', href: canonical }], ...verificationHead(config), ...(adPage ? [['meta', { name: 'work-history-ad', content: 'enabled' }]] : [])]
     : [['meta', { name: 'robots', content: 'noindex' }]])];
 }

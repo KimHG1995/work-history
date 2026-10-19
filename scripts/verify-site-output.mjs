@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { access, readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { readSiteConfig, pageUrl, eligibleAdDocument } from './site-config.mjs';
+import { readSiteConfig, pageUrl } from './site-config.mjs';
 
 async function exists(file) {
   try { await access(file); return true; } catch (error) { if (error.code === 'ENOENT') return false; throw error; }
@@ -32,16 +32,18 @@ export async function verifySiteOutput(output, config) {
       const accounts = [...head.matchAll(/<meta\b[^>]*>/gi)].map(match => match[0]).filter(tag => attribute(tag, 'name') === 'google-adsense-account');
       assert.equal(accounts.length, expected && ['verify', 'enabled'].includes(config.adsMode) ? 1 : 0, `publisher metadata: ${relative}`);
       if (accounts.length) assert.equal(attribute(accounts[0], 'content'), config.publisherId);
-      const sourceFile = relative.replace(/\.html$/, '.md');
-      let source = '';
-      if (relative.startsWith('projects/')) {
-        try { source = await readFile(path.resolve(import.meta.dirname, '../site/content', sourceFile), 'utf8'); }
-        catch (error) { if (error.code !== 'ENOENT') throw error; }
+      // Dist is the *only* input in Cloudflare's isolated upload job.
+      const markers = [...head.matchAll(/<meta\b[^>]*>/gi)].map(match => match[0])
+        .filter(tag => attribute(tag, 'name') === 'work-history-ad');
+      assert.ok(markers.length <= 1, `duplicate ad marker: ${relative}`);
+      const adPage = markers.length === 1 && attribute(markers[0], 'content') === 'enabled';
+      if (adPage) {
+        assert.equal(config.adsMode, 'enabled', `unexpected advertising: ${relative}`);
+        assert.ok(/^projects\/(?!index\.html$)(?!404\.html$).+\.html$/.test(relative), `excluded advertising route: ${relative}`);
       }
-      const adPage = config.adsMode === 'enabled' && eligibleAdDocument(sourceFile, source);
-      assert.ok(head.includes('Content-Security-Policy') && head.includes(adPage ? 'frame-src https:' : "frame-src 'none'"), `CSP: ${relative}`);
-      if (adPage) assert.ok(head.includes(`adsbygoogle.js?client=${config.publisherId}`), `ad loader: ${relative}`);
-      else assert.doesNotMatch(html, /<script\b[^>]*src=["'][^"']*(?:adsbygoogle|googlesyndication|doubleclick)|<ins\b[^>]*adsbygoogle/i, `unexpected ad loader: ${relative}`);
+      assert.ok(head.includes('Content-Security-Policy'), `CSP missing: ${relative}`);
+      assert.ok(head.includes(adPage ? 'frame-src https:' : "frame-src 'none'"), `CSP: ${relative}`);
+      assert.doesNotMatch(html, /<script\b[^>]*src=["'][^"']*(?:adsbygoogle|googlesyndication|doubleclick)|<ins\b[^>]*adsbygoogle/i, `unexpected eager ad request: ${relative}`);
       count++;
     }
   }

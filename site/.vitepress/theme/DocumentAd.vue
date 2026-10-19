@@ -1,37 +1,39 @@
 <script setup>
-import { computed, nextTick, onMounted, watch } from 'vue';
-import { useData, useRouter } from 'vitepress';
+import { computed, nextTick, onMounted, onUnmounted } from 'vue';
+import { useData } from 'vitepress';
+import { subscribeAdConsent } from './ad-consent.mjs';
 
 const { frontmatter } = useData();
-const router = useRouter();
 const publisher = __WORK_HISTORY_AD_PUBLISHER__;
 const slotId = __WORK_HISTORY_AD_SLOT__;
 const show = computed(() => __WORK_HISTORY_ADS_ENABLED__ && frontmatter.value.workHistoryAd === true);
+let unsubscribe = () => {};
 let requested = false;
-function requestAd() {
-  if (!show.value || requested || typeof window === 'undefined' || window.location.origin !== __WORK_HISTORY_AD_ORIGIN__) return;
-  requested = true;
-  nextTick(() => {
-    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); }
-    catch { /* Keep the document readable when Google is blocked. */ }
-  });
-}
-onMounted(requestAd);
-watch(show, requestAd);
+let scriptPromise;
 
-// Page-specific CSP must be loaded with its original HTML response.
-// On a different page perform a full navigation instead of keeping a prior CSP.
-if (typeof window !== 'undefined' && __WORK_HISTORY_ADS_ENABLED__ && window.location.origin === __WORK_HISTORY_AD_ORIGIN__) {
-  const original = router.onBeforeRouteChange;
-  router.onBeforeRouteChange = to => {
-    const next = new URL(to, window.location.href);
-    if (next.pathname !== window.location.pathname) {
-      window.location.assign(next.href);
-      return false;
+function loadApprovedAd() {
+  if (requested || !show.value || typeof window === 'undefined' || location.origin !== __WORK_HISTORY_AD_ORIGIN__) return;
+  requested = true;
+  scriptPromise ??= new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.async = true;
+    script.crossOrigin = 'anonymous';
+    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(publisher);
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+  scriptPromise.then(() => nextTick(() => {
+    if (show.value && location.origin === __WORK_HISTORY_AD_ORIGIN__) {
+      try { (window.adsbygoogle = window.adsbygoogle || []).push({}); }
+      catch { /* Ad blockers must not prevent reading. */ }
     }
-    return original?.(to);
-  };
+  })).catch(() => { /* Fail closed without retrying the network. */ });
 }
+onMounted(() => {
+  if (show.value && location.origin === __WORK_HISTORY_AD_ORIGIN__) unsubscribe = subscribeAdConsent(loadApprovedAd);
+});
+onUnmounted(() => unsubscribe());
 </script>
 
 <template>
