@@ -65,7 +65,6 @@ export default defineConfig({
     }
   },
   head: [
-    ...(site.adsMode === 'enabled' ? [['script', { async: '', crossorigin: 'anonymous', src: `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${site.publisherId}` }]] : []),
     ['link', { rel: 'icon', type: 'image/svg+xml', href: `${site.base}favicon.svg` }],
     ['script', { type: 'text/javascript' }, `
       (function(c,l,a,r,i,t,y){
