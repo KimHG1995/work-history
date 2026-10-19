@@ -43,7 +43,9 @@ export async function verifySiteOutput(output, config) {
       }
       assert.ok(head.includes('Content-Security-Policy'), `CSP missing: ${relative}`);
       assert.ok(head.includes(adPage ? 'frame-src https:' : "frame-src 'none'"), `CSP: ${relative}`);
-      assert.doesNotMatch(html, /<script\b[^>]*src=["'][^"']*(?:adsbygoogle|googlesyndication|doubleclick)|<ins\b[^>]*adsbygoogle/i, `unexpected eager ad request: ${relative}`);
+      assert.doesNotMatch(html, /<script\b[^>]*src=["'][^"']*(?:adsbygoogle|googlesyndication|doubleclick)/i, `unexpected eager script request: ${relative}`);
+      if (adPage) assert.match(html, /<ins\b[^>]*class=["']adsbygoogle["']/i, `missing ad slot: ${relative}`);
+      else assert.doesNotMatch(html, /<ins\b[^>]*class=["']adsbygoogle["']/i, `unexpected ad slot: ${relative}`);
       count++;
     }
   }
