@@ -12,7 +12,7 @@ export async function preparePublic(config, root = path.resolve(import.meta.dirn
   await copyFile(path.join(root, 'site/assets/favicon.svg'), path.join(publicDir, 'favicon.svg'));
   // Also safe when this generator is run alone after a previous verify build.
   for (const file of ['ads.txt', 'robots.txt']) await rm(path.join(publicDir, file), { force: true });
-  if (config.adsMode === 'verify') {
+  if (['verify', 'enabled'].includes(config.adsMode)) {
     await writeFile(path.join(publicDir, 'ads.txt'), `google.com, ${config.publisherId.slice(3)}, DIRECT, f08c47fec0942fa0\n`);
   }
   if (config.base === '/') {
