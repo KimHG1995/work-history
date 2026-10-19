@@ -46,20 +46,128 @@ test('TCF consent listener blocks unknown/denied and allows affirmative consent 
   assert.equal(permitsAdConsent({ ...accepted, purpose: { consents: { 1: false, 4: true } } }, true), false);
   assert.equal(permitsAdConsent(accepted, true), true);
   let listener;
-  let allowed = 0;
+  const states = [];
   let removed = 0;
   const api = (event, version, callback, id) => {
     if (event === 'addEventListener') listener = callback;
     if (event === 'removeEventListener' && id === 11) removed++;
   };
-  const stop = subscribeAdConsent(() => allowed++, api);
+  const stop = subscribeAdConsent(allowed => states.push(allowed), api);
   listener(undefined, false);
   listener({ ...accepted, vendor: { consents: { 755: false } } }, true);
-  assert.equal(allowed, 0);
   listener(accepted, true);
-  assert.equal(allowed, 1);
+  listener({ ...accepted, purpose: { consents: { 1: false, 4: true } } }, true);
+  listener(accepted, true);
+  assert.deepEqual(states, [false, false, true, false, true]);
   stop();
   listener(accepted, true);
-  assert.equal(allowed, 1);
+  assert.deepEqual(states, [false, false, true, false, true]);
   assert.equal(removed, 1);
+});
+
+
+test('missing or throwing CMP fails closed', async () => {
+  const { subscribeAdConsent } = await import('../site/.vitepress/theme/ad-consent.mjs');
+  const states = [];
+  const stop = subscribeAdConsent(value => states.push(value), undefined);
+  stop();
+  assert.deepEqual(states, [false]);
+  subscribeAdConsent(value => states.push(value), () => { throw Error('CMP unavailable'); });
+  assert.deepEqual(states, [false, false]);
+});
+
+test('consent withdrawal while SDK is loading prevents push after SDK resolves', async () => {
+  const { createAdRuntime } = await import('../site/.vitepress/theme/ad-runtime.mjs');
+  const { subscribeAdConsent } = await import('../site/.vitepress/theme/ad-consent.mjs');
+  const accepted = {
+    gdprApplies: true, eventStatus: 'useractioncomplete', listenerId: 99,
+    purpose: { consents: { 1: true, 4: true } }, vendor: { consents: { 755: true } }
+  };
+  let callback;
+  const api = (event, version, handler) => { if (event === 'addEventListener') callback = handler; };
+  let resolveSdk;
+  const pending = new Promise(resolve => { resolveSdk = resolve; });
+  let sdkLoads = 0;
+  let pushes = 0;
+  const runtime = createAdRuntime({
+    loadSdk: () => { sdkLoads++; return pending; },
+    initializeAd: () => { pushes++; },
+    isEligible: () => true
+  });
+  const stop = subscribeAdConsent(runtime.setConsent, api);
+  callback(accepted, true);
+  assert.equal(sdkLoads, 1);
+  callback({ ...accepted, vendor: { consents: { 755: false } } }, true);
+  resolveSdk();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(pushes, 0, 'revoked consent must block push after SDK completion');
+  callback(accepted, true);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(sdkLoads, 1, 'same document must not load SDK twice');
+  assert.equal(pushes, 1, 'a new affirmative signal may initialize once');
+  callback(accepted, true);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(pushes, 1);
+  stop();
+  runtime.dispose();
+});
+
+test('withdrawal after SDK resolves but before rendering invalidates stale continuation', async () => {
+  const { createAdRuntime } = await import('../site/.vitepress/theme/ad-runtime.mjs');
+  let releaseRender;
+  const renderGate = new Promise(resolve => { releaseRender = resolve; });
+  let renders = 0;
+  let pushes = 0;
+  const runtime = createAdRuntime({
+    loadSdk: () => Promise.resolve(),
+    initializeAd: () => { pushes++; },
+    isEligible: () => true,
+    waitForRender: () => ++renders === 1 ? renderGate : Promise.resolve()
+  });
+  runtime.setConsent(true);
+  await new Promise(resolve => setImmediate(resolve));
+  runtime.setConsent(false);
+  releaseRender();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(pushes, 0);
+  runtime.setConsent(true);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(pushes, 1);
+  runtime.setConsent(false);
+  runtime.setConsent(true);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(pushes, 1, 'initialized slots are never pushed twice');
+  runtime.dispose();
+});
+
+test('withdraw/regrant during pending SDK and unmount both remain race-safe', async () => {
+  const { createAdRuntime } = await import('../site/.vitepress/theme/ad-runtime.mjs');
+  let releaseSdk;
+  const sdk = new Promise(resolve => { releaseSdk = resolve; });
+  let pushes = 0;
+  const runtime = createAdRuntime({
+    loadSdk: () => sdk,
+    initializeAd: () => { pushes++; },
+    isEligible: () => true
+  });
+  runtime.setConsent(true);
+  runtime.setConsent(false);
+  runtime.setConsent(true);
+  releaseSdk();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(pushes, 1, 'only the newest permission generation may push');
+  runtime.dispose();
+
+  let releasePending;
+  const pending = new Promise(resolve => { releasePending = resolve; });
+  const next = createAdRuntime({
+    loadSdk: () => pending,
+    initializeAd: () => { pushes++; },
+    isEligible: () => true
+  });
+  next.setConsent(true);
+  next.dispose();
+  releasePending();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(pushes, 1, 'unmounted document cannot initialize');
 });
