@@ -43,7 +43,7 @@ export async function verifySiteOutput(output, config) {
       }
       assert.ok(head.includes('Content-Security-Policy'), `CSP missing: ${relative}`);
       assert.ok(head.includes(adPage ? 'frame-src https:' : "frame-src 'none'"), `CSP: ${relative}`);
-      assert.doesNotMatch(html, /<script\b[^>]*src=["'][^"']*(?:adsbygoogle|googlesyndication|doubleclick)/i, `unexpected eager script request: ${relative}`);
+      assert.doesNotMatch(html, /<script\b[^>]*src=["'][^"']*(?:adsbygoogle|googlesyndication|doubleclick|fundingchoicesmessages)/i, `unexpected eager script request: ${relative}`);
       // Consent-controlled Vue markup has no SSR slot before affirmative TCF consent.
       assert.doesNotMatch(html, /<ins\b[^>]*class=["']adsbygoogle["']/i, `unexpected pre-consent ad slot: ${relative}`);
       count++;

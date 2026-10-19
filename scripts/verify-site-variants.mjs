@@ -12,6 +12,7 @@ const inputs = new Set([
   'scripts/site-config.mjs', 'scripts/prepare-public.mjs', 'scripts/prepare-site.mjs',
   'scripts/prepare-chat.mjs', 'scripts/secure-site.mjs', 'scripts/verify-site-output.mjs',
   'scripts/verify-site-variants.mjs', 'site/.vitepress/config.mjs', 'site/.vitepress/theme/index.js', 'site/.vitepress/theme/DocumentAd.vue', 'site/.vitepress/theme/ad-consent.mjs', 'site/.vitepress/theme/ad-runtime.mjs', 'site/chat.config.mjs',
+  'site/.vitepress/theme/ad-scripts.mjs',
   'package.json', 'package-lock.json', 'security/domain-root/robots.txt', '.github/workflows/docs-check.yml',
   'scripts/deploy-site.mjs', 'scripts/pages-config.mjs', 'scripts/static-output.mjs', 'scripts/run-ci.mjs',
   'wrangler.pages.jsonc', '.github/workflows/pages.yml'

@@ -30,9 +30,9 @@ async function secure(directory) {
       "default-src 'self'",
       adPage ? "script-src 'self' https: 'unsafe-inline' 'unsafe-eval'" : `script-src 'self' https://*.clarity.ms ${[...new Set(hashes)].join(' ')}`,
       "script-src-attr 'none'",
-      "style-src 'self' 'unsafe-inline'",
+      adPage ? "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com" : "style-src 'self' 'unsafe-inline'",
       adPage ? "img-src 'self' data: blob: https:" : "img-src 'self' data: blob: https://*.clarity.ms https://c.bing.com",
-      "font-src 'self' data:",
+      adPage ? "font-src 'self' data: https://fonts.gstatic.com" : "font-src 'self' data:",
       adPage ? `connect-src 'self' https: ${chat}` : `connect-src 'self' https://*.clarity.ms https://c.bing.com ${chat}`,
       "worker-src 'self' blob:",
       "object-src 'none'",
@@ -43,8 +43,8 @@ async function secure(directory) {
     ].join('; ');
     if (!html.includes('<head>')) throw new Error(`Missing head: ${file}`);
     // Must precede scripts and other resources to apply to the whole document.
-    // Never inject AdSense at parse-time: the client gate first checks origin
-    // AND visitor consent. Loading the SDK here would send a premature request.
+    // Client checks origin before independent CMP bootstrap. The ad SDK and slot
+    // remain behind current visitor consent; no external tags are parser-loaded.
     html = html.replace('<head>', `<head><meta http-equiv="Content-Security-Policy" content="${policy}"><meta name="referrer" content="strict-origin-when-cross-origin">`);
     await writeFile(file, html);
     count++;

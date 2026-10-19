@@ -37,12 +37,17 @@ test('content documents qualify while navigation and short pages do not', () => 
 test('TCF consent listener blocks unknown/denied and allows affirmative consent only', async () => {
   const { permitsAdConsent, subscribeAdConsent } = await import('../site/.vitepress/theme/ad-consent.mjs');
   const accepted = {
+    cmpStatus: 'loaded', tcString: 'test-consent',
     eventStatus: 'useractioncomplete', gdprApplies: true, listenerId: 11,
-    purpose: { consents: { 1: true, 4: true } },
+    purpose: { consents: { 1: true, 3: true, 4: true } },
     vendor: { consents: { 755: true } }
   };
   assert.equal(permitsAdConsent(undefined, false), false);
   assert.equal(permitsAdConsent({ ...accepted, gdprApplies: false }, true), false);
+  assert.equal(permitsAdConsent({ ...accepted, gdprApplies: false }, true, true), true);
+  for (const patch of [{ gdprApplies: undefined }, { cmpStatus: 'error' }, { eventStatus: 'cmpuishown' }, { tcString: 'tcunavailable' }, { purpose: { consents: { 1: true, 4: true } } }]) {
+    assert.equal(permitsAdConsent({ ...accepted, ...patch }, true), false);
+  }
   assert.equal(permitsAdConsent({ ...accepted, purpose: { consents: { 1: false, 4: true } } }, true), false);
   assert.equal(permitsAdConsent(accepted, true), true);
   let listener;
@@ -56,7 +61,7 @@ test('TCF consent listener blocks unknown/denied and allows affirmative consent 
   listener(undefined, false);
   listener({ ...accepted, vendor: { consents: { 755: false } } }, true);
   listener(accepted, true);
-  listener({ ...accepted, purpose: { consents: { 1: false, 4: true } } }, true);
+  listener({ ...accepted, purpose: { consents: { 1: false, 3: true, 4: true } } }, true);
   listener(accepted, true);
   assert.deepEqual(states, [false, false, true, false, true]);
   stop();
@@ -80,8 +85,9 @@ test('consent withdrawal while SDK is loading prevents push after SDK resolves',
   const { createAdRuntime } = await import('../site/.vitepress/theme/ad-runtime.mjs');
   const { subscribeAdConsent } = await import('../site/.vitepress/theme/ad-consent.mjs');
   const accepted = {
+    cmpStatus: 'loaded', tcString: 'test-consent',
     gdprApplies: true, eventStatus: 'useractioncomplete', listenerId: 99,
-    purpose: { consents: { 1: true, 4: true } }, vendor: { consents: { 755: true } }
+    purpose: { consents: { 1: true, 3: true, 4: true } }, vendor: { consents: { 755: true } }
   };
   let callback;
   const api = (event, version, handler) => { if (event === 'addEventListener') callback = handler; };
