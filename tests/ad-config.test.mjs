@@ -27,8 +27,39 @@ test('content documents qualify while navigation and short pages do not', () => 
     assert.equal(page.frontmatter.workHistoryAd, true);
   }
   for (const url of ['index.md', 'experience.md', 'timeline.md', 'about.md', 'privacy.md', 'projects/README.md', '404.md']) {
-    assert.equal(eligibleAdDocument(url, long), url === 'projects/README.md');
+    assert.equal(eligibleAdDocument(url, long), false);
   }
+  assert.equal(eligibleAdDocument('projects/index.md', long), false);
   assert.equal(eligibleAdDocument('projects/demo.md', '# 짧은 소개'), false);
   assert.equal(eligibleAdDocument('projects/demo.md', long + '\nads: false'), false);
+});
+
+test('TCF consent listener blocks unknown/denied and allows affirmative consent only', async () => {
+  const { permitsAdConsent, subscribeAdConsent } = await import('../site/.vitepress/theme/ad-consent.mjs');
+  const accepted = {
+    eventStatus: 'useractioncomplete', gdprApplies: true, listenerId: 11,
+    purpose: { consents: { 1: true, 4: true } },
+    vendor: { consents: { 755: true } }
+  };
+  assert.equal(permitsAdConsent(undefined, false), false);
+  assert.equal(permitsAdConsent({ ...accepted, gdprApplies: false }, true), false);
+  assert.equal(permitsAdConsent({ ...accepted, purpose: { consents: { 1: false, 4: true } } }, true), false);
+  assert.equal(permitsAdConsent(accepted, true), true);
+  let listener;
+  let allowed = 0;
+  let removed = 0;
+  const api = (event, version, callback, id) => {
+    if (event === 'addEventListener') listener = callback;
+    if (event === 'removeEventListener' && id === 11) removed++;
+  };
+  const stop = subscribeAdConsent(() => allowed++, api);
+  listener(undefined, false);
+  listener({ ...accepted, vendor: { consents: { 755: false } } }, true);
+  assert.equal(allowed, 0);
+  listener(accepted, true);
+  assert.equal(allowed, 1);
+  stop();
+  listener(accepted, true);
+  assert.equal(allowed, 1);
+  assert.equal(removed, 1);
 });
