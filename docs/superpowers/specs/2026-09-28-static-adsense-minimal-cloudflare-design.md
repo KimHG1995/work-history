@@ -193,3 +193,54 @@ CI와 브라우저 자동 검증은 광고 SDK와 CMP를 모의 처리합니다.
 문제가 생기면 광고는 `verify` 또는 `off`로 바꾸고 새로 빌드해 배포합니다. 정적 환경이므로 저장소 변수만 바꿔서는 이미 배포한 파일이 바뀌지 않습니다. 기존 브라우저 문서와 오래된 배포 주소의 코드도 즉시 회수된다고 보장하지 않습니다. 긴급한 광고 차단은 AdSense 계정의 광고 중지 조치도 함께 검토합니다.
 
 사이트 자체는 Pages의 이전 정상 배포로 복구할 수 있습니다. 광고 기능을 끄기 위해 Worker나 개인정보 안내를 삭제하지 않습니다. 운영 배포 직전 SHA 검사에 의해 복구가 막히지 않도록, 과거 배포를 선택하는 수동 복구와 최신 `main` 자동 배포를 구분합니다. [Pages 배포 복구](https://developers.cloudflare.com/pages/configuration/rollbacks/)
+
+
+---
+
+## 2026-10-19 변경 명세: Pages 일반 문서 하단 수동 광고
+
+이 절은 위 최초 설계의 **광고 적용 범위**와 **운영 활성화 절차**를 갱신한다. 최초 명세의 배포 격리, 정적 호스팅, CSP 위험, 동의 원칙은 그대로 유지한다. 실제 AdSense 승인 여부는 코드로 추정하지 않는다.
+
+### 확정 입력과 범위
+
+- 승인 사이트로 사용하는 운영 Origin: \`https://work-history-4gn.pages.dev\` **하나만**. GitHub Pages, Pages 미리보기 및 다른 프로젝트 주소에는 광고 요청을 보내지 않는다.
+- Publisher ID: \`ca-pub-9486681340475427\`. 수평형 반응형 수동 광고 슬롯: \`4869544605\`, 이름 \`work-history-detail-bottom\`.
+- VitePress 일반 HTML 페이지다. 제시된 \`amp-ad\` 코드는 AMP 문서가 없으므로 삽입하지 않는다.
+- 자동 광고는 끈다. 단일 공통 광고 스크립트와 광고 단위를 사용해 페이지당 한 번만 요청한다.
+- 광고 적용: 실질적인 설명 본문을 갖춘 \`projects/**\` 문서 하단. 프로젝트 소개를 포함해 길이 조건을 통과하는 일반 문서에 적용한다. \`/\`(근무 이력), \`/projects/\` 전체 목록, \`/timeline\`, \`/about\`, \`/privacy\`, 404, 짧은 본문 및 광고 제외 마커가 있는 문서는 제외한다.
+- 본문 판단은 하나의 순수 함수로 관리하며, 빌드된 메타데이터와 CSP 선택 및 출력 검사가 동일하게 사용한다.
+
+### 상태와 Fail-closed 동작
+
+| 상태 | 광고 스크립트 | 광고 영역 | CSP | ads.txt / 메타 |
+| --- | --- | --- | --- | --- |
+| \`off\` | 없음 | 없음 | 기존 strict | 없음 |
+| \`verify\` | 없음 | 없음 | 기존 strict | 있음 |
+| \`enabled\` | 적격 문서만 | 적격 문서 하단 하나 | 적격 문서만 광고용 정적 정책 | 있음 |
+
+\`enabled\`는 \`SITE_TARGET=pages\`, 정확한 운영 Origin, 지정된 Publisher와 Slot, \`ADS_CSP_MODE=static-ads\`, \`ADS_CMP_CONFIRMED=true\`가 모두 있을 때에만 빌드할 수 있다. 일반 배포는 기본 \`verify\`; 운영자가 광고 승인 상태, Google 인증 CMP 메시지 게시, 보안 예외를 확인한 뒤 GitHub Actions Repository Variables로 명시적으로 활성화해야 한다. 미충족 시 예외를 발생시켜 배포하지 않는다. GitHub 대상은 항상 \`off\`다.
+
+### CSP와 페이지 이동
+
+현재 meta CSP의 \`script-src\`와 \`frame-src 'none'\`은 광고를 막는다. 정적 Pages에서 요청마다 새로운 nonce를 만들 수 없으므로, 광고 페이지에 한정해 \`https:\`, inline/eval script와 광고 iframe을 허용하는 **완화된 정적 CSP**를 별도 적용한다. \`object-src 'none'\`, \`base-uri 'self'\`, \`form-action 'none'\`, \`script-src-attr 'none'\` 같은 보호는 유지한다. 정확히 어떤 지시문이 완화되는지 \`SECURITY.md\`에 기록한다. 광고가 없는 문서는 기존 해시 기반 CSP를 유지한다.
+
+VitePress SPA 탐색으로 다른 HTML의 CSP가 적용되지 않는 문제를 막기 위해 \`/projects/\` 경로에 들어오거나 나갈 때 및 프로젝트 문서 사이 이동에는 **전체 문서 탐색**을 한다. 같은 문서 해시 이동에는 새 광고를 요청하지 않는다. 클라이언트에 로딩 실패나 슬롯 미충족이 발생해도 본문 읽기를 방해하지 않는다.
+
+### 동의와 운영 확인
+
+Google의 인증 CMP를 AdSense \`개인정보 보호 및 메시지\`에서 해당 Pages 사이트에 게시한 사실을 운영자가 확인해야 한다. 이 환경 설정 플래그는 **사용자별 동의 증명 자체가 아니다**. 유럽경제지역, 영국, 스위스의 방문자 동의 처리와 실제 광고 요청 순서는 Google CMP 운영 화면 및 브라우저에서 별도 검증한다. 개인정보 안내에는 Google 광고 및 쿠키, 동의 선택과 철회 경로를 고지한다. 마케팅 쿠키가 거부된 조건에서의 실제 동작을 검사하기 전까지 정책 준수를 단정하지 않는다.
+
+### 검증 및 출시 게이트
+
+1. 정책 함수: 충분한 설명이 있는 문서만 포함, 짧은 목록/안내/404 제외, \`ads: false\` 제외.
+2. 빌드: GitHub \`off\`, Pages \`verify\`, Pages \`enabled\`의 HTML, CSP, 광고 스크립트, 슬롯, \`ads.txt\`를 검사한다.
+3. 비승인 Origin, Publisher 불일치, 누락 Slot, CMP 미확인, CSP 미확인에서는 \`enabled\`를 거부한다.
+4. 하나의 브랜치와 PR에서 명세, 코드, 테스트, 개인정보/보안 안내를 수정한다. 광고를 실제로 노출하는 \`main\` 병합과 운영 배포는 계정 상태 및 보안 검토 뒤에만 승인한다.
+5. 운영 검증은 브라우저에서 실제 Pages 주소로 직접 수행한다. 광고 클릭, 반복 새로고침으로 노출 늘리기, AI Worker 재배포는 하지 않는다.
+
+레퍼런스:
+- https://support.google.com/adsense/answer/16283098?hl=en
+- https://support.google.com/adsense/answer/13554116?hl=en
+- https://support.google.com/adsense/answer/10924669?hl=en
+- https://vitepress.dev/guide/extending-default-theme
+- https://vitepress.dev/reference/runtime-api
