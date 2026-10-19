@@ -49,7 +49,10 @@ export default defineConfig({
   },
   transformPageData(page) {
     let source = '';
-    if (page.relativePath.startsWith('projects/') && page.relativePath.endsWith('.md')) source = readFileSync(path.resolve(import.meta.dirname, '../content', page.relativePath), 'utf8');
+    if (page.relativePath.startsWith('projects/') && page.relativePath.endsWith('.md')) {
+      try { source = readFileSync(path.resolve(import.meta.dirname, '../content', page.relativePath), 'utf8'); }
+      catch (error) { if (error.code !== 'ENOENT') throw error; }
+    }
     applyPageMetadata(page, site, source);
   },
   srcDir: './content',
