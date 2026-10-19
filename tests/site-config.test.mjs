@@ -49,7 +49,7 @@ test('off removes stale publisher identity instead of accidentally keeping verif
 
 test('enabled and CSP relaxation stay blocked until the consent and security phase', () => {
   assert.throws(() => readSiteConfig({ ...pages, ADS_MODE: 'enabled', ADS_PUBLISHER_ID: publisher, ADS_SLOT_ID: '123', ADS_CSP_MODE: 'static-ads' }));
-  assert.throws(() => readSiteConfig({ ...pages, ADS_MODE: 'enabled', ADS_PUBLISHER_ID: publisher }), /enabled/);
+  assert.throws(() => readSiteConfig({ ...pages, ADS_MODE: 'enabled', ADS_PUBLISHER_ID: publisher }), /[Ee]nabled/);
   assert.throws(() => readSiteConfig({ ...pages, ADS_CSP_MODE: 'static-ads' }), /CSP/);
   assert.throws(() => readSiteConfig({ ...pages, ADS_MODE: 'VERIFY' }), /ADS_MODE/);
 });
