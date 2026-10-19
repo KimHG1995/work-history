@@ -2,6 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { needsSiteVariant } from '../scripts/verify-site-variants.mjs';
 
+test('ad runtime changes require Pages verification and enabled builds', () => {
+  const impact = { build: true, paths: ['site/.vitepress/theme/ad-runtime.mjs'], fallback: false };
+  for (const event of ['pull_request', 'merge_group']) {
+    assert.equal(needsSiteVariant(impact, event), true);
+  }
+});
+
 test('alternate build is limited to PR configuration changes, not every content edit', () => {
   for (const paths of [['docs/progress.md'], ['experience.md'], ['tests/chat-validation.test.mjs'], ['worker/policy.mjs']]) {
     assert.equal(needsSiteVariant({ build: true, paths, fallback: false }, 'pull_request'), false);
