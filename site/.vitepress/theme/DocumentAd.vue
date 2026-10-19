@@ -4,6 +4,8 @@ import { useData, useRouter } from 'vitepress';
 
 const { frontmatter } = useData();
 const router = useRouter();
+const publisher = __WORK_HISTORY_AD_PUBLISHER__;
+const slotId = __WORK_HISTORY_AD_SLOT__;
 const show = computed(() => __WORK_HISTORY_ADS_ENABLED__ && frontmatter.value.workHistoryAd === true);
 let requested = false;
 function requestAd() {
@@ -35,7 +37,7 @@ if (typeof window !== 'undefined' && __WORK_HISTORY_ADS_ENABLED__ && window.loca
 <template>
   <section v-if="show" class="work-history-document-ad" aria-label="광고">
     <span class="work-history-document-ad-label">광고</span>
-    <ins class="adsbygoogle" style="display:block" :data-ad-client="__WORK_HISTORY_AD_PUBLISHER__" :data-ad-slot="__WORK_HISTORY_AD_SLOT__" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <ins class="adsbygoogle" style="display:block" :data-ad-client="publisher" :data-ad-slot="slotId" data-ad-format="auto" data-full-width-responsive="true"></ins>
   </section>
 </template>
 
