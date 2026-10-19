@@ -34,7 +34,7 @@ export function selectDeployment(env, { readProject = () => null } = {}) {
   // Pages-only settings may be prepared without changing the live GitHub site.
   const config = readSiteConfig(target === 'github' ? { SITE_TARGET: 'github' } : {
     SITE_TARGET: 'pages', SITE_ORIGIN: env.SITE_ORIGIN, ADS_MODE: env.ADS_MODE,
-    ADS_PUBLISHER_ID: env.ADS_PUBLISHER_ID, ADS_CSP_MODE: env.ADS_CSP_MODE
+    ADS_PUBLISHER_ID: env.ADS_PUBLISHER_ID, ADS_SLOT_ID: env.ADS_SLOT_ID, ADS_CMP_CONFIRMED: env.ADS_CMP_CONFIRMED, ADS_CSP_MODE: env.ADS_CSP_MODE
   });
   const projectName = target === 'pages' ? env.CLOUDFLARE_PAGES_PROJECT : '';
   if (target === 'pages' && (typeof projectName !== 'string' || projectName !== projectName.trim() || !projectPattern.test(projectName))) throw new Error('Invalid CLOUDFLARE_PAGES_PROJECT');
@@ -42,7 +42,7 @@ export function selectDeployment(env, { readProject = () => null } = {}) {
     schemaVersion: 1, sha: env.GITHUB_SHA, projectName,
     siteEnv: {
       SITE_TARGET: config.target, SITE_ORIGIN: config.origin, SITE_BASE: config.base,
-      ADS_MODE: config.adsMode, ADS_PUBLISHER_ID: config.publisherId, ADS_CSP_MODE: config.cspMode,
+      ADS_MODE: config.adsMode, ADS_PUBLISHER_ID: config.publisherId, ADS_SLOT_ID: config.slotId, ADS_CMP_CONFIRMED: config.cmpConfirmed ? 'true' : 'false', ADS_CSP_MODE: config.cspMode,
       VITE_CHAT_API_URL: resolveChatApiUrl(env.VITE_CHAT_API_URL) || 'off'
     }
   };
