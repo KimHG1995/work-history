@@ -61,9 +61,9 @@ test('production Cloudflare deploy is verification-only while GitHub stays ads-o
   const text = read('.github/workflows/pages.yml');
   const pagesBuild = job(text, 'build');
   const githubBuild = job(text, 'build_github');
-  assert.match(pagesBuild, /ADS_MODE: verify/);
+  assert.match(pagesBuild, /WORK_HISTORY_ADS_MODE/);
   assert.match(pagesBuild, /ADS_PUBLISHER_ID: ca-pub-9486681340475427/);
-  assert.match(pagesBuild, /ADS_CSP_MODE: strict/);
+  assert.match(pagesBuild, /WORK_HISTORY_ADS_CSP_MODE/);
   assert.match(githubBuild, /SITE_TARGET: github/);
   assert.doesNotMatch(githubBuild, /ADS_MODE: verify|ADS_PUBLISHER_ID/);
   assert.doesNotMatch(text, /pagead2\.googlesyndication\.com|adsbygoogle\.js/);

@@ -50,10 +50,12 @@ jobs:
           SITE_TARGET: pages
           SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
           CLOUDFLARE_PAGES_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT }}
-          # Verification-only: public AdSense publisher identity, no ad loader or slot.
-          ADS_MODE: verify
+          # Default remains verify; explicit variables gate the approved Pages-only release.
+          ADS_MODE: ${{ vars.WORK_HISTORY_ADS_MODE || 'verify' }}
           ADS_PUBLISHER_ID: ca-pub-9486681340475427
-          ADS_CSP_MODE: strict
+          ADS_CSP_MODE: ${{ vars.WORK_HISTORY_ADS_CSP_MODE || 'strict' }}
+          ADS_SLOT_ID: ${{ vars.WORK_HISTORY_ADS_SLOT_ID }}
+          ADS_CMP_CONFIRMED: ${{ vars.WORK_HISTORY_ADS_CMP_CONFIRMED }}
           VITE_CHAT_API_URL: ${{ vars.VITE_CHAT_API_URL }}
       - name: 필요한 검사와 정적 빌드
         run: node scripts/run-ci.mjs "$RUNNER_TEMP/ci-changes.json" "$RUNNER_TEMP/site-deployment.json"

@@ -40,3 +40,12 @@ robots.txt는 요청 차단 기능이 아닙니다. 규칙을 따르지 않는 �
 - 제한 또는 장애가 발생하면 브라우저에서 관련 문서를 찾습니다.
 
 자세한 수치는 [문서 질문 봇 설계](docs/superpowers/specs/2026-09-17-free-docs-chat-design.md)에 정리했습니다.
+
+
+## Cloudflare Pages 문서 광고용 CSP 예외
+
+`ADS_MODE=enabled`는 승인된 `https://work-history-4gn.pages.dev` 주소, Google 인증 CMP 설정 확인과 운영자의 명시적 출시 설정이 모두 일치할 때에만 빌드됩니다. GitHub Pages 및 광고를 넣지 않는 문서는 기존 엄격한 CSP를 유지합니다.
+
+정적 HTML에서 요청별 보안 nonce를 생성할 수 없으므로, 광고 문서에는 HTTPS 리소스 로딩과 인라인 스크립트 및 eval 사용, HTTPS iframe을 허용합니다. 이는 기존 해시 기반 `script-src` 및 `frame-src 'none'`보다 공격 표면이 확대되는 **의도적인 보안 완화**입니다. 반면 `object-src 'none'`, `base-uri 'self'`, `form-action 'none'`, `script-src-attr 'none'`은 유지합니다.
+
+광고 스크립트의 실제 동작, 동의 전 광고 요청, 모바일 렌더링, CSP 위반, Google 정책 적합성은 별도 브라우저 확인이 필요합니다. 검증과 출시 승인이 끝나기 전에는 `verify`를 유지하세요.

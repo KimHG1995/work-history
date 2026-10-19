@@ -30,10 +30,22 @@ export async function verifySiteOutput(output, config) {
       assert.equal(canonical.length, expected ? 1 : 0, `canonical count: ${relative}`);
       if (expected) { assert.equal(attribute(canonical[0], 'href'), expected, `canonical: ${relative}`); locations.push(expected); }
       const accounts = [...head.matchAll(/<meta\b[^>]*>/gi)].map(match => match[0]).filter(tag => attribute(tag, 'name') === 'google-adsense-account');
-      assert.equal(accounts.length, expected && config.adsMode === 'verify' ? 1 : 0, `publisher metadata: ${relative}`);
+      assert.equal(accounts.length, expected && ['verify', 'enabled'].includes(config.adsMode) ? 1 : 0, `publisher metadata: ${relative}`);
       if (accounts.length) assert.equal(attribute(accounts[0], 'content'), config.publisherId);
-      assert.ok(head.includes('Content-Security-Policy') && head.includes("frame-src 'none'"), `strict CSP: ${relative}`);
-      assert.doesNotMatch(html, /<script\b[^>]*src=["'][^"']*(?:adsbygoogle|googlesyndication|doubleclick)|<ins\b[^>]*adsbygoogle/i, `advertising code in verify-only output: ${relative}`);
+      // Dist is the *only* input in Cloudflare's isolated upload job.
+      const markers = [...head.matchAll(/<meta\b[^>]*>/gi)].map(match => match[0])
+        .filter(tag => attribute(tag, 'name') === 'work-history-ad');
+      assert.ok(markers.length <= 1, `duplicate ad marker: ${relative}`);
+      const adPage = markers.length === 1 && attribute(markers[0], 'content') === 'enabled';
+      if (adPage) {
+        assert.equal(config.adsMode, 'enabled', `unexpected advertising: ${relative}`);
+        assert.ok(/^projects\/(?!index\.html$)(?!404\.html$).+\.html$/.test(relative), `excluded advertising route: ${relative}`);
+      }
+      assert.ok(head.includes('Content-Security-Policy'), `CSP missing: ${relative}`);
+      assert.ok(head.includes(adPage ? 'frame-src https:' : "frame-src 'none'"), `CSP: ${relative}`);
+      assert.doesNotMatch(html, /<script\b[^>]*src=["'][^"']*(?:adsbygoogle|googlesyndication|doubleclick)/i, `unexpected eager script request: ${relative}`);
+      // Consent-controlled Vue markup has no SSR slot before affirmative TCF consent.
+      assert.doesNotMatch(html, /<ins\b[^>]*class=["']adsbygoogle["']/i, `unexpected pre-consent ad slot: ${relative}`);
       count++;
     }
   }
@@ -42,7 +54,7 @@ export async function verifySiteOutput(output, config) {
   assert.deepEqual([...new Set(sitemap)].sort(), locations.sort(), 'sitemap must match canonical pages');
   const corpus = JSON.parse(await read('chat-docs.json'));
   assert.ok(Array.isArray(corpus) && corpus.every(doc => typeof doc.url === 'string' && doc.url.startsWith(config.base)), 'chat index base');
-  if (config.adsMode === 'verify') assert.equal(await read('ads.txt'), `google.com, ${config.publisherId.slice(3)}, DIRECT, f08c47fec0942fa0\n`, 'ads.txt');
+  if (['verify', 'enabled'].includes(config.adsMode)) assert.equal(await read('ads.txt'), `google.com, ${config.publisherId.slice(3)}, DIRECT, f08c47fec0942fa0\n`, 'ads.txt');
   else assert.equal(await exists(path.join(output, 'ads.txt')), false, 'off output still contains ads.txt');
   if (config.target === 'pages') assert.ok((await read('robots.txt')).includes(`Sitemap: ${config.origin}/sitemap.xml`), 'robots sitemap');
   else assert.equal(await exists(path.join(output, 'robots.txt')), false, 'GitHub project path must not pretend to own root robots.txt');

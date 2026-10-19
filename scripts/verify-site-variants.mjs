@@ -5,11 +5,13 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { selectDeployment } from './pages-config.mjs';
 import { checkPagesArtifact, deploySite } from './deploy-site.mjs';
+import { verifySiteOutput } from './verify-site-output.mjs';
+import { readSiteConfig } from './site-config.mjs';
 
 const inputs = new Set([
   'scripts/site-config.mjs', 'scripts/prepare-public.mjs', 'scripts/prepare-site.mjs',
   'scripts/prepare-chat.mjs', 'scripts/secure-site.mjs', 'scripts/verify-site-output.mjs',
-  'scripts/verify-site-variants.mjs', 'site/.vitepress/config.mjs', 'site/chat.config.mjs',
+  'scripts/verify-site-variants.mjs', 'site/.vitepress/config.mjs', 'site/.vitepress/theme/index.js', 'site/.vitepress/theme/DocumentAd.vue', 'site/.vitepress/theme/ad-consent.mjs', 'site/.vitepress/theme/ad-runtime.mjs', 'site/chat.config.mjs',
   'package.json', 'package-lock.json', 'security/domain-root/robots.txt', '.github/workflows/docs-check.yml',
   'scripts/deploy-site.mjs', 'scripts/pages-config.mjs', 'scripts/static-output.mjs', 'scripts/run-ci.mjs',
   'wrangler.pages.jsonc', '.github/workflows/pages.yml'
@@ -82,6 +84,17 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
     await checkPagesArtifact({ root, output, record, sha: record.sha });
     await verifyStagedCli(root, output, record);
     console.log('Pages static-only upload gate and actual CLI configuration verified offline.');
+    // Second offline build exercises actual advertisement HTML/CSP, without uploading or
+    // asserting that Google's external approval or CMP is live.
+    const adsEnv = {
+      ...env, SITE_ORIGIN: 'https://work-history-4gn.pages.dev',
+      ADS_MODE: 'enabled', ADS_CSP_MODE: 'static-ads',
+      ADS_PUBLISHER_ID: 'ca-pub-9486681340475427',
+      ADS_SLOT_ID: '4869544605', ADS_CMP_CONFIRMED: 'true'
+    };
+    execFileSync('npm', ['run', 'docs:build'], { stdio: 'inherit', env: adsEnv });
+    await verifySiteOutput(output, readSiteConfig(adsEnv));
+    console.log('Pages enabled-mode document ads and CSP verified offline. No advertising request was made.');
   } else {
     console.log('Alternate target build skipped: no relevant configuration changes.');
   }
