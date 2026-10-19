@@ -41,7 +41,7 @@ export async function verifySiteOutput(output, config) {
       const adPage = config.adsMode === 'enabled' && eligibleAdDocument(sourceFile, source);
       assert.ok(head.includes('Content-Security-Policy') && head.includes(adPage ? 'frame-src https:' : "frame-src 'none'"), `CSP: ${relative}`);
       if (adPage) assert.ok(head.includes(`adsbygoogle.js?client=${config.publisherId}`), `ad loader: ${relative}`);
-      else assert.doesNotMatch(html, /<script\\b[^>]*src=["'][^"']*(?:adsbygoogle|googlesyndication|doubleclick)|<ins\\b[^>]*adsbygoogle/i, `unexpected ad loader: ${relative}`);
+      else assert.doesNotMatch(html, /<script\b[^>]*src=["'][^"']*(?:adsbygoogle|googlesyndication|doubleclick)|<ins\b[^>]*adsbygoogle/i, `unexpected ad loader: ${relative}`);
       count++;
     }
   }
