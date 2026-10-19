@@ -53,7 +53,7 @@ for (const [name, value, expected] of [
       assert.equal(config.status, 0, config.stderr);
       const definitions = JSON.parse(config.stdout);
       assert.equal(definitions['import.meta.env.VITE_CHAT_API_URL'], JSON.stringify(expected));
-      assert.deepEqual(Object.keys(definitions), ['import.meta.env.VITE_CHAT_API_URL']);
+      assert.deepEqual(Object.keys(definitions).sort(), ['__WORK_HISTORY_ADS_ENABLED__', '__WORK_HISTORY_AD_ORIGIN__', '__WORK_HISTORY_AD_PUBLISHER__', '__WORK_HISTORY_AD_SLOT__', 'import.meta.env.VITE_CHAT_API_URL'].sort());
       const secured = instance.secure();
       assert.equal(secured.status, 0, secured.stderr);
       const html = instance.html();
