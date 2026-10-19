@@ -47,16 +47,25 @@ export default defineConfig({
       return url ? [{ ...item, url }] : [];
     })
   },
-  transformPageData(page) { applyPageMetadata(page, site); },
+  transformPageData(page) {
+    let source = '';
+    if (page.relativePath.startsWith('projects/') && page.relativePath.endsWith('.md')) source = readFileSync(path.resolve(import.meta.dirname, '../content', page.relativePath), 'utf8');
+    applyPageMetadata(page, site, source);
+  },
   srcDir: './content',
   cleanUrls: true,
   lastUpdated: false,
   vite: {
     define: {
+      __WORK_HISTORY_ADS_ENABLED__: JSON.stringify(site.adsMode === 'enabled'),
+      __WORK_HISTORY_AD_ORIGIN__: JSON.stringify(site.origin),
+      __WORK_HISTORY_AD_PUBLISHER__: JSON.stringify(site.publisherId),
+      __WORK_HISTORY_AD_SLOT__: JSON.stringify(site.slotId),
       'import.meta.env.VITE_CHAT_API_URL': JSON.stringify(resolveChatApiUrl(process.env.VITE_CHAT_API_URL))
     }
   },
   head: [
+    ...(site.adsMode === 'enabled' ? [['script', { async: '', crossorigin: 'anonymous', src: `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${site.publisherId}` }]] : []),
     ['link', { rel: 'icon', type: 'image/svg+xml', href: `${site.base}favicon.svg` }],
     ['script', { type: 'text/javascript' }, `
       (function(c,l,a,r,i,t,y){
