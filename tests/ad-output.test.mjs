@@ -26,7 +26,7 @@ test('enabled deployment artifact validates without generated site/content', asy
         `<html><head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; frame-src ${ad ? 'https:' : "'none'"}">` +
         (url ? `<link rel="canonical" href="${url}"><meta name="google-adsense-account" content="${config.publisherId}">` : '<meta name="robots" content="noindex">') +
         (ad ? '<meta name="work-history-ad" content="enabled">' : '') +
-        '</head><body>' + (ad ? '<ins class="adsbygoogle" data-ad-client="ca-pub-9486681340475427" data-ad-slot="4869544605"></ins>' : '') + 'description</body></html>');
+        '</head><body>description</body></html>');
     }
     await writeFile(path.join(root, 'sitemap.xml'), '<urlset>' + locs.map(url => `<url><loc>${url}</loc></url>`).join('') + '</urlset>');
     await writeFile(path.join(root, 'chat-docs.json'), '[{"url":"/"}]');
