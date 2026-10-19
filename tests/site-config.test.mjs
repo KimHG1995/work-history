@@ -41,7 +41,7 @@ test('verify uses only a valid publisher ID, with no ad loader', () => {
 });
 
 test('off removes stale publisher identity instead of accidentally keeping verification enabled', () => {
-  const config = readSiteConfig({ ...pages, ADS_MODE: 'off', ADS_PUBLISHER_ID: publisher, ADS_SLOT_ID: '123' });
+  const config = readSiteConfig({ ...pages, ADS_MODE: 'off', ADS_PUBLISHER_ID: publisher });
   assert.equal(config.publisherId, '');
   assert.equal(config.slotId, '');
   assert.deepEqual(verificationHead(config), []);
