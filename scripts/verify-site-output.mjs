@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { access, readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { readSiteConfig, pageUrl } from './site-config.mjs';
+import { readSiteConfig, pageUrl, eligibleAdDocument } from './site-config.mjs';
 
 async function exists(file) {
   try { await access(file); return true; } catch (error) { if (error.code === 'ENOENT') return false; throw error; }
@@ -30,10 +30,18 @@ export async function verifySiteOutput(output, config) {
       assert.equal(canonical.length, expected ? 1 : 0, `canonical count: ${relative}`);
       if (expected) { assert.equal(attribute(canonical[0], 'href'), expected, `canonical: ${relative}`); locations.push(expected); }
       const accounts = [...head.matchAll(/<meta\b[^>]*>/gi)].map(match => match[0]).filter(tag => attribute(tag, 'name') === 'google-adsense-account');
-      assert.equal(accounts.length, expected && config.adsMode === 'verify' ? 1 : 0, `publisher metadata: ${relative}`);
+      assert.equal(accounts.length, expected && ['verify', 'enabled'].includes(config.adsMode) ? 1 : 0, `publisher metadata: ${relative}`);
       if (accounts.length) assert.equal(attribute(accounts[0], 'content'), config.publisherId);
-      assert.ok(head.includes('Content-Security-Policy') && head.includes("frame-src 'none'"), `strict CSP: ${relative}`);
-      assert.doesNotMatch(html, /<script\b[^>]*src=["'][^"']*(?:adsbygoogle|googlesyndication|doubleclick)|<ins\b[^>]*adsbygoogle/i, `advertising code in verify-only output: ${relative}`);
+      const sourceFile = relative.replace(/\.html$/, '.md');
+      let source = '';
+      if (relative.startsWith('projects/')) {
+        try { source = await readFile(path.resolve(import.meta.dirname, '../site/content', sourceFile), 'utf8'); }
+        catch (error) { if (error.code !== 'ENOENT') throw error; }
+      }
+      const adPage = config.adsMode === 'enabled' && eligibleAdDocument(sourceFile, source);
+      assert.ok(head.includes('Content-Security-Policy') && head.includes(adPage ? 'frame-src https:' : "frame-src 'none'"), `CSP: ${relative}`);
+      if (adPage) assert.ok(head.includes(`adsbygoogle.js?client=${config.publisherId}`), `ad loader: ${relative}`);
+      else assert.doesNotMatch(html, /<script\\b[^>]*src=["'][^"']*(?:adsbygoogle|googlesyndication|doubleclick)|<ins\\b[^>]*adsbygoogle/i, `unexpected ad loader: ${relative}`);
       count++;
     }
   }
@@ -42,7 +50,7 @@ export async function verifySiteOutput(output, config) {
   assert.deepEqual([...new Set(sitemap)].sort(), locations.sort(), 'sitemap must match canonical pages');
   const corpus = JSON.parse(await read('chat-docs.json'));
   assert.ok(Array.isArray(corpus) && corpus.every(doc => typeof doc.url === 'string' && doc.url.startsWith(config.base)), 'chat index base');
-  if (config.adsMode === 'verify') assert.equal(await read('ads.txt'), `google.com, ${config.publisherId.slice(3)}, DIRECT, f08c47fec0942fa0\n`, 'ads.txt');
+  if (['verify', 'enabled'].includes(config.adsMode)) assert.equal(await read('ads.txt'), `google.com, ${config.publisherId.slice(3)}, DIRECT, f08c47fec0942fa0\n`, 'ads.txt');
   else assert.equal(await exists(path.join(output, 'ads.txt')), false, 'off output still contains ads.txt');
   if (config.target === 'pages') assert.ok((await read('robots.txt')).includes(`Sitemap: ${config.origin}/sitemap.xml`), 'robots sitemap');
   else assert.equal(await exists(path.join(output, 'robots.txt')), false, 'GitHub project path must not pretend to own root robots.txt');
