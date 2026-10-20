@@ -49,8 +49,8 @@
 ## 서버 구성
 
 ```mermaid
-flowchart LR
-    services["검사 기능을 사용하는 여러 서비스"] --> server["공통 그림 심리검사 서버: NestJS"]
+flowchart TB
+    services["검사 기능을 사용하는 여러 서비스"] --> server["공통 그림 심리검사 서버<br/>NestJS"]
     server --> modules["기능별 모듈"]
     modules --> orm["Drizzle ORM"]
     orm --> db["MySQL"]

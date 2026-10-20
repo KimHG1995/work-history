@@ -47,7 +47,7 @@
 flowchart TD
     handover["기존 프로젝트 인수"] --> organize["기능별 코드 구조 정리"]
     organize --> discuss["관련 부서와 필요한 기능 논의"]
-    discuss --> develop["관리자 화면, 서버, API, DB 풀스택 개발"]
+    discuss --> develop["관리자 화면, 서버, API, DB<br/>풀스택 개발"]
     develop --> operation["서비스 반영과 운영"]
     operation --> request["추가 기능과 유지보수 요청"]
     request --> discuss

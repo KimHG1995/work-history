@@ -44,10 +44,10 @@ Elastic Beanstalk 환경은 선임 개발자가 구성했습니다.
 
 ```mermaid
 flowchart TD
-    merge["코드 병합"] --> pipeline["Bitbucket Pipelines 자동 실행"]
+    merge["코드 병합"] --> pipeline["Bitbucket Pipelines<br/>자동 실행"]
     pipeline --> build["코드 빌드와 테스트"]
     build --> environment{"배포 환경"}
     environment -->|개발| dev["개발 환경에 배포"]
-    environment -->|운영| verify["사람이 확인하고 운영 배포 승인"]
+    environment -->|운영| verify["운영 배포 수동 승인"]
     verify --> prod["운영 환경에 배포"]
 ```

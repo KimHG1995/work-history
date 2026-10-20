@@ -85,13 +85,13 @@ Slack이 설정되지 않았거나 전송에 실패해도 탐지 작업 자체�
 
 ```mermaid
 flowchart TD
-    service["자체 또는 외부 서비스의 API 로그"] --> sink["LogSink"]
+    service["자체 또는 외부 서비스<br/>API 로그"] --> sink["LogSink"]
     sink --> buffer["인메모리 버퍼"]
     buffer --> batch["배치 단위 ClickHouse 저장"]
     batch --> raw["raw_events"]
-    raw --> traffic["분, 시간 트래픽 집계"]
-    raw --> latency["endpoint 응답시간 집계"]
-    raw --> error["에러 집계"]
+    raw -->|Materialized View| traffic["분, 시간 트래픽 집계"]
+    raw -->|Materialized View| latency["endpoint 응답시간 집계"]
+    raw -->|Materialized View| error["에러 집계"]
     traffic --> report["리포트 API"]
     latency --> report
     error --> report

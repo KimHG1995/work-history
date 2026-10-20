@@ -66,8 +66,8 @@ TanStack은 관리자 페이지에 사용했습니다.
 
 ```mermaid
 flowchart TD
-    analyze["기존 Java 서버 코드와 처리 흐름 분석"] --> spec["기존 요구사항과 기능 확인"]
-    spec --> server["기존 기능을 유지하며 NestJS 서버 개발"]
+    analyze["기존 Java 서버와<br/>처리 흐름 분석"] --> spec["기존 요구사항과 기능 확인"]
+    spec --> server["기존 기능을 유지한<br/>NestJS 서버 개발"]
     spec --> web["자랑하기 웹 페이지와 관리자 페이지 개발"]
     server --> infra["개발과 운영 인프라 구성"]
     infra --> deploy["GitHub Actions 배포 자동화"]
@@ -75,19 +75,27 @@ flowchart TD
 
 ## 개발과 운영 배포 흐름
 
+### 개발 환경 배포
+
 ```mermaid
-flowchart TD
+flowchart TB
     dev["develop 브랜치 푸시"] --> devaction["GitHub Actions"]
     devaction --> devec2["개발 EC2 접속"]
-    devec2 --> build["Prisma 클라이언트 생성과 서버 빌드"]
+    devec2 --> build["Prisma 클라이언트 생성<br/>서버 빌드"]
     build --> run["개발 서버 실행"]
+    devaction -.->|배포 결과| slack["Slack 배포 알림"]
+```
+
+### 운영 환경 배포
+
+```mermaid
+flowchart TB
     prod["main 브랜치 푸시"] --> prodaction["GitHub Actions"]
     prodaction --> image["Docker 이미지 빌드"]
     image --> ecr["ECR에 이미지 저장"]
-    ecr --> prodec2["운영 EC2 접속과 이미지 다운로드"]
+    ecr --> prodec2["운영 EC2 접속<br/>이미지 다운로드"]
     prodec2 --> replace["기존 컨테이너 교체와 실행"]
-    devaction -->|성공 또는 실패 결과| slack["Slack 배포 알림"]
-    prodaction -->|성공 또는 실패 결과| slack
+    prodaction -.->|배포 결과| slack["Slack 배포 알림"]
 ```
 
 ## 결과와 현재 상태

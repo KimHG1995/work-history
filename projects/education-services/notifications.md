@@ -80,7 +80,7 @@ flowchart TD
     request["발송 요청"] --> hash["발송 구분, 대상, 내용으로 해시 생성"]
     hash --> check{"유효 시간 안에 동일 요청이 있는가?"}
     check -->|있음| skip["반복 요청 제외"]
-    check -->|없음| save["발송 전에 Valkey에 해시 저장과 TTL 적용"]
+    check -->|없음| save["Valkey에 해시 저장<br/>TTL 적용"]
     save --> send["발송 진행"]
 ```
 
@@ -149,7 +149,7 @@ flowchart TB
     sender -->|발송 요청 결과 기록| db
 
     provider["외부 메시지 서비스"] -->|전송 결과 회신| ack["결과 확인 서버"]
-    ack -->|전송 결과 조회| provider
+    ack -.->|전송 결과 조회| provider
     ack -->|최종 전송 결과 기록| db
 ```
 

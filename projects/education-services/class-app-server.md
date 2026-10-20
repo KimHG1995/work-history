@@ -46,10 +46,10 @@
 
 ```mermaid
 flowchart TD
-    domain["교육운영팀, 콘텐츠팀, 기획팀과 도메인 파악"] --> architecture["선임 개발자: DB와 아키텍처 설계 주도 / 본인: 설계 지원"]
+    domain["교육운영팀, 콘텐츠팀, 기획팀과 도메인 파악"] --> architecture["선임 개발자: DB와 설계 주도<br/>본인: 설계 지원"]
     architecture --> server["수강 앱 서버 신규 구축"]
     server --> api["수업 기능과 API 신규 개발"]
-    api --> select["기존 DB에서 사용 가능한 수강 데이터와 콘텐츠 선별"]
+    api --> select["기존 DB에서 사용할<br/>수강 데이터와 콘텐츠 선별"]
     select --> migrate["선별한 데이터 마이그레이션"]
     migrate --> operation["2024년 4월 서비스 반영 후 운영 중"]
 ```

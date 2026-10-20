@@ -64,7 +64,7 @@ flowchart TD
     schedule["Cron 실행"] --> source["원천 데이터 조회"]
     source --> size{"데이터 규모 확인"}
     size -->|일반 데이터| app["애플리케이션 레이어에서 가공"]
-    app --> sheet["Google Sheets에 결과와 필요한 원천 데이터 입력"]
+    app --> sheet["Google Sheets에 결과와<br/>필요한 원천 데이터 입력"]
     size -->|대용량 데이터| chunk["데이터를 청크 단위로 조회"]
     chunk --> calc["필요한 데이터 선별과 계산"]
     calc --> upload["가공 결과를 순차적으로 업로드"]
@@ -72,10 +72,10 @@ flowchart TD
     more -->|있음| chunk
     more -->|없음| done["시트 갱신 완료"]
     sheet --> done
-    schedule -->|실패| slack["Slack 오류 알림"]
-    source -->|실패| slack
-    calc -->|실패| slack
-    upload -->|실패| slack
+    schedule -.->|실패| slack["Slack 오류 알림"]
+    source -.->|실패| slack
+    calc -.->|실패| slack
+    upload -.->|실패| slack
 ```
 
 ## 결과와 현재 상태

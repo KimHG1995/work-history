@@ -56,7 +56,7 @@ Refine, MUI Pro, Zod와 파일 처리 모듈은 제휴 쿠폰 연계 작업에 �
 - 공통 정책과 개별 쿠폰의 발급 이력을 나눠, 비슷한 이벤트에서 같은 구조를 재사용할 수 있게 했다.
 
 ```mermaid
-flowchart LR
+flowchart TB
     before["기존: 개별 발급 쿠폰 중심"] --> template["변경: 공통 쿠폰 템플릿"]
     template --> event["이벤트별 발급과 대상자 관리"]
     event --> issued["개별 쿠폰 발급과 이력 관리"]
@@ -115,7 +115,7 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-    notice["코드 생성 안내 또는 만료 안내 시점"] --> history{"해당 구매 건의 안내 단계 발송 이력이 있는가?"}
+    notice["코드 생성 안내 또는 만료 안내 시점"] --> history{"구매 건의 해당 안내<br/>발송 이력이 있는가?"}
     history -->|있음| skip["중복 발송 제외"]
     history -->|없음| talk["템플릿으로 알림톡 발송"]
     talk -->|실패| fallback["문자 메시지로 폴백"]
