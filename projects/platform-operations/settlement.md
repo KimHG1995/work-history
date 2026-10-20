@@ -54,7 +54,7 @@ flowchart TD
     work --> confirmation["담당자의 확인 이력"]
     attendance --> verify["기록과 이력으로 실제 근무 여부 검증"]
     confirmation --> verify
-    verify --> timing["정산 기준: 관리자 수동 처리 / 근무 종료 12시간 이후"]
+    verify --> timing["정산 기준<br/>관리자 수동 처리<br/>근무 종료 12시간 이후"]
     timing --> settlement["확인한 근무 내역을 기준으로 예치금 정산"]
 ```
 
@@ -76,7 +76,7 @@ flowchart TD
 - 결과 재확인: 이용량이 적은 시간대에 크론잡을 실행했다. 처리 결과를 다시 검증하고 응답 실패 건을 처리했다.
 
 ```mermaid
-flowchart LR
+flowchart TB
     toss["토스 처리 결과"] --> webhook["웹훅 수신"]
     portone["포트원 처리 결과"] --> response["API 응답 수신"]
     webhook --> update["내부 정보에 처리 결과 반영"]

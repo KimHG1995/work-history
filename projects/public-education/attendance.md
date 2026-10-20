@@ -38,12 +38,20 @@
 
 ## 처리 흐름
 
+### 출결 상태 변경
+
 ```mermaid
-flowchart TD
+flowchart TB
     change["출결 상태 변경 요청"] --> tx["트랜잭션으로 출석, 퇴장, 이수 상태 변경"]
     tx --> result{"처리 성공 여부"}
     result -->|성공| commit["변경 확정"]
     result -->|실패| rollback["변경 취소"]
+```
+
+### 수기 단체 인증
+
+```mermaid
+flowchart TB
     group["수기 단체 인증 요청"] --> parallel["Promise.allSettled로 병렬 처리"]
     parallel --> success["정상 처리 결과"]
     parallel --> failed["정보 누락과 검증 실패 목록"]

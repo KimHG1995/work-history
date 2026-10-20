@@ -75,7 +75,7 @@ flowchart TD
     request["요구사항과 기대 결과 확인"] --> rules["공통 규칙과 필요한 스킬 선택"]
     rules --> branch["Edit 또는 Write 전 브랜치 확인"]
     branch --> edit["작업 범위 안에서 편집"]
-    edit --> check["파일 유형에 따른 타입 검사 또는 테스트"]
+    edit --> check["파일 유형에 따라<br/>타입 검사 또는 테스트"]
     check --> feedback["검사 결과 전달"]
     feedback --> decision{"후속 수정 필요"}
     decision -->|필요| edit

@@ -82,7 +82,7 @@ API 타입과 호출 코드를 각각 작성하는 작업을 줄이는 구조입
 예약 동기화와 자동 PR 생성은 실행 가능한 배포 흐름으로 완성하지 않았습니다.
 
 ```mermaid
-flowchart LR
+flowchart TB
     dto["NestJS DTO와 Swagger 설정"] --> spec["OpenAPI JSON: /api-json"]
     spec --> fetch["개발 시작 또는 빌드 전 스펙 수신"]
     fetch --> codegen["TypeScript 타입과 Axios 코드 생성"]
@@ -118,42 +118,33 @@ flowchart TB
     cloudflare["Cloudflare<br/>도메인과 라우팅"]
 
     subgraph vercel["Vercel / Next.js"]
-        direction LR
         admin["관리자 웹"]
         client["사용자 웹"]
     end
 
-    subgraph render["Render / NestJS API"]
-        direction TB
-        controller["Controller / DTO"]
-        access["인증과 회사별 권한 확인"]
-        service["Service<br/>계약, 협력사, 출퇴근, 급여, 작업 보고"]
-        repository["Repository / Prisma"]
-        controller --> access --> service --> repository
-    end
+    server["NestJS API<br/>Render"]
 
     subgraph supabase["Supabase"]
-        direction LR
         auth["Auth"]
         db[("PostgreSQL")]
-        storage[("Storage")]
+        files[("Storage")]
     end
 
     glosign["Glosign<br/>전자계약 API"]
 
     cloudflare -.->|도메인 연결| admin
     cloudflare -.-> client
-    cloudflare -.-> controller
-    admin -->|API 요청| controller
-    client -->|API 요청| controller
-    access --- auth
-    repository --> db
-    service --> storage
-    service --> glosign
+    cloudflare -.-> server
+    admin -->|API 요청| server
+    client -->|API 요청| server
+    server ---|인증 연동| auth
+    server -->|Prisma| db
+    server -->|계약 문서와 보고 파일| files
+    server -->|전자계약 연동| glosign
 ```
 
 점선은 Cloudflare의 도메인 연결 관계를 뜻하며 API 요청 경로가 아닙니다.
-Supabase Auth는 인증 연동 관계만 표시했습니다.
+Supabase Auth는 인증 연동 관계만 표시했습니다. NestJS 내부의 Controller, Service, Repository 구성은 위의 서버 구조 표에 정리했습니다.
 
 ## 계약 처리 흐름
 

@@ -112,15 +112,15 @@ File Parser와 향후 API Collector가 같은 `ResourceBatch`를 출력하도록
 
 ```mermaid
 flowchart TD
-    export["AWS 또는 NCP Export 파일"] --> validate["파일 검증과 Artifact 저장"]
+    export["AWS 또는 NCP<br/>Export 파일"] --> validate["파일 검증과 Artifact 저장"]
     validate --> parser["공급자별 Parser"]
     parser --> batch["공통 ResourceBatch"]
     batch --> current["현재 NetBox 자산 조회"]
     current --> diff["생성, 변경, 경고, 오류 비교"]
-    diff --> preview["Preview와 Batch hash 저장"]
+    diff --> preview["Preview와<br/>Batch hash 저장"]
     preview --> approve["사용자 확인 후 Apply"]
     approve --> worker["Worker 단계별 반영"]
-    worker --> netbox["NetBox Upsert와 관계 연결"]
+    worker --> netbox["NetBox Upsert<br/>관계 연결"]
     netbox --> history["실행 결과와 checkpoint 기록"]
 ```
 

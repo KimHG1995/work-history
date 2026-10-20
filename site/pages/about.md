@@ -13,10 +13,10 @@ outline: false
 임베딩이나 벡터 DB 기반 검색은 사용하지 않습니다. 답변과 함께 관련 원문 링크를 제공해 문서에서 다시 확인할 수 있게 했습니다.
 
 ```mermaid
-flowchart LR
+flowchart TB
     question["사용자 질문"] --> index["공개 문서 인덱스"]
-    index --> search["키워드와 문서 정보로 관련 구간 검색"]
-    search --> context["관련 문서 일부로 컨텍스트 구성"]
+    index --> search["키워드와 문서 정보로<br/>관련 구간 검색"]
+    search --> context["관련 문서로<br/>컨텍스트 구성"]
     context --> llm["LLM에 질문과 컨텍스트 전달"]
     llm --> answer["답변과 관련 문서 링크 제공"]
 ```

@@ -63,9 +63,9 @@
 ## 처리 흐름
 
 ```mermaid
-flowchart LR
+flowchart TB
     source["기존 서버 코드와 tsconfig"] --> engine["TypeScript 7 기반 분석"]
-    engine --> graphData["심볼, 호출 관계와 타입 정보"]
+    engine --> graphData["심볼과 호출 관계,<br/>타입 정보"]
     graphData --> mcp["@ttsc/graph MCP 조회"]
     mcp --> agent["AI가 서버 구조 탐색"]
     agent --> detail["세부 동작은 원본 코드 확인"]

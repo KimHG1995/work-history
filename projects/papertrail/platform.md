@@ -130,14 +130,14 @@ Next.js 15 기반 Admin에서 다음 운영 기능을 구현했습니다.
 ```mermaid
 flowchart TD
     client["업무 시스템"] --> gateway["NestJS API Gateway"]
-    gateway --> auth["인증, 테넌트, 멱등성, 입력 검증"]
+    gateway --> auth["인증, 테넌트, 멱등성<br/>입력 검증"]
     auth --> queue["BullMQ 렌더 큐"]
     queue --> worker["Render Worker"]
     worker --> renderer["Papermake / Typst 렌더"]
-    renderer --> storage["S3 / MinIO PDF 저장"]
-    worker --> evidence["입력, 템플릿, 결과 해시 증적"]
-    worker --> analytics["ClickHouse 렌더 이벤트"]
-    worker --> webhook["서명 Webhook"]
+    renderer --> storage["S3 / MinIO<br/>PDF 저장"]
+    worker -.->|증적 저장| evidence["입력, 템플릿, 결과 해시 증적"]
+    worker -.->|렌더 이벤트| analytics["ClickHouse 렌더 이벤트"]
+    worker -.->|완료 결과| webhook["서명 Webhook"]
     storage --> signed["Signed URL"]
     evidence --> verify["재현성 검증"]
 ```

@@ -70,7 +70,7 @@ AI가 요청 범위를 벗어나 수정하거나, 검증을 생략하고 완료�
 
 ```mermaid
 flowchart TD
-    target["대상 프로젝트 확인"] --> detect["검사 명령 탐색과 설정 미리보기"]
+    target["대상 프로젝트 확인"] --> detect["검사 명령 탐색과<br/>설정 미리보기"]
     detect --> apply["충돌 확인 후 설정 적용"]
     apply --> task["요구사항과 완료 조건 확인"]
     task --> implement["요청 범위 안에서 개발"]
@@ -78,9 +78,9 @@ flowchart TD
     plan --> run["검사 실행과 변경 내용 검토"]
     run --> decision{"수정할 문제 확인"}
     decision -->|있음| fix["수정 후 관련 검사 재실행"]
-    fix --> run
+    fix -->|관련 검사 재실행| run
     decision -->|없음| report["결과 보고"]
-    fix --> blocked["같은 실패가 반복되면 원인 보고 후 중단"]
+    fix -.->|동일 실패 반복| blocked["같은 실패가 반복되면 원인 보고 후 중단"]
 ```
 
 ## 결과와 현재 상태
