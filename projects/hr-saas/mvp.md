@@ -115,36 +115,37 @@ Next.js 웹은 Vercel에 배포했습니다.
 
 ```mermaid
 flowchart TB
-    cloudflare["Cloudflare<br/>도메인과 라우팅"]
+    cloudflare["Cloudflare: 도메인 및 라우팅"]
 
-    subgraph vercel["Vercel / Next.js"]
+    subgraph vercel["Vercel: Next.js"]
         admin["관리자 웹"]
         client["사용자 웹"]
     end
 
-    server["NestJS API<br/>Render"]
-
-    subgraph supabase["Supabase"]
-        auth["Auth"]
-        db[("PostgreSQL")]
-        files[("Storage")]
+    subgraph backend["Render: 애플리케이션"]
+        server["NestJS API: 업무 로직 및 권한 검사"]
     end
 
-    glosign["Glosign<br/>전자계약 API"]
+    subgraph supabase["Supabase: 관리형 백엔드 서비스"]
+        auth["Supabase Auth: 인증"]
+        db[("Supabase PostgreSQL: 업무 데이터")]
+        files[("Supabase Storage: 계약 및 보고 파일")]
+    end
+
+    glosign["Glosign: 전자계약 API"]
 
     cloudflare -.->|도메인 연결| admin
-    cloudflare -.-> client
-    cloudflare -.-> server
+    cloudflare -.->|도메인 연결| client
+    cloudflare -.->|도메인 연결| server
     admin -->|API 요청| server
     client -->|API 요청| server
     server ---|인증 연동| auth
-    server -->|Prisma| db
-    server -->|계약 문서와 보고 파일| files
-    server -->|전자계약 연동| glosign
+    server -->|Prisma 조회 및 저장| db
+    server -->|파일 저장 및 조회| files
+    server -->|계약 생성 및 상태 동기화| glosign
 ```
 
-점선은 Cloudflare의 도메인 연결 관계를 뜻하며 API 요청 경로가 아닙니다.
-Supabase Auth는 인증 연동 관계만 표시했습니다. NestJS 내부의 Controller, Service, Repository 구성은 위의 서버 구조 표에 정리했습니다.
+Supabase는 Auth, PostgreSQL, Storage를 담당하고 NestJS 서버는 계약과 출퇴근 등의 업무 로직, API 및 권한 검사를 처리한다. 웹은 Vercel에, API는 Render에 배포했다. 점선은 Cloudflare 도메인 연결을 의미하며 인증 연동선은 호출 순서를 특정하지 않는다.
 
 ## 계약 처리 흐름
 
