@@ -128,19 +128,46 @@ Next.js 15 기반 Admin에서 다음 운영 기능을 구현했습니다.
 ## 처리 흐름
 
 ```mermaid
-flowchart TD
-    client["업무 시스템"] --> gateway["NestJS API Gateway"]
-    gateway --> auth["인증, 테넌트, 멱등성<br/>입력 검증"]
-    auth --> queue["BullMQ 렌더 큐"]
-    queue --> worker["Render Worker"]
-    worker --> renderer["Papermake / Typst 렌더"]
-    renderer --> storage["S3 / MinIO<br/>PDF 저장"]
-    worker -.->|증적 저장| evidence["입력, 템플릿, 결과 해시 증적"]
-    worker -.->|렌더 이벤트| analytics["ClickHouse 렌더 이벤트"]
-    worker -.->|완료 결과| webhook["서명 Webhook"]
-    storage --> signed["Signed URL"]
-    evidence --> verify["재현성 검증"]
+flowchart TB
+    subgraph requester["업무 시스템"]
+        client["문서 생성 요청"]
+        webhook["서명된 Webhook 수신"]
+    end
+
+    subgraph core["PaperTrail API 및 작업 제어"]
+        gateway["NestJS Gateway"]
+        validation["인증, 테넌트 및 입력 검증"]
+        queue["BullMQ 렌더 큐"]
+        evidence["문서 상태 및 증적 해시"]
+    end
+
+    subgraph rendering["비동기 렌더링"]
+        worker["NestJS Render Worker"]
+        renderer["Papermake / Typst"]
+    end
+
+    subgraph storage["저장 및 검증"]
+        files["S3 / MinIO: PDF"]
+        metadata["PostgreSQL: 문서 상태와 해시"]
+        verify["재현성 검증"]
+        analytics["ClickHouse: 렌더 이벤트"]
+    end
+
+    client --> gateway --> validation
+    validation -->|입력 및 템플릿 해시 기록| evidence
+    evidence -->|QUEUED 저장| metadata
+    validation -->|작업 등록| queue
+    queue --> worker --> renderer
+    renderer -->|생성 결과| worker
+    worker -->|PDF 저장| files
+    worker -->|출력 해시와 상태 갱신| metadata
+    worker -.->|렌더 이벤트| analytics
+    worker -->|완료 알림| webhook
+    metadata --> verify
+    files --> verify
 ```
+
+API는 인증과 검증 후 작업을 큐에 등록하고 먼저 응답한다. 별도 워커가 Papermake에 렌더링을 위임하고 파일을 저장한 뒤 출력 해시와 상태를 기록한다. 재현성 검증은 동일 조건의 재렌더 결과를 기존 출력 해시와 비교하는 별도 작업이며, 문서 생성 때마다 반드시 실행되는 단계는 아니다.
 
 ## 결과와 현재 상태
 
