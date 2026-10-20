@@ -102,14 +102,18 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-    partner["외부 판매처의 구매 정보"] --> method{"API 연동 지원 여부"}
-    method -->|지원| api["API 통신으로 구매 정보 연동"]
-    method -->|미지원| export["구매 내역 파일 내려받기"]
-    export --> upload["관리자 파일 임포트와 형식 검사"]
-    api --> validate["구매 이력 ID로 중복 필터링"]
-    upload --> validate
-    validate --> store["대상 자료와 쿠폰 코드 저장"]
+    partner["외부 판매처 구매 정보"] --> method{"API 연동 지원"}
+    method -->|지원| api["API로 구매 정보 연동"]
+    method -->|미지원| export["구매 내역 엑셀 내려받기"]
+    export --> upload["관리자 파일 업로드"]
+    upload --> preview["미리보기 및 형식 검사"]
+    api --> validate["내부 NestJS 서버: 구매 이력 중복 검사"]
+    preview --> validate
+    validate --> register["내부 서버: 발급 대상 및 쿠폰 코드 등록"]
+    register --> db[("MySQL: 쿠폰 및 구매 이력")]
 ```
+
+구매 정보는 판매처의 API 또는 관리자 파일 임포트로 받아 내부 서버에서 검사하고 등록한다. 쿠폰 템플릿과 이벤트 정책도 내부 서버와 DB에서 관리하며 별도 쿠폰 발급 엔진을 두었다는 의미는 아니다.
 
 ### 쿠폰 안내와 발송 이력
 
