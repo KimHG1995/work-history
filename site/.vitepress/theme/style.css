@@ -12,8 +12,9 @@
 .vp-doc table { width: 100%; font-size: 14px; }
 .vp-doc th { white-space: nowrap; }
 .diagram { margin: 24px 0; padding: 20px; border: 1px solid var(--vp-c-divider); border-radius: 12px; background: var(--vp-c-bg-soft); overflow-x: auto; }
-.diagram-canvas { display: flex; justify-content: center; min-width: 460px; }
-.diagram-canvas svg { height: auto; }
+.diagram-canvas { display: flex; justify-content: center; margin-inline: auto; }
+.diagram-canvas svg { width: 100% !important; max-width: none !important; height: auto; display: block; }
+.diagram-loading { display: grid; min-height: 140px; place-items: center; color: var(--vp-c-text-2); font-size: 14px; }
 .vp-doc .diagram :is(.nodeLabel, .edgeLabel) p {
   margin: 0;
   line-height: inherit;

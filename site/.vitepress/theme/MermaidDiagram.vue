@@ -1,12 +1,15 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
 import { useData } from 'vitepress';
-import { createMermaidConfig } from './mermaid-config.mjs';
-const props = defineProps({ encoded: { type: String, required: true } });
+import { renderMermaidSvg, svgNaturalWidth } from './mermaid-render.mjs';
+const props = defineProps({ encoded: { type: String, required: true }, heading: { type: String, default: '다이어그램' } });
 const { isDark } = useData();
 const source = computed(() => decodeURIComponent(props.encoded));
+const heading = computed(() => decodeURIComponent(props.heading));
 const svg = ref('');
 const failed = ref(false);
+const loading = ref(true);
+const naturalWidth = ref(600);
 const viewer = ref(null);
 const viewport = ref(null);
 const expanded = ref(false);
@@ -16,7 +19,7 @@ function fit() {
   const bounds = viewport.value?.querySelector('svg')?.viewBox.baseVal;
   if (!bounds?.width || !bounds?.height) return;
   const area = viewport.value;
-  fitWidth.value = Math.min(area.clientWidth - 32, (area.clientHeight - 32) * bounds.width / bounds.height);
+  fitWidth.value = Math.max(1, Math.min(area.clientWidth - 32, (area.clientHeight - 32) * bounds.width / bounds.height));
   zoom.value = 1;
 }
 async function openViewer() {
@@ -29,48 +32,72 @@ function closeViewer() { viewer.value?.close(); expanded.value = false; }
 function changeZoom(delta) { zoom.value = Math.min(4, Math.max(0.5, zoom.value + delta)); }
 let mounted = false;
 let revision = 0;
+let resizeObserver;
 async function render() {
   if (!mounted) return;
   const current = ++revision;
+  loading.value = true;
   failed.value = false;
+  svg.value = '';
   try {
     const { default: mermaid } = await import('mermaid');
-    // Mermaid measures labels while rendering. Wait for the Korean font to finish loading.
+    // Measure Korean labels after the browser has loaded the selected fonts.
     if (document.fonts?.ready) await document.fonts.ready;
     if (current !== revision || !mounted) return;
-    mermaid.initialize(createMermaidConfig(isDark.value));
-    const result = await mermaid.render(`diagram-${crypto.randomUUID()}`, source.value);
-    if (current === revision) svg.value = result.svg;
-  } catch {
-    if (current === revision) failed.value = true;
+    const result = await renderMermaidSvg(mermaid, 'diagram-' + crypto.randomUUID(), source.value, isDark.value);
+    if (current !== revision || !mounted) return;
+    naturalWidth.value = svgNaturalWidth(result.svg);
+    svg.value = result.svg;
+  } catch (error) {
+    if (current === revision && mounted) {
+      console.warn('Mermaid diagram rendering failed', error);
+      failed.value = true;
+    }
+  } finally {
+    if (current === revision && mounted) loading.value = false;
   }
 }
-onMounted(() => { mounted = true; render(); });
+onMounted(() => {
+  mounted = true;
+  if (typeof ResizeObserver !== 'undefined' && viewport.value) {
+    resizeObserver = new ResizeObserver(() => {
+      if (expanded.value && zoom.value === 1) fit();
+    });
+    resizeObserver.observe(viewport.value);
+  }
+  render();
+});
 watch([source, isDark], () => { closeViewer(); render(); });
-onBeforeUnmount(() => { mounted = false; revision++; closeViewer(); });
+onBeforeUnmount(() => {
+  mounted = false;
+  revision++;
+  resizeObserver?.disconnect();
+  closeViewer();
+});
 </script>
 
 <template>
-  <figure class="diagram" aria-label="다이어그램">
-    <div v-if="svg && !failed" class="diagram-toolbar">
+  <figure class="diagram" :aria-label="heading">
+    <div v-if="svg && !failed && !loading" class="diagram-toolbar">
       <button class="diagram-expand" type="button" aria-label="크게 보기" @click="openViewer">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5M10.5 7.5v6M7.5 10.5h6" /></svg>
         <span class="diagram-tooltip" aria-hidden="true">크게 보기</span>
       </button>
     </div>
-    <div v-if="svg && !failed && !expanded" class="diagram-canvas" v-html="svg" />
-    <pre v-if="!svg || failed">{{ source }}</pre>
+    <div v-if="loading" class="diagram-loading" role="status">다이어그램을 불러오는 중입니다.</div>
+    <div v-if="svg && !failed && !loading && !expanded" class="diagram-canvas" :style="{ width: naturalWidth + 'px' }" v-html="svg" />
+    <pre v-if="failed">{{ source }}</pre>
     <figcaption v-if="failed">순서도를 표시하지 못해 원문을 보여줍니다.</figcaption>
-    <dialog ref="viewer" class="diagram-viewer" aria-label="다이어그램 크게 보기" @close="expanded = false" @click="event => { if (event.target === viewer) closeViewer(); }">
+    <dialog ref="viewer" class="diagram-viewer" :aria-label="heading + ' 크게 보기'" @close="expanded = false" @click="event => { if (event.target === viewer) closeViewer(); }">
       <div class="viewer-toolbar">
-        <strong>다이어그램</strong>
+        <strong>{{ heading }}</strong>
         <button type="button" aria-label="축소" :disabled="zoom <= 0.5" @click="changeZoom(-0.25)">−</button>
         <output aria-live="polite">{{ Math.round(zoom * 100) }}%</output>
         <button type="button" aria-label="확대" :disabled="zoom >= 4" @click="changeZoom(0.25)">+</button>
         <button type="button" @click="fit">화면 맞춤</button>
         <button type="button" autofocus @click="closeViewer">닫기</button>
       </div>
-      <div ref="viewport" class="viewer-viewport" tabindex="0" aria-label="확대한 다이어그램, 스크롤로 이동">
+      <div ref="viewport" class="viewer-viewport" tabindex="0" :aria-label="heading + ' 확대 화면, 스크롤로 이동'">
         <div v-if="expanded" class="viewer-canvas" :style="{ width: `${fitWidth * zoom}px` }" v-html="svg" />
       </div>
     </dialog>
