@@ -22,10 +22,10 @@
 
 [공공 교육 플랫폼 작업 목록](projects/public-education/README.md)
 
-- [예약 메시지 발송 비용 개선](projects/public-education/reservation-messages.md): LMS 안내 메시지의 알림톡 전환 및 운영 적용
+- [예약 메시지 발송 비용 개선](projects/public-education/reservation-messages.md): LMS 안내 메시지를 알림톡으로 전환해 운영 적용. 76,000건 기준 예상 발송비 171만 원 절감(단가 기준 추산)
 - [출결 상태와 단체 인증 처리 개선](projects/public-education/attendance.md): 출결 변경에 트랜잭션 적용, 단체 인증 병렬 처리와 실패 목록 분리.
-- [예약과 취소의 동시 요청 처리 개선](projects/public-education/reservation.md): 트랜잭션과 DB 잠금으로 예약 상태와 잔여 인원 변경 처리.
-- [운영 데이터 집계와 Google Sheets 자동화](projects/public-education/google-sheets-automation.md): 수동 운영 데이터 정리 업무 분석 및 자동화 제안, Google Sheets 18개 시트의 집계와 이관 자동화
+- [예약과 취소의 동시 요청 처리 개선](projects/public-education/reservation.md): MySQL 트랜잭션과 DB 잠금으로 예약 상태와 잔여 인원 변경 처리
+- [운영 데이터 집계와 Google Sheets 자동화](projects/public-education/google-sheets-automation.md): 수동 운영 데이터 정리 업무 분석 및 자동화 제안, Google Sheets 18개 시트의 집계와 이관 자동화, 약 1천만 건 규모 원천 데이터의 청크 처리
 - [공공 교육 플랫폼 개발과 운영](projects/public-education/operations.md): 교육, 예약, 출결, 관리자 기능의 웹과 서버 개발, 운영 요구사항 반영과 이슈 대응.
 
 ## 에듀테크 기업 계열사
@@ -47,7 +47,7 @@
 
 - [쿠폰 이벤트 시스템](projects/education-services/promotion.md): 여러 판매처의 구매 정보 연동, 템플릿 기반 쿠폰 발급 및 관리자 페이지 풀스택 개발, 서버와 DB 설계
 - [AI 심리검사 서비스 개편](projects/education-services/assessment-renewal.md): Java Spring 서버를 NestJS와 Drizzle 기반 공통 서버로 전환하고 운영 배포
-- [통합 알림 시스템](projects/education-services/notifications.md): 서비스별 알림 발송 기능 통합, 발송 이력 추적 및 배포 자동화 구현과 운영 반영
+- [통합 알림 시스템](projects/education-services/notifications.md): NestJS, AWS SQS, DynamoDB 기반 공통 알림 시스템 구축, 발송 이력 추적 및 운영 배포
 - [계열사 연동 서비스 서버 재구성과 관리자 페이지 개발](projects/education-services/art-service-renewal.md): 기존 기능을 유지하며 Java 서버를 NestJS로 재구성, 인프라 및 배포 자동화와 웹 및 관리자 페이지 개발
 - [개인 고객 서비스 관리자 페이지](projects/education-services/b2c-admin.md): 관련 부서와 요구사항 협의, 관리자 페이지 풀스택 개발 및 기능 추가와 유지보수
 - [개인 고객 수강 앱 서버](projects/education-services/class-app-server.md): 선임 개발자의 DB 및 아키텍처 설계 지원, 신규 서버 개발과 수강 데이터 및 콘텐츠 마이그레이션
@@ -65,7 +65,7 @@
 | 사용 언어 | JavaScript, TypeScript |
 | 코드 관리 | Bitbucket |
 
-수기 관리자 업무의 시스템 전환, 정산과 환불 기능 개발, 데이터 분석 환경 및 배포 및 이벤트 운영 방식 개선
+수기 관리자 업무의 시스템 전환, 정산과 환불 기능 개발, 데이터 분석 환경, 배포 및 이벤트 운영 방식 개선
 [플랫폼 작업 목록](projects/platform-operations/README.md)
 
 - [관리자 페이지 개발과 기능 추가](projects/platform-operations/initial-admin.md): 초기 관리자 페이지 단독 개발 및 재직 기간 중 풀스택 기능 확장
@@ -92,7 +92,7 @@
 ### TTS 발음 교정
 
 - 배경: 원하는 음성 데이터를 직접 추출하기 어려워 텍스트 기반 발음 교정 기능 필요
-- 담당: 발음 교정 서버 로직 및 DB 설계 및 개발 전담
+- 담당: 발음 교정 서버 로직과 DB 설계, 개발 전담
 - 구현: 원본 텍스트와 유사 발음 텍스트를 매핑해 저장하고, 음성 합성 요청 시 매핑 정보를 조회해 입력 텍스트 치환
 - 결과: 발음 교정 규칙의 저장과 재사용 기능 구현, 운영 반영
 
@@ -116,7 +116,7 @@
 
 [loglens API 로그 분석 백엔드](projects/loglens/README.md)
 
-- [API 로그 분석 백엔드 MVP 개발](projects/loglens/mvp.md): ClickHouse Materialized View 기반 API 로그 사전 집계, 트래픽 및 응답시간 및 오류 리포트 및 급증 알림 구현
+- [API 로그 분석 백엔드 MVP 개발](projects/loglens/mvp.md): ClickHouse Materialized View 기반 API 로그 사전 집계, 트래픽, 응답시간, 오류 리포트와 급증 알림 구현
 
 [NetBox Cloud Inventory](projects/netbox-cloud-inventory/README.md)
 
@@ -124,4 +124,4 @@
 
 [HR 계약과 현장 운영 SaaS](projects/hr-saas/README.md)
 
-- [HR 계약과 현장 운영 SaaS MVP 개발](projects/hr-saas/mvp.md): 2025-09 ~ 2025-11 본업과 병행해 관리자 및 사용자 웹, 서버, DB, 인증, 스토리지 및 배포 환경 개발
+- [HR 계약과 현장 운영 SaaS MVP 개발](projects/hr-saas/mvp.md): 2025-09 ~ 2025-11 본업과 병행해 관리자 웹과 사용자 웹, 서버, DB, 인증, 스토리지 및 배포 환경 개발
