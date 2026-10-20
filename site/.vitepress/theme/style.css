@@ -14,6 +14,12 @@
 .diagram { margin: 24px 0; padding: 20px; border: 1px solid var(--vp-c-divider); border-radius: 12px; background: var(--vp-c-bg-soft); overflow-x: auto; }
 .diagram-canvas { display: flex; justify-content: center; min-width: 460px; }
 .diagram-canvas svg { height: auto; }
+.vp-doc .diagram :is(.nodeLabel, .edgeLabel) p {
+  margin: 0;
+  line-height: inherit;
+  word-break: normal;
+  overflow-wrap: normal;
+}
 .diagram pre { font-size: 12px; white-space: pre-wrap; }
 @media (max-width: 640px) {
   .diagram { padding: 12px; }
