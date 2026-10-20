@@ -59,24 +59,35 @@ Cron 실행이나 데이터 처리 중 문제가 발생하면 Slack으로 오류
 
 ## 처리 흐름
 
+일반 데이터는 한 번에 가공해 입력하고, 대용량 원천 데이터는 청크 단위로 조회와 가공, 업로드를 반복한다.
+
 ```mermaid
-flowchart TD
-    schedule["Cron 실행"] --> source["원천 데이터 조회"]
-    source --> size{"데이터 규모 확인"}
-    size -->|일반 데이터| app["애플리케이션 레이어에서 가공"]
-    app --> sheet["Google Sheets에 결과와<br/>필요한 원천 데이터 입력"]
-    size -->|대용량 데이터| chunk["데이터를 청크 단위로 조회"]
-    chunk --> calc["필요한 데이터 선별과 계산"]
-    calc --> upload["가공 결과를 순차적으로 업로드"]
-    upload --> more{"다음 청크가 있는가"}
-    more -->|있음| chunk
+flowchart TB
+    schedule["Cron 실행"] --> source["원천 데이터 조회 준비"]
+    source --> size{"데이터 규모"}
+
+    subgraph normal["일반 데이터 처리"]
+        app["조회 결과 가공"] --> sheet["Google Sheets 입력"]
+    end
+
+    subgraph large["대용량 청크 처리"]
+        chunk["청크 조회"] --> calc["필요 데이터 선별과 계산"]
+        calc --> upload["Google Sheets 순차 업로드"]
+        upload --> more{"다음 청크 존재"}
+        more -->|있음| chunk
+    end
+
+    size -->|일반| app
+    size -->|대용량| chunk
     more -->|없음| done["시트 갱신 완료"]
     sheet --> done
-    schedule -.->|실패| slack["Slack 오류 알림"]
-    source -.->|실패| slack
-    calc -.->|실패| slack
-    upload -.->|실패| slack
+
+    source -.->|오류| slack["Slack 오류 알림"]
+    calc -.->|오류| slack
+    upload -.->|오류| slack
 ```
+
+청크 크기를 특정하거나 별도의 스트리밍 API 및 강제 메모리 해제를 사용했다고 가정하지 않는다. 전체 원천 데이터를 메모리에 적재하지 않고 필요한 데이터를 순차 처리하는 방식이다.
 
 ## 결과와 현재 상태
 
