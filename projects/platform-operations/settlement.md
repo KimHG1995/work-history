@@ -54,7 +54,7 @@ flowchart TD
     work --> confirmation["담당자의 확인 이력"]
     attendance --> verify["기록과 이력으로 실제 근무 여부 검증"]
     confirmation --> verify
-    verify --> timing["정산 기준<br/>관리자 수동 처리 또는<br/>근무 종료 12시간 이후"]
+    verify --> timing["정산 기준<br/>관리자 수동 처리<br/>근무 종료 12시간 이후"]
     timing --> settlement["확인한 근무 내역을 기준으로 예치금 정산"]
 ```
 
