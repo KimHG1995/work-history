@@ -98,26 +98,41 @@ flowchart LR
 
 ## 제휴 쿠폰 처리 흐름
 
+### 구매 정보 등록
+
 ```mermaid
-flowchart TD
+flowchart TB
     partner["외부 판매처의 구매 정보"] --> method{"API 연동 지원 여부"}
     method -->|지원| api["API 통신으로 구매 정보 연동"]
-    method -->|미지원| export["구매 내역을 엑셀로 다운로드"]
-    export --> upload["관리자: 파일 임포트와 형식 검사"]
+    method -->|미지원| export["구매 내역 파일 내려받기"]
+    export --> upload["관리자 파일 임포트와 형식 검사"]
     api --> validate["구매 이력 ID로 중복 필터링"]
     upload --> validate
     validate --> store["대상 자료와 쿠폰 코드 저장"]
-    store --> notice["코드 생성 안내와 설정한 시점의 만료 안내"]
-    notice --> history{"해당 구매 건의 안내 단계 발송 이력이 있는가?"}
+```
+
+### 쿠폰 안내와 발송 이력
+
+```mermaid
+flowchart TB
+    notice["코드 생성 안내 또는 만료 안내 시점"] --> history{"해당 구매 건의 안내 단계 발송 이력이 있는가?"}
     history -->|있음| skip["중복 발송 제외"]
     history -->|없음| talk["템플릿으로 알림톡 발송"]
     talk -->|실패| fallback["문자 메시지로 폴백"]
     talk -->|성공| log["발송 결과와 이력 관리"]
     fallback --> log
-    store --> signup["사용자: 가입과 쿠폰 등록"]
+```
+
+### 쿠폰 사용과 취소 정책
+
+```mermaid
+flowchart TB
+    store["저장된 쿠폰 코드"] --> signup["사용자 가입과 쿠폰 등록"]
     signup --> reserve["수업 예약에서 무료 수강권 사용"]
     store --> policy["취소와 환불 요청을 정책에 따라 처리"]
 ```
+
+구매 정보 등록 이후 안내 발송, 쿠폰 사용과 취소 정책은 각각 독립된 흐름으로 표시했습니다.
 
 ## 결과와 현재 상태
 

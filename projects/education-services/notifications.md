@@ -123,8 +123,10 @@ SET notification:dedup:<hash> <request-token> NX EX <ttl-seconds>
 
 ## 시스템 구조와 발송 흐름
 
+### 요청부터 발송까지
+
 ```mermaid
-flowchart TD
+flowchart TB
     request["서비스의 발송 요청"] --> api["API 서버"]
     api --> tq["SQS: 메시지 생성 대기"]
     tq --> template["템플릿 서버: 메시지 준비"]
@@ -132,16 +134,26 @@ flowchart TD
     sq --> sender["발송 서버"]
     sender --> provider["외부 메시지 서비스"]
     provider --> user["사용자에게 전달"]
-    api -->|대량 발송 데이터 저장| s3["S3"]
-    s3 -->|발송 데이터 조회| template
-    s3 -->|발송용 데이터 조회| sender
-    api -->|요청 기록| db["DynamoDB"]
+```
+
+### 저장과 결과 확인
+
+```mermaid
+flowchart TB
+    api["API 서버"] -->|대량 발송 데이터 저장| s3[("S3")]
+    s3 -->|발송 데이터 조회| template["템플릿 서버"]
+    s3 -->|발송 데이터 조회| sender["발송 서버"]
+
+    api -->|요청 기록| db[("DynamoDB")]
     template -->|나눠 처리한 요청 기록| db
     sender -->|발송 요청 결과 기록| db
-    provider -->|전송 결과 회신| ack["결과 확인 서버"]
+
+    provider["외부 메시지 서비스"] -->|전송 결과 회신| ack["결과 확인 서버"]
     ack -->|전송 결과 조회| provider
-    ack -->|전송 결과 기록| db
+    ack -->|최종 전송 결과 기록| db
 ```
+
+발송 처리 순서와 데이터 저장 및 결과 확인 관계를 나눠 표시했습니다. 같은 이름의 서버는 두 그림에서 동일한 구성요소입니다.
 
 ## 결과와 현재 상태
 
