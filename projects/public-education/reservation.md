@@ -35,15 +35,31 @@
 
 ## 처리 흐름
 
+예약과 취소 모두 같은 트랜잭션 안에서 상태와 잔여 인원을 변경한다. 성공하면 확정하고, 검증 실패나 예외가 발생하면 변경을 취소한다.
+
 ```mermaid
-flowchart TD
-    request["예약 또는 취소 요청"] --> tx["트랜잭션 시작, 변경 대상 동시 접근 제어"]
-    tx --> check["예약 가능 여부와 현재 상태 확인"]
-    check --> update["예약 상태와 잔여 인원 변경"]
-    update --> result{"처리 성공 여부"}
-    result -->|성공| commit["변경 확정"]
-    result -->|실패 또는 예외| rollback["변경 취소"]
+sequenceDiagram
+    autonumber
+    actor user as 요청자
+    participant api as NestJS API
+    participant db as MySQL
+
+    user->>api: 예약 또는 취소 요청
+    api->>db: 트랜잭션 시작
+    api->>db: 변경 대상 잠금 및 상태 조회
+    Note over db: 동시 변경을 제어
+    api->>api: 예약 가능 여부와 현재 상태 검증
+    alt 검증 통과
+        api->>db: 예약 상태와 잔여 인원 변경
+        api->>db: 커밋
+        api-->>user: 처리 결과 응답
+    else 검증 실패 또는 예외
+        api->>db: 롤백
+        api-->>user: 실패 결과 응답
+    end
 ```
+
+실제 잠금 대상과 SQL 구문은 이 문서에서 특정하지 않는다. 핵심은 동시 변경을 제어하고 예약 상태와 잔여 인원을 같은 트랜잭션에서 처리하는 것이다.
 
 ## 결과와 현재 상태
 
