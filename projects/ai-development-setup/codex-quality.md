@@ -70,21 +70,18 @@ AI가 요청 범위를 벗어나 수정하거나, 검증을 생략하고 완료�
 
 ```mermaid
 flowchart TD
-    target["대상 프로젝트 확인"] --> detect["검사 명령 탐색 및 설정 미리보기"]
+    target["대상 프로젝트 확인"] --> detect["검사 명령 탐색과<br/>설정 미리보기"]
     detect --> apply["충돌 확인 후 설정 적용"]
     apply --> task["요구사항과 완료 조건 확인"]
     task --> implement["요청 범위 안에서 개발"]
-    implement --> plan["변경 범위 기반 검사 선택"]
-    plan --> run["검사 실행 및 변경 내용 검토"]
-    run --> decision{"수정할 문제 존재"}
-    decision -->|있음| fix["문제 수정"]
-    fix --> retry{"재검증 가능한 상태"}
-    retry -->|예| plan
-    retry -->|동일 실패 반복| blocked["원인과 미해결 항목 보고"]
-    decision -->|없음| report["검증 결과 보고"]
+    implement --> plan["변경 범위에 맞는 검사 선택"]
+    plan --> run["검사 실행과 변경 내용 검토"]
+    run --> decision{"수정할 문제 확인"}
+    decision -->|있음| fix["수정 후 관련 검사 재실행"]
+    fix -->|관련 검사 재실행| run
+    decision -->|없음| report["변경 및 검증 결과 보고"]
+    fix -.->|동일 실패 반복| blocked["같은 실패가 반복되면 원인 보고 후 중단"]
 ```
-
-Codex의 스킬과 검사 도구가 작업 기준과 검사 실행을 안내하는 구조다. 모든 수정 및 커밋을 무조건 자동 수행하는 별도 엔진이 아니며, 반복 실패 시에는 원인을 보고하고 중단한다.
 
 ## 결과와 현재 상태
 
