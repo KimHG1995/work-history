@@ -5,6 +5,6 @@ export function createMermaidConfig(isDark) {
     securityLevel: 'strict',
     theme: isDark ? 'dark' : 'neutral',
     fontFamily: "'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif",
-    flowchart: { htmlLabels: false }
+    htmlLabels: false
   };
 }

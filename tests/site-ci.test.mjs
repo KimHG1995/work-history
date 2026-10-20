@@ -48,6 +48,22 @@ test('worker-only code does not build the site; browser-shared code does', () =>
   assert.equal(classifyChanges(['worker/docs-version.mjs']).site, true);
 });
 
+test('Mermaid renderer changes verify real browser SVG output after building', () => {
+  for (const file of [
+    'site/.vitepress/theme/MermaidDiagram.vue',
+    'site/.vitepress/theme/mermaid-config.mjs',
+    'site/.vitepress/theme/style.css',
+    'scripts/verify-mermaid-render.mjs'
+  ]) {
+    const impact = classifyChanges([file]);
+    assert.equal(impact.mermaid, true, file);
+    const commands = checkCommands(impact).map(command => command.join(' '));
+    assert.deepEqual(commands.slice(-2), ['npm run docs:build', 'node scripts/verify-mermaid-render.mjs']);
+  }
+  const markdownOnly = checkCommands(classifyChanges(['docs/guide.md']));
+  assert.ok(!markdownOnly.some(command => command.join(' ') === 'node scripts/verify-mermaid-render.mjs'));
+});
+
 test('test-only changes never deploy or build the site', () => {
   for (const file of ['tests/site-ci.test.mjs', 'tests/chat.test.mjs', 'tests/new.test.mjs', 'tests/worker.integration.mjs']) {
     const impact = classifyChanges([file]);

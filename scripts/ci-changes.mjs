@@ -45,6 +45,8 @@ export function classifyChanges(paths) {
       set('docsCheck', 'unit');
     } else if (file === 'scripts/validate-mermaid.mjs') {
       set('docsCheck', 'mermaid', 'unit');
+    } else if (file === 'scripts/verify-mermaid-render.mjs') {
+      set('site', 'build', 'unit', 'mermaid');
     } else if (ciScripts.has(file)) {
       set('docsCheck', 'build', 'unit', 'workerTest', 'mermaid');
     } else if (file.startsWith('.github/')) {
@@ -52,6 +54,7 @@ export function classifyChanges(paths) {
       if (file === '.github/workflows/pages.yml') set('site');
     } else if (file.startsWith('site/') || file === 'scripts/secure-site.mjs') {
       set('site', 'build', 'unit');
+      if (['site/.vitepress/theme/MermaidDiagram.vue', 'site/.vitepress/theme/mermaid-config.mjs', 'site/.vitepress/theme/style.css'].includes(file)) set('mermaid');
     } else if (file === 'security/domain-root/robots.txt') {
       set('docsCheck', 'site', 'build', 'unit');
     } else {
