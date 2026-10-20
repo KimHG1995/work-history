@@ -74,12 +74,12 @@ flowchart TD
     detect --> apply["충돌 확인 후 설정 적용"]
     apply --> task["요구사항과 완료 조건 확인"]
     task --> implement["요청 범위 안에서 개발"]
-    implement --> plan["영향 범위에 맞는 검사 선택"]
+    implement --> plan["변경 범위에 맞는 검사 선택"]
     plan --> run["검사 실행과 변경 내용 검토"]
     run --> decision{"수정할 문제 확인"}
     decision -->|있음| fix["수정 후 관련 검사 재실행"]
     fix -->|관련 검사 재실행| run
-    decision -->|없음| report["결과 보고"]
+    decision -->|없음| report["변경 및 검증 결과 보고"]
     fix -.->|동일 실패 반복| blocked["같은 실패가 반복되면 원인 보고 후 중단"]
 ```
 

@@ -131,15 +131,15 @@ Next.js 15 기반 Admin에서 다음 운영 기능을 구현했습니다.
 flowchart TD
     client["업무 시스템"] --> gateway["NestJS API Gateway"]
     gateway --> auth["인증, 테넌트, 멱등성<br/>입력 검증"]
-    auth --> queue["BullMQ 렌더 큐"]
+    auth --> queue["QUEUED 저장 및 BullMQ 작업 등록"]
     queue --> worker["Render Worker"]
     worker --> renderer["Papermake / Typst 렌더"]
     renderer --> storage["S3 / MinIO<br/>PDF 저장"]
-    worker -.->|증적 저장| evidence["입력, 템플릿, 결과 해시 증적"]
+    worker -.->|출력 해시와 상태 갱신| evidence["입력, 템플릿, 출력 해시 증적"]
     worker -.->|렌더 이벤트| analytics["ClickHouse 렌더 이벤트"]
     worker -.->|완료 결과| webhook["서명 Webhook"]
     storage --> signed["Signed URL"]
-    evidence --> verify["재현성 검증"]
+    evidence -.->|별도 요청 시| verify["동일 조건 재렌더 및 해시 비교"]
 ```
 
 ## 결과와 현재 상태

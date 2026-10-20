@@ -53,9 +53,11 @@ flowchart TB
 ```mermaid
 flowchart TB
     group["수기 단체 인증 요청"] --> parallel["Promise.allSettled로 병렬 처리"]
-    parallel --> success["정상 처리 결과"]
-    parallel --> failed["정보 누락과 검증 실패 목록"]
-    failed --> operator["운영자 확인 후 후속 처리"]
+    parallel --> success["성공 건 결과"]
+    parallel --> failed["정보 누락 및 검증 실패 건"]
+    success --> result["성공과 실패 결과 구분"]
+    failed --> result
+    result --> operator["운영자 실패 목록 확인 및 후속 처리"]
 ```
 
 ## 결과와 현재 상태

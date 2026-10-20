@@ -65,9 +65,9 @@ flowchart TD
     source --> size{"데이터 규모 확인"}
     size -->|일반 데이터| app["애플리케이션 레이어에서 가공"]
     app --> sheet["Google Sheets에 결과와<br/>필요한 원천 데이터 입력"]
-    size -->|대용량 데이터| chunk["데이터를 청크 단위로 조회"]
-    chunk --> calc["필요한 데이터 선별과 계산"]
-    calc --> upload["가공 결과를 순차적으로 업로드"]
+    size -->|대용량 데이터| chunk["원천 데이터 청크 조회"]
+    chunk --> calc["필요 데이터 선별 및 계산"]
+    calc --> upload["결과와 필요한 원천 데이터 업로드"]
     upload --> more{"다음 청크가 있는가"}
     more -->|있음| chunk
     more -->|없음| done["시트 갱신 완료"]

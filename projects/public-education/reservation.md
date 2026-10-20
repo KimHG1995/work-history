@@ -37,12 +37,12 @@
 
 ```mermaid
 flowchart TD
-    request["예약 또는 취소 요청"] --> tx["트랜잭션 시작, 변경 대상 동시 접근 제어"]
+    request["예약 또는 취소 요청"] --> tx["트랜잭션 시작 및 DB 잠금 적용"]
     tx --> check["예약 가능 여부와 현재 상태 확인"]
     check --> update["예약 상태와 잔여 인원 변경"]
     update --> result{"처리 성공 여부"}
-    result -->|성공| commit["변경 확정"]
-    result -->|실패 또는 예외| rollback["변경 취소"]
+    result -->|성공| commit["트랜잭션 커밋"]
+    result -->|실패 또는 예외| rollback["트랜잭션 롤백"]
 ```
 
 ## 결과와 현재 상태

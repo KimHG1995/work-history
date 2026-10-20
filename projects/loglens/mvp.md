@@ -88,11 +88,11 @@ flowchart TD
     service["자체 또는 외부 서비스<br/>API 로그"] --> sink["LogSink"]
     sink --> buffer["인메모리 버퍼"]
     buffer --> batch["배치 단위 ClickHouse 저장"]
-    batch --> raw["raw_events"]
+    batch --> raw["ClickHouse raw_events"]
     raw -->|Materialized View| traffic["분, 시간 트래픽 집계"]
     raw -->|Materialized View| latency["endpoint 응답시간 집계"]
     raw -->|Materialized View| error["에러 집계"]
-    traffic --> report["리포트 API"]
+    traffic --> report["집계 테이블 기반 리포트 API"]
     latency --> report
     error --> report
     traffic --> detect["매분 급증 탐지"]

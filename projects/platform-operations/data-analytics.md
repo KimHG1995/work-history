@@ -52,7 +52,7 @@ flowchart TD
     raw --> catalog["Glue에 조회용 데이터 정보 구성"]
     catalog --> query["Athena 쿼리로 원본 데이터 조회"]
     query --> discussion["데이터를 근거로 분석과 논의"]
-    schedule --> aggregate["대시보드 데이터 가공<br/>일, 주, 월, 년별 집계"]
+    schedule --> aggregate["대시보드용 일, 주, 월, 년별 사전 집계"]
     aggregate --> db["대시보드용 집계 결과를 DB에 저장"]
     db --> dashboard["가공 데이터 대시보드에서 저장된 결과 조회"]
 ```

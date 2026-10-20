@@ -45,7 +45,7 @@
 ```mermaid
 flowchart TD
     old["이벤트마다 광고, 푸시, 지표<br/>코드를 따로 작성"] --> common["반복되는 기능을 공통 모듈로 정리"]
-    common --> rules["모듈의 처리 방식을 일관되게 맞춤"]
+    common --> rules["광고, 푸시, 지표 처리 방식 통일"]
     rules --> reuse["비슷한 이벤트에 공통 코드 재사용"]
     reuse --> event["기업 고객 광고와<br/>정기 재이용 이벤트 구성"]
 ```
