@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFile, spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
@@ -50,20 +50,43 @@ try {
     server.once('error', reject);
     server.listen(0, '127.0.0.1', resolve);
   });
-  const url = 'http://127.0.0.1:' + server.address().port + base + 'projects/hr-saas/mvp';
-  const { stdout } = await execFileAsync(findChrome(), [
-    '--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
-    '--disable-background-networking', '--user-data-dir=' + profile,
-    '--window-size=1440,900', '--virtual-time-budget=20000', '--dump-dom', url
-  ], { timeout: 60000, maxBuffer: 16 * 1024 * 1024 });
-  const diagrams = [...stdout.matchAll(/<div\b[^>]*class="[^"]*\bdiagram-canvas\b[^"]*"[^>]*>([\s\S]*?)<\/svg>\s*<\/div>/g)]
-    .map(match => match[1]);
-  assert.equal(diagrams.length, 3, 'Expected three rendered HR SaaS diagrams, received ' + diagrams.length);
-  for (const [index, diagram] of diagrams.entries()) {
-    assert.doesNotMatch(diagram, /<foreignObject\b/i, 'Diagram ' + (index + 1) + ' still uses HTML labels');
-    assert.match(diagram, /<text\b/i, 'Diagram ' + (index + 1) + ' has no SVG text labels');
+  // All published Mermaid blocks must render, not only the HR SaaS sample.
+  async function findPages(dir = path.resolve(import.meta.dirname, '../site/content')) {
+    const result = [];
+    for (const item of await readdir(dir, { withFileTypes: true })) {
+      const file = path.join(dir, item.name);
+      if (item.isDirectory()) result.push(...await findPages(file));
+      else if (item.name.endsWith('.md')) {
+        const content = await readFile(file, 'utf8');
+        const count = [...content.matchAll(/^```mermaid\s*$/gm)].length;
+        if (count) {
+          const relative = path.relative(path.resolve(import.meta.dirname, '../site/content'), file).replaceAll(path.sep, '/');
+          result.push({ route: relative.replace(/\.md$/, '').replace(/\/index$/, '/').replace(/^index$/, ''), count });
+        }
+      }
+    }
+    return result;
   }
-  console.log('Mermaid browser render verified: ' + diagrams.length + ' diagrams, SVG text labels, no foreignObject.');
+  const pages = await findPages();
+  assert.ok(pages.length > 0, 'No Mermaid pages were discovered');
+  let total = 0;
+  for (const page of pages) {
+    const url = 'http://127.0.0.1:' + server.address().port + base + page.route;
+    const { stdout } = await execFileAsync(findChrome(), [
+      '--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
+      '--disable-background-networking', '--user-data-dir=' + profile,
+      '--window-size=1440,900', '--virtual-time-budget=20000', '--dump-dom', url
+    ], { timeout: 60000, maxBuffer: 16 * 1024 * 1024 });
+    const diagrams = [...stdout.matchAll(/<div\b[^>]*class="[^"]*\bdiagram-canvas\b[^"]*"[^>]*>([\s\S]*?)<\/svg>\s*<\/div>/g)]
+      .map(match => match[1]);
+    assert.equal(diagrams.length, page.count, page.route + ': expected ' + page.count + ' diagrams, got ' + diagrams.length);
+    for (const [index, diagram] of diagrams.entries()) {
+      assert.doesNotMatch(diagram, /<foreignObject\b/i, page.route + '#' + (index + 1) + ' has HTML labels');
+      assert.match(diagram, /<text\b/i, page.route + '#' + (index + 1) + ' has no SVG text');
+    }
+    total += diagrams.length;
+  }
+  console.log('Mermaid Chrome verification: ' + total + ' SVG text diagrams across ' + pages.length + ' public pages.');
 } finally {
   server.closeAllConnections();
   await new Promise(resolve => server.close(resolve));
