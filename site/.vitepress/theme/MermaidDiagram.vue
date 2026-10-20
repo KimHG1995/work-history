@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
 import { useData } from 'vitepress';
+import { createMermaidConfig } from './mermaid-config.mjs';
 const props = defineProps({ encoded: { type: String, required: true } });
 const { isDark } = useData();
 const source = computed(() => decodeURIComponent(props.encoded));
@@ -34,7 +35,10 @@ async function render() {
   failed.value = false;
   try {
     const { default: mermaid } = await import('mermaid');
-    mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: isDark.value ? 'dark' : 'neutral', fontFamily: 'sans-serif' });
+    // Mermaid measures labels while rendering. Wait for the Korean font to finish loading.
+    if (document.fonts?.ready) await document.fonts.ready;
+    if (current !== revision || !mounted) return;
+    mermaid.initialize(createMermaidConfig(isDark.value));
     const result = await mermaid.render(`diagram-${crypto.randomUUID()}`, source.value);
     if (current === revision) svg.value = result.svg;
   } catch {
@@ -47,7 +51,7 @@ onBeforeUnmount(() => { mounted = false; revision++; closeViewer(); });
 </script>
 
 <template>
-  <figure class="diagram" aria-label="업무 처리 순서도">
+  <figure class="diagram" aria-label="다이어그램">
     <div v-if="svg && !failed" class="diagram-toolbar">
       <button class="diagram-expand" type="button" aria-label="크게 보기" @click="openViewer">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5M10.5 7.5v6M7.5 10.5h6" /></svg>
@@ -57,16 +61,16 @@ onBeforeUnmount(() => { mounted = false; revision++; closeViewer(); });
     <div v-if="svg && !failed && !expanded" class="diagram-canvas" v-html="svg" />
     <pre v-if="!svg || failed">{{ source }}</pre>
     <figcaption v-if="failed">순서도를 표시하지 못해 원문을 보여줍니다.</figcaption>
-    <dialog ref="viewer" class="diagram-viewer" aria-label="순서도 크게 보기" @close="expanded = false" @click="event => { if (event.target === viewer) closeViewer(); }">
+    <dialog ref="viewer" class="diagram-viewer" aria-label="다이어그램 크게 보기" @close="expanded = false" @click="event => { if (event.target === viewer) closeViewer(); }">
       <div class="viewer-toolbar">
-        <strong>순서도</strong>
+        <strong>다이어그램</strong>
         <button type="button" aria-label="축소" :disabled="zoom <= 0.5" @click="changeZoom(-0.25)">−</button>
         <output aria-live="polite">{{ Math.round(zoom * 100) }}%</output>
         <button type="button" aria-label="확대" :disabled="zoom >= 4" @click="changeZoom(0.25)">+</button>
         <button type="button" @click="fit">화면 맞춤</button>
         <button type="button" autofocus @click="closeViewer">닫기</button>
       </div>
-      <div ref="viewport" class="viewer-viewport" tabindex="0" aria-label="확대한 순서도, 스크롤로 이동">
+      <div ref="viewport" class="viewer-viewport" tabindex="0" aria-label="확대한 다이어그램, 스크롤로 이동">
         <div v-if="expanded" class="viewer-canvas" :style="{ width: `${fitWidth * zoom}px` }" v-html="svg" />
       </div>
     </dialog>

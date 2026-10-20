@@ -14,6 +14,7 @@ export function checkCommands(impact) {
   if (impact.unit) commands.push(['npm', 'test']);
   if (impact.workerTest) commands.push(['npm', 'run', 'test:worker']);
   if (impact.build) commands.push(['npm', 'run', 'docs:build']);
+  if (impact.build && impact.mermaid) commands.push(['node', 'scripts/verify-mermaid-render.mjs']);
   return commands;
 }
 
@@ -22,8 +23,9 @@ export function runChecks(impact, execute = (command, buildEnv) => execFileSync(
 }), buildEnv) {
   for (const command of checkCommands(impact)) {
     console.log(`Check: ${command.join(' ')}`);
-    // Only the one final build receives production target settings.
-    execute(command, command.join(' ') === 'npm run docs:build' ? buildEnv : undefined);
+    // The browser check must serve the same base path as the generated site.
+    const siteCommand = ['npm run docs:build', 'node scripts/verify-mermaid-render.mjs'].includes(command.join(' '));
+    execute(command, siteCommand ? buildEnv : undefined);
   }
 }
 

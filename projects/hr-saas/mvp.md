@@ -36,6 +36,7 @@ HR 서비스 PoC 개발을 위해 시작했습니다.
 | 스토리지 | Supabase Storage, S3 방식 파일 저장 |
 | 배포 | Vercel, Render |
 | 도메인과 라우팅 | Cloudflare |
+| 전자계약 연동 | Glosign |
 
 ## 어떻게 해결했는지
 
@@ -113,16 +114,46 @@ Next.js 웹은 Vercel에 배포했습니다.
 ## 서비스 구성
 
 ```mermaid
-flowchart TD
-    admin["관리자 웹: Next.js / Vercel"] --> server["앱 서버: NestJS / Render"]
-    user["사용자 웹: Next.js / Vercel"] --> server
-    route["Cloudflare: 도메인과 라우팅"] --> server
-    auth["사용자 인증: Supabase Auth"] --- server
-    server --> access["회사와 역할별 접근 범위 확인"]
-    access --> domain["계약, 협력사, 출퇴근, 급여, 작업 보고"]
-    domain --> db["Prisma / Supabase PostgreSQL"]
-    domain --> files["계약 문서와 보고 파일: Supabase Storage"]
+flowchart TB
+    cloudflare["Cloudflare<br/>도메인과 라우팅"]
+
+    subgraph vercel["Vercel / Next.js"]
+        direction LR
+        admin["관리자 웹"]
+        client["사용자 웹"]
+    end
+
+    subgraph render["Render / NestJS API"]
+        direction TB
+        controller["Controller / DTO"]
+        access["인증과 회사별 권한 확인"]
+        service["Service<br/>계약, 협력사, 출퇴근, 급여, 작업 보고"]
+        repository["Repository / Prisma"]
+        controller --> access --> service --> repository
+    end
+
+    subgraph supabase["Supabase"]
+        direction LR
+        auth["Auth"]
+        db[("PostgreSQL")]
+        storage[("Storage")]
+    end
+
+    glosign["Glosign<br/>전자계약 API"]
+
+    cloudflare -.->|도메인 연결| admin
+    cloudflare -.-> client
+    cloudflare -.-> controller
+    admin -->|API 요청| controller
+    client -->|API 요청| controller
+    access --- auth
+    repository --> db
+    service --> storage
+    service --> glosign
 ```
+
+점선은 Cloudflare의 도메인 연결 관계를 뜻하며 API 요청 경로가 아닙니다.
+Supabase Auth는 인증 연동 관계만 표시했습니다.
 
 ## 계약 처리 흐름
 
