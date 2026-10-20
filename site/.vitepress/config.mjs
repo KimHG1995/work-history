@@ -97,7 +97,15 @@ export default defineConfig({
       const original = md.renderer.rules.fence;
       md.renderer.rules.fence = (tokens, index, options, env, self) => {
         if (tokens[index].info.trim() === 'mermaid') {
-          return `<MermaidDiagram encoded="${encodeURIComponent(tokens[index].content)}" />`;
+          // Give every diagram the nearest Markdown heading as its accessible name.
+          let heading = '다이어그램';
+          for (let i = index - 1; i > 0; i--) {
+            if (tokens[i].type === 'inline' && tokens[i - 1]?.type === 'heading_open') {
+              heading = tokens[i].content.replace(/[`*_]/g, '').trim() || heading;
+              break;
+            }
+          }
+          return `<MermaidDiagram encoded="${encodeURIComponent(tokens[index].content)}" heading="${encodeURIComponent(heading)}" />`;
         }
         return original(tokens, index, options, env, self);
       };

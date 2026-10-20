@@ -54,7 +54,7 @@ export function classifyChanges(paths) {
       if (file === '.github/workflows/pages.yml') set('site');
     } else if (file.startsWith('site/') || file === 'scripts/secure-site.mjs') {
       set('site', 'build', 'unit');
-      if (['site/.vitepress/theme/MermaidDiagram.vue', 'site/.vitepress/theme/mermaid-config.mjs', 'site/.vitepress/theme/style.css'].includes(file)) set('mermaid');
+      if (['site/.vitepress/config.mjs', 'site/.vitepress/theme/MermaidDiagram.vue', 'site/.vitepress/theme/mermaid-config.mjs', 'site/.vitepress/theme/mermaid-render.mjs', 'site/.vitepress/theme/style.css'].includes(file)) set('mermaid');
     } else if (file === 'security/domain-root/robots.txt') {
       set('docsCheck', 'site', 'build', 'unit');
     } else {
