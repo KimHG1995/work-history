@@ -140,13 +140,24 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-    api["API 서버"]
-    s3[("S3")]
-    db[("DynamoDB")]
-    template["템플릿 서버"]
-    sender["발송 서버"]
-    provider["외부 메시지 서비스"]
-    ack["결과 확인 서버"]
+    subgraph core["내부 발송 처리"]
+        direction LR
+        api["API 서버"]
+        template["템플릿 서버"]
+        sender["발송 서버"]
+    end
+
+    subgraph storage["데이터 저장"]
+        direction LR
+        s3[("S3")]
+        db[("DynamoDB")]
+    end
+
+    subgraph result["외부 발송 및 결과 확인"]
+        direction LR
+        provider["외부 메시지 서비스"]
+        ack["결과 확인 서버"]
+    end
 
     api -->|원본 저장| s3
     api -->|요청 기록| db
@@ -154,15 +165,15 @@ flowchart TB
     s3 -->|발송 데이터 조회| sender
     template -->|분할 요청 기록| db
     sender -->|발송 요청| provider
-    sender -->|API 요청 결과 기록| db
-    provider -->|전송 결과 웹훅| ack
+    sender -->|API 결과 기록| db
+    provider -->|결과 웹훅| ack
     ack -.->|결과 조회| provider
     ack -->|최종 결과 기록| db
 ```
 
-요청 기록과 대량 데이터 저장, 발송 API 결과와 최종 전송 결과를 각각 구분했다. 결과 확인 서버는 내부 구성요소이며 외부 메시지 서비스의 결과를 별도로 기록한다.
+요청 기록과 대량 데이터 저장, 발송 API 결과와 최종 전송 결과를 구분했다. 발송 처리를 수행하는 내부 서버와 데이터 저장소를 역할별로 묶고, 외부 메시지 서비스와 내부 결과 확인 서버의 연결 관계를 표시했다.
 
-실선은 요청, 조회, 저장 및 결과 전달 관계를 나타내고 점선은 결과 확인 서버가 외부 서비스의 전송 결과를 조회하는 관계를 나타낸다. 이 그림은 구성요소 간 관계를 나타내며 엄격한 실행 순서를 의미하지 않는다. 외부 발송 API 요청 결과와 최종 전송 결과는 별도로 기록한다.
+실선은 요청, 조회, 저장 및 결과 전달 관계를 나타내고 점선은 결과 확인 서버가 외부 서비스의 전송 결과를 조회하는 관계를 나타낸다. 이 그림은 구성요소 간 관계를 나타내며 엄격한 실행 순서를 의미하지 않는다.
 
 ## 결과와 현재 상태
 
