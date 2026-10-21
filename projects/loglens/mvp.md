@@ -108,19 +108,27 @@ flowchart TB
 ### 리포트 조회와 급증 탐지
 
 ```mermaid
-flowchart TB
-    traffic["분, 시간 트래픽 집계"]
-    report["집계 테이블 기반 리포트 API"]
-    latency["endpoint 응답시간 집계"]
-    error["에러 집계"]
-    detect["매분 급증 탐지"]
-    history["탐지 이력 저장"]
-    slack["Slack 알림"]
+flowchart LR
+    subgraph Collection["집계 테이블"]
+        latency["endpoint 응답시간 집계"]
+        traffic["분, 시간 트래픽 집계"]
+        error["에러 집계"]
+    end
 
-    traffic --> report
+    subgraph Core["조회와 탐지"]
+        report["집계 테이블 기반 리포트 API"]
+        detect["매분 급증 탐지"]
+    end
+
+    subgraph Action["결과와 알림"]
+        history["탐지 이력 저장"]
+        slack["Slack 알림"]
+    end
+
     latency --> report
-    error --> report
+    traffic --> report
     traffic --> detect
+    error --> report
     error --> detect
     detect --> history
     detect --> slack
