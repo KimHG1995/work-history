@@ -13,7 +13,7 @@
 
 ## 왜 시작했는지
 
-- 시작한 이유: 운영에 필요한 내용을 DB에서 직접 수정하고 있었다.
+- 시작한 이유: 기존에는 요청을 받으면 운영에 필요한 내용을 DB에서 직접 수정했다.
 - 해결할 문제: 관련 부서가 필요한 작업을 관리자 화면에서 처리할 수 있게 해야 했다.
 
 ## 역할 분담
@@ -43,11 +43,10 @@
 
 ```mermaid
 flowchart TD
-    manual["필요한 내용을 DB에서 직접 수정"] --> discuss["관련 부서와 필요한 기능 논의"]
-    discuss --> develop["본인이 DB, 서버, 관리자 화면 개발"]
+    discuss["관련 부서와 필요한 기능 논의"] --> develop["DB, 서버, 관리자 화면 개발"]
     develop --> operation["관리자 페이지를 실제 운영에 사용"]
-    operation --> request["추가 기능 필요"]
-    request --> add["관리자 화면, 서버, DB 개발"]
+    operation --> request{"추가 기능 필요?"}
+    request -->|예| add["관리자 화면, 서버, DB 추가 개발"]
     add --> operation
 ```
 

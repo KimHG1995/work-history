@@ -77,12 +77,21 @@ flowchart TD
 
 ```mermaid
 flowchart TB
-    toss["토스 처리 결과"] --> webhook["웹훅 수신"]
-    portone["포트원 처리 결과"] --> response["API 응답 수신"]
+    subgraph Toss["토스 연동"]
+        toss["토스 처리 결과"] --> webhook["웹훅 수신"]
+    end
+
+    subgraph PortOne["포트원 연동"]
+        portone["포트원 처리 결과"] --> response["API 응답 수신"]
+    end
+
+    subgraph Cron["결과 재확인"]
+        cron["이용량이 적은 시간대에 크론잡 실행"] --> verify["처리 결과 재검증"]
+        verify --> failed["응답 실패 건 확인과 처리"]
+    end
+
     webhook --> update["내부 정보에 처리 결과 반영"]
     response --> update
-    cron["이용량이 적은 시간대에 크론잡 실행"] --> verify["처리 결과 재검증"]
-    verify --> failed["응답 실패 건 확인과 처리"]
     failed --> update
 ```
 

@@ -43,6 +43,7 @@ flowchart TB
     request["운영 요구사항 또는 이슈 확인"] --> develop["웹과 서버 기능 개발 및 개선"]
     develop --> service["서비스 반영"]
     service --> operation["유지보수와 운영 이슈 대응"]
+    operation -.->|새로운 이슈 발생| request
 ```
 
 ## 결과와 현재 상태
