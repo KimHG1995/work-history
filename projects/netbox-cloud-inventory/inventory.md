@@ -110,19 +110,43 @@ File Parser와 향후 API Collector가 같은 `ResourceBatch`를 출력하도록
 
 ## 처리 흐름
 
+### 파일 수집과 Preview 생성
+
 ```mermaid
-flowchart TD
-    export["AWS 또는 NCP<br/>Export 파일"] --> validate["파일 검증과 Artifact 저장"]
-    validate --> parser["공급자별 Parser"]
-    parser --> batch["공통 ResourceBatch"]
-    batch --> current["현재 NetBox 자산 조회"]
-    current --> diff["생성, 변경, 경고, 오류 비교"]
-    diff --> preview["Preview와<br/>Batch hash 저장"]
-    preview --> approve["사용자 확인 후 Apply"]
-    approve --> worker["Worker 단계별 반영"]
-    worker --> netbox["NetBox Upsert<br/>관계 연결"]
-    netbox --> history["실행 결과와 checkpoint 기록"]
+flowchart TB
+    export["AWS 또는 NCP<br/>Export 파일"]
+    validate["파일 검증과 Artifact 저장"]
+    parser["공급자별 Parser"]
+    batch["공통 ResourceBatch"]
+    current["현재 NetBox 자산 조회"]
+    diff["생성, 변경, 경고, 오류 비교"]
+    preview["Preview와<br/>Batch hash 저장"]
+
+    export --> validate
+    validate --> parser
+    parser --> batch
+    batch --> current
+    current --> diff
+    diff --> preview
 ```
+
+### 승인 후 Apply와 결과 기록
+
+```mermaid
+flowchart TB
+    preview["Preview와<br/>Batch hash 저장"]
+    approve["사용자 확인 후 Apply"]
+    worker["Worker 단계별 반영"]
+    netbox["NetBox Upsert<br/>관계 연결"]
+    history["실행 결과와 checkpoint 기록"]
+
+    preview --> approve
+    approve --> worker
+    worker --> netbox
+    netbox --> history
+```
+
+첫 그림에서 저장한 Preview와 Batch hash를 사용자가 확인한 뒤 Apply로 이어진다. 두 그림의 Preview는 동일한 검토 결과다.
 
 ## 결과와 현재 상태
 

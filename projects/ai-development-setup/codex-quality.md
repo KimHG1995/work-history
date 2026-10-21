@@ -68,20 +68,44 @@ AI가 요청 범위를 벗어나 수정하거나, 검증을 생략하고 완료�
 
 ## 처리 흐름
 
+### 프로젝트 설정과 개발
+
 ```mermaid
-flowchart TD
-    target["대상 프로젝트 확인"] --> detect["검사 명령 탐색과<br/>설정 미리보기"]
-    detect --> apply["충돌 확인 후 설정 적용"]
-    apply --> task["요구사항과 완료 조건 확인"]
-    task --> implement["요청 범위 안에서 개발"]
-    implement --> plan["변경 범위에 맞는 검사 선택"]
-    plan --> run["검사 실행과 변경 내용 검토"]
-    run --> decision{"수정할 문제 확인"}
-    decision -->|있음| fix["수정 후 관련 검사 재실행"]
-    fix -->|관련 검사 재실행| run
-    decision -->|없음| report["변경 및 검증 결과 보고"]
-    fix -.->|동일 실패 반복| blocked["같은 실패가 반복되면 원인 보고 후 중단"]
+flowchart TB
+    target["대상 프로젝트 확인"]
+    detect["검사 명령 탐색과<br/>설정 미리보기"]
+    apply["충돌 확인 후 설정 적용"]
+    task["요구사항과 완료 조건 확인"]
+    implement["요청 범위 안에서 개발"]
+
+    target --> detect
+    detect --> apply
+    apply --> task
+    task --> implement
 ```
+
+### 검사 선택과 수정 반복
+
+```mermaid
+flowchart TB
+    implement["요청 범위 안에서 개발"]
+    plan["변경 범위에 맞는 검사 선택"]
+    run["검사 실행과 변경 내용 검토"]
+    decision{"수정할 문제 확인"}
+    fix["수정 후 관련 검사 재실행"]
+    report["변경 및 검증 결과 보고"]
+    blocked["같은 실패가 반복되면<br/>원인 보고 후 중단"]
+
+    implement --> plan
+    plan --> run
+    run --> decision
+    decision -->|있음| fix
+    fix -->|관련 검사 재실행| run
+    decision -->|없음| report
+    fix -.->|동일 실패 반복| blocked
+```
+
+첫 그림의 개발 단계 이후 검사 선택과 수정 반복으로 이어진다. 같은 이름의 개발 단계는 동일한 작업이다.
 
 ## 결과와 현재 상태
 

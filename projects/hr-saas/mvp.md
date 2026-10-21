@@ -117,33 +117,37 @@ Next.js 웹은 Vercel에 배포했습니다.
 flowchart TB
     cloudflare["Cloudflare<br/>도메인 및 라우팅"]
 
-    subgraph vercel["Vercel: Next.js"]
+    subgraph web["Vercel / Next.js"]
+        direction LR
         admin["관리자 웹"]
         client["사용자 웹"]
     end
 
-    server["NestJS API<br/>Render"]
+    subgraph apiLayer["Render"]
+        server["NestJS API"]
+    end
 
     subgraph supabase["Supabase"]
-        auth["Auth<br/>인증"]
-        db[("PostgreSQL<br/>업무 데이터")]
-        files[("Storage<br/>계약 및 보고 파일")]
+        direction LR
+        auth["Auth"]
+        db[("PostgreSQL")]
+        files[("Storage")]
     end
 
     glosign["Glosign<br/>전자계약 API"]
 
-    cloudflare -.->|도메인 연결| admin
-    cloudflare -.->|도메인 연결| client
-    cloudflare -.->|도메인 연결| server
+    cloudflare -.->|도메인| admin
+    cloudflare -.->|도메인| client
+    cloudflare -.->|도메인| server
     admin -->|API 요청| server
     client -->|API 요청| server
     server ---|인증 연동| auth
-    server -->|Prisma 조회 및 저장| db
+    server -->|Prisma| db
     server -->|파일 저장 및 조회| files
     server -->|전자계약 연동| glosign
 ```
 
-Supabase는 Auth, PostgreSQL, Storage를 담당하고 NestJS 서버는 계약과 출퇴근 등의 업무 로직, API 및 권한 검사를 처리한다. 웹은 Vercel에, API는 Render에 배포했다. 점선은 Cloudflare 도메인 연결을 의미하며 인증 연동선은 호출 순서를 특정하지 않는다.
+Supabase는 인증(Auth), 업무 데이터(PostgreSQL), 계약 문서 및 보고 파일 저장(Storage)을 담당한다. NestJS 서버는 계약과 출퇴근 등 업무 로직, API와 권한 검사를 처리한다. 관리자 및 사용자 웹은 Vercel에, API는 Render에 배포했다. 점선은 Cloudflare 도메인 연결 관계를 나타내며, 인증 연동선은 호출 순서를 특정하지 않는다.
 
 ## 계약 처리 흐름
 

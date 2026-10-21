@@ -56,10 +56,17 @@ Refine, MUI Pro, Zod와 파일 처리 모듈은 제휴 쿠폰 연계 작업에 �
 - 공통 정책과 개별 쿠폰의 발급 이력을 나눠, 비슷한 이벤트에서 같은 구조를 재사용할 수 있게 했다.
 
 ```mermaid
-flowchart TB
-    before["기존: 개별 발급 쿠폰 중심"] --> template["변경: 공통 쿠폰 템플릿"]
-    template --> event["이벤트별 발급과 대상자 관리"]
-    event --> issued["개별 쿠폰 발급과 이력 관리"]
+flowchart LR
+    subgraph Before["기존"]
+        before["개별 발급 쿠폰 중심"]
+    end
+
+    subgraph After["변경 후"]
+        template["공통 쿠폰 템플릿"] --> event["이벤트별 발급과 대상자 관리"]
+        event --> issued["개별 쿠폰 발급과 이력 관리"]
+    end
+
+    before ==>|구조 전환| template
 ```
 
 ### 쿠폰 정책과 운영 기능
@@ -100,20 +107,45 @@ flowchart TB
 
 ### 구매 정보 등록
 
+#### 판매처 입력 경로
+
 ```mermaid
 flowchart TB
-    partner["외부 판매처 구매 정보"] --> method{"연동 방식"}
-    method -->|API| api["구매 정보 API 연동"]
-    method -->|웹훅| webhook["내부 서버에서 웹훅 수신"]
-    method -->|직접 임포트| export["구매 내역 파일 내려받기"]
-    export --> upload["관리자 파일 업로드"]
-    upload --> preview["미리보기 및 형식 검사"]
-    api --> validate["내부 서버: 구매 이력 중복 검사"]
+    partner["외부 판매처 구매 정보"]
+    method{"연동 방식"}
+    api["구매 정보 API 연동"]
+    webhook["내부 서버에서 웹훅 수신"]
+    export["구매 내역 파일 내려받기"]
+    upload["관리자 파일 업로드"]
+    preview["미리보기 및 형식 검사"]
+
+    partner --> method
+    method -->|API| api
+    method -->|웹훅| webhook
+    method -->|직접 임포트| export
+    export --> upload
+    upload --> preview
+```
+
+#### 중복 검사와 DB 등록
+
+```mermaid
+flowchart TB
+    api["구매 정보 API 연동"]
+    validate["내부 서버:<br/>구매 이력 중복 검사"]
+    webhook["내부 서버에서 웹훅 수신"]
+    preview["미리보기 및 형식 검사"]
+    register["내부 서버: 발급 대상 및<br/>쿠폰 코드 등록"]
+    db[("MySQL: 쿠폰 및 구매 이력")]
+
+    api --> validate
     webhook --> validate
     preview --> validate
-    validate --> register["내부 서버: 발급 대상 및 쿠폰 코드 등록"]
-    register --> db[("MySQL: 쿠폰 및 구매 이력")]
+    validate --> register
+    register --> db
 ```
+
+API 연동, 웹훅 수신과 파일 형식 검사를 거친 데이터는 다음 그림의 같은 경로에서 중복 검사와 등록으로 이어진다.
 
 구매 정보는 판매처 API로 연동하거나 웹훅으로 수신하며, 관리자에서 파일을 직접 임포트할 수도 있다. 수신한 데이터는 내부 서버에서 검사하고 등록한다. 쿠폰 템플릿과 이벤트 정책도 내부 서버와 DB에서 관리하며 별도 쿠폰 발급 엔진을 두었다는 의미는 아니다.
 

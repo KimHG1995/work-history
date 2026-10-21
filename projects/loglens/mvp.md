@@ -83,23 +83,58 @@ Slack이 설정되지 않았거나 전송에 실패해도 탐지 작업 자체�
 
 ## 처리 흐름
 
+### 로그 수집과 사전 집계
+
 ```mermaid
-flowchart TD
-    service["자체 또는 외부 서비스<br/>API 로그"] --> sink["LogSink"]
-    sink --> buffer["인메모리 버퍼"]
-    buffer --> batch["배치 단위 ClickHouse 저장"]
-    batch --> raw["ClickHouse raw_events"]
-    raw -->|Materialized View| traffic["분, 시간 트래픽 집계"]
-    raw -->|Materialized View| latency["endpoint 응답시간 집계"]
-    raw -->|Materialized View| error["에러 집계"]
-    traffic --> report["집계 테이블 기반 리포트 API"]
-    latency --> report
-    error --> report
-    traffic --> detect["매분 급증 탐지"]
-    error --> detect
-    detect --> history["탐지 이력 저장"]
-    detect --> slack["Slack 알림"]
+flowchart TB
+    service["자체 또는 외부 서비스<br/>API 로그"]
+    sink["LogSink"]
+    buffer["인메모리 버퍼"]
+    batch["배치 단위 ClickHouse 저장"]
+    raw["ClickHouse raw_events"]
+    traffic["분, 시간 트래픽 집계"]
+    latency["endpoint 응답시간 집계"]
+    error["에러 집계"]
+
+    service --> sink
+    sink --> buffer
+    buffer --> batch
+    batch --> raw
+    raw -->|Materialized View| traffic
+    raw -->|Materialized View| latency
+    raw -->|Materialized View| error
 ```
+
+### 리포트 조회와 급증 탐지
+
+```mermaid
+flowchart LR
+    subgraph Collection["집계 테이블"]
+        latency["endpoint 응답시간 집계"]
+        traffic["분, 시간 트래픽 집계"]
+        error["에러 집계"]
+    end
+
+    subgraph Core["조회와 탐지"]
+        report["집계 테이블 기반 리포트 API"]
+        detect["매분 급증 탐지"]
+    end
+
+    subgraph Action["결과와 알림"]
+        history["탐지 이력 저장"]
+        slack["Slack 알림"]
+    end
+
+    latency --> report
+    traffic --> report
+    traffic --> detect
+    error --> report
+    error --> detect
+    detect --> history
+    detect --> slack
+```
+
+두 그림의 트래픽, 응답시간과 에러 집계는 같은 집계 테이블이다. 리포트 API와 급증 탐지는 저장된 집계 결과를 사용한다.
 
 ## 결과와 현재 상태
 
