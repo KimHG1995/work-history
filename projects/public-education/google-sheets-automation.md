@@ -59,24 +59,50 @@ Cron 실행이나 데이터 처리 중 문제가 발생하면 Slack으로 오류
 
 ## 처리 흐름
 
+### 규모 확인과 일반 데이터 처리
+
 ```mermaid
-flowchart TD
-    schedule["Cron 실행"] --> source["원천 데이터 조회"]
-    source --> size{"데이터 규모 확인"}
-    size -->|일반 데이터| app["애플리케이션 레이어에서 가공"]
-    app --> sheet["Google Sheets에 결과와<br/>필요한 원천 데이터 입력"]
-    size -->|대용량 데이터| chunk["원천 데이터 청크 조회"]
-    chunk --> calc["필요 데이터 선별 및 계산"]
-    calc --> upload["결과와 필요한 원천 데이터 업로드"]
-    upload --> more{"다음 청크가 있는가"}
-    more -->|있음| chunk
-    more -->|없음| done["시트 갱신 완료"]
+flowchart TB
+    schedule["Cron 실행"]
+    source["원천 데이터 조회"]
+    size{"데이터 규모 확인"}
+    app["애플리케이션 레이어에서 가공"]
+    sheet["Google Sheets에 결과와<br/>필요한 원천 데이터 입력"]
+    done["시트 갱신 완료"]
+    slack["Slack 오류 알림"]
+
+    schedule --> source
+    source --> size
+    size -->|일반 데이터| app
+    app --> sheet
     sheet --> done
-    schedule -.->|실패| slack["Slack 오류 알림"]
+    schedule -.->|실패| slack
     source -.->|실패| slack
+```
+
+### 대용량 청크 처리
+
+```mermaid
+flowchart TB
+    size{"데이터 규모 확인"}
+    chunk["원천 데이터 청크 조회"]
+    calc["필요 데이터 선별 및 계산"]
+    upload["결과와 필요한 원천 데이터<br/>업로드"]
+    more{"다음 청크가 있는가"}
+    done["시트 갱신 완료"]
+    slack["Slack 오류 알림"]
+
+    size -->|대용량 데이터| chunk
+    chunk --> calc
+    calc --> upload
+    upload --> more
+    more -->|있음| chunk
+    more -->|없음| done
     calc -.->|실패| slack
     upload -.->|실패| slack
 ```
+
+데이터 규모 확인에서 대용량으로 분류한 작업은 청크 처리로 이어진다. 두 그림의 시트 갱신 완료와 Slack 오류 알림은 같은 결과와 알림 경로다.
 
 ## 결과와 현재 상태
 

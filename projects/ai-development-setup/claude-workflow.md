@@ -70,17 +70,38 @@ DB Entity 변경은 추가, 삭제와 타입 변경 등으로 나눠 확인하�
 
 ## 처리 흐름
 
+### 요구사항과 편집 준비
+
 ```mermaid
-flowchart TD
-    request["요구사항과 기대 결과 확인"] --> rules["공통 규칙과 필요한 스킬 선택"]
-    rules --> branch["Edit 또는 Write 전 브랜치 확인"]
-    branch --> edit["작업 범위 안에서 편집"]
-    edit --> check["파일 유형에 따라<br/>타입 검사 또는 테스트"]
-    check --> feedback["검사 결과 전달"]
-    feedback --> decision{"후속 수정 필요"}
-    decision -->|필요| edit
-    decision -->|없음| report["작업 내용과 검증 결과 보고"]
+flowchart TB
+    request["요구사항과 기대 결과 확인"]
+    rules["공통 규칙과 필요한 스킬 선택"]
+    branch["Edit 또는 Write 전 브랜치 확인"]
+    edit["작업 범위 안에서 편집"]
+
+    request --> rules
+    rules --> branch
+    branch --> edit
 ```
+
+### 편집 후 검사와 후속 수정
+
+```mermaid
+flowchart TB
+    edit["작업 범위 안에서 편집"]
+    check["파일 유형에 따라<br/>타입 검사 또는 테스트"]
+    feedback["검사 결과 전달"]
+    decision{"후속 수정 필요"}
+    report["작업 내용과 검증 결과 보고"]
+
+    edit --> check
+    check --> feedback
+    feedback --> decision
+    decision -->|필요| edit
+    decision -->|없음| report
+```
+
+두 그림의 편집 단계는 같은 작업이다. 후속 수정이 필요하면 편집으로 돌아가 검사를 다시 진행한다.
 
 ## 결과와 현재 상태
 

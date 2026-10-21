@@ -43,16 +43,48 @@
 
 ## 데이터 분석 흐름
 
+### 분석 구조와 적재 일정
+
 ```mermaid
-flowchart TD
-    purpose["실제 데이터를 바탕으로 프로젝트와 방향 논의"] --> design["DS와 분석용 데이터 구조 정립"]
-    design --> source["근무, 급여, 퍼널 등 실제 데이터"]
-    source --> schedule["이용량이 적은 시간대에 매일 적재 작업 실행"]
-    schedule --> raw["분석용 원본 데이터<br/>파티션별 S3 적재"]
-    raw --> catalog["Glue에 조회용 데이터 정보 구성"]
-    catalog --> query["Athena 쿼리로 원본 데이터 조회"]
-    query --> discussion["데이터를 근거로 분석과 논의"]
-    schedule --> aggregate["대시보드용 일, 주, 월, 년별 사전 집계"]
-    aggregate --> db["대시보드용 집계 결과를 DB에 저장"]
-    db --> dashboard["가공 데이터 대시보드에서 저장된 결과 조회"]
+flowchart TB
+    purpose["실제 데이터를 바탕으로 프로젝트와 방향 논의"]
+    design["DS와 분석용 데이터 구조 정립"]
+    source["근무, 급여, 퍼널 등 실제 데이터"]
+    schedule["이용량이 적은 시간대에 매일 적재 작업 실행"]
+
+    purpose --> design
+    design --> source
+    source --> schedule
 ```
+
+### S3 원본 적재와 조회
+
+```mermaid
+flowchart TB
+    schedule["이용량이 적은 시간대에 매일 적재 작업 실행"]
+    raw["분석용 원본 데이터<br/>파티션별 S3 적재"]
+    catalog["Glue에 조회용 데이터 정보 구성"]
+    query["Athena 쿼리로 원본 데이터 조회"]
+    discussion["데이터를 근거로 분석과 논의"]
+
+    schedule --> raw
+    raw --> catalog
+    catalog --> query
+    query --> discussion
+```
+
+### 대시보드 사전 집계
+
+```mermaid
+flowchart TB
+    schedule["이용량이 적은 시간대에 매일 적재 작업 실행"]
+    aggregate["대시보드용 일, 주, 월, 년별<br/>사전 집계"]
+    db["대시보드용 집계 결과를 DB에 저장"]
+    dashboard["가공 데이터 대시보드에서 저장된 결과 조회"]
+
+    schedule --> aggregate
+    aggregate --> db
+    db --> dashboard
+```
+
+첫 그림의 적재 일정에서 원본 데이터 적재와 대시보드 사전 집계가 각각 이어진다. 두 흐름의 조회 대상을 원본 데이터와 미리 저장한 집계 결과로 구분했다.

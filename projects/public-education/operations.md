@@ -39,7 +39,7 @@ NCP 환경에서 여러 공공 교육 서비스의 교육, 예약, 출결, 관�
 ## 업무 흐름
 
 ```mermaid
-flowchart LR
+flowchart TB
     request["운영 요구사항 또는 이슈 확인"] --> develop["웹과 서버 기능 개발 및 개선"]
     develop --> service["서비스 반영"]
     service --> operation["유지보수와 운영 이슈 대응"]

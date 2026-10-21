@@ -27,19 +27,42 @@ AI가 수행한 작업을 실제 검사 결과로 검증하는 데 초점을 맞
 
 ## 전체 흐름
 
+### 규칙 확인과 구현
+
 ```mermaid
-flowchart TD
-    request["요구사항과 완료 조건 확인"] --> context["규칙과 코드 관계 확인"]
-    context --> implement["요청 범위 안에서 구현"]
-    implement --> select["변경 범위에 맞는 검사 선택"]
-    select --> check["typecheck, lint, test 실행"]
-    check --> feedback["검사 결과를 AI에 전달"]
-    feedback --> decision{"수정 필요"}
-    decision -->|있음| fix["문제 수정"]
-    fix --> select
-    decision -->|없음| report["변경 내용과 검증 결과 보고"]
-    tsGraph["TypeScript 코드 그래프 MCP"] --> context
+flowchart TB
+    request["요구사항과 완료 조건 확인"]
+    context["규칙과 코드 관계 확인"]
+    implement["요청 범위 안에서 구현"]
+    tsGraph["TypeScript 코드 그래프 MCP"]
+
+    request --> context
+    context --> implement
+    tsGraph --> context
 ```
+
+### 검사와 수정
+
+```mermaid
+flowchart TB
+    implement["요청 범위 안에서 구현"]
+    select["변경 범위에 맞는 검사 선택"]
+    check["typecheck, lint, test 실행"]
+    feedback["검사 결과를 AI에 전달"]
+    decision{"수정 필요"}
+    fix["문제 수정"]
+    report["변경 내용과 검증 결과 보고"]
+
+    implement --> select
+    select --> check
+    check --> feedback
+    feedback --> decision
+    decision -->|있음| fix
+    fix --> select
+    decision -->|없음| report
+```
+
+두 그림의 구현 단계는 같은 작업이다. 구현 후 검사와 수정 반복으로 이어진다.
 
 ## AI에게 맡기지 않은 것
 

@@ -127,20 +127,53 @@ Next.js 15 기반 Admin에서 다음 운영 기능을 구현했습니다.
 
 ## 처리 흐름
 
+### 요청 검증과 작업 등록
+
 ```mermaid
-flowchart TD
-    client["업무 시스템"] --> gateway["NestJS API Gateway"]
-    gateway --> auth["인증, 테넌트, 멱등성<br/>입력 검증"]
-    auth --> queue["QUEUED 저장 및 BullMQ 작업 등록"]
-    queue --> worker["Render Worker"]
-    worker --> renderer["Papermake / Typst 렌더"]
-    renderer --> storage["S3 / MinIO<br/>PDF 저장"]
-    worker -.->|출력 해시와 상태 갱신| evidence["입력, 템플릿, 출력 해시 증적"]
-    worker -.->|렌더 이벤트| analytics["ClickHouse 렌더 이벤트"]
-    worker -.->|완료 결과| webhook["서명 Webhook"]
-    storage --> signed["Signed URL"]
-    evidence -.->|별도 요청 시| verify["동일 조건 재렌더 및 해시 비교"]
+flowchart TB
+    client["업무 시스템"]
+    gateway["NestJS API Gateway"]
+    auth["인증, 테넌트, 멱등성<br/>입력 검증"]
+    queue["QUEUED 저장 및<br/>BullMQ 작업 등록"]
+    worker["Render Worker"]
+
+    client --> gateway
+    gateway --> auth
+    auth --> queue
+    queue --> worker
 ```
+
+### PDF 생성과 파일 저장
+
+```mermaid
+flowchart TB
+    worker["Render Worker"]
+    renderer["Papermake / Typst 렌더"]
+    storage["S3 / MinIO<br/>PDF 저장"]
+    signed["Signed URL"]
+
+    worker --> renderer
+    renderer --> storage
+    storage --> signed
+```
+
+### 증적과 결과 전달
+
+```mermaid
+flowchart TB
+    worker["Render Worker"]
+    evidence["입력, 템플릿,<br/>출력 해시 증적"]
+    analytics["ClickHouse 렌더 이벤트"]
+    webhook["서명 Webhook"]
+    verify["동일 조건 재렌더 및 해시 비교"]
+
+    worker -.->|출력 해시와 상태 갱신| evidence
+    worker -.->|렌더 이벤트| analytics
+    worker -.->|완료 결과| webhook
+    evidence -.->|별도 요청 시| verify
+```
+
+세 그림의 Render Worker는 같은 구성요소다. 재현성 검증은 증적을 바탕으로 별도 요청이 있을 때 진행한다.
 
 ## 결과와 현재 상태
 
