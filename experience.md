@@ -100,7 +100,7 @@
 
 - React, React Admin, MobX 기반 화면 기능 개선 및 유지보수 참여
 - NestJS, Express, MongoDB 기반 서버 기능 개선 및 유지보수 참여
-- 운영 상태: 운영 중
+- 운영 상태: 재직 당시 운영 반영
 
 ## 사이드 프로젝트
 

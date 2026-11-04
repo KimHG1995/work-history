@@ -10,7 +10,9 @@ outline: [2, 3]
 
 Microsoft Clarity를 사용해 클릭, 스크롤 등 페이지 이용 정보를 분석합니다. 이 과정에서 쿠키와 식별자가 사용될 수 있습니다. 질문 창의 내용은 Clarity 기록에서 가리도록 설정되어 있습니다.
 
-브라우저 설정에서 쿠키를 제한하거나 삭제할 수 있습니다. 쿠키를 차단해도 문서는 읽을 수 있습니다. 자세한 내용은 [Microsoft 개인정보처리방침](https://www.microsoft.com/privacy/privacystatement)과 [Clarity 개인정보 안내](https://learn.microsoft.com/en-us/clarity/faq#privacy)를 확인해 주세요.
+브라우저 설정에서 쿠키를 제한하거나 삭제할 수 있습니다. 쿠키를 차단해도 문서는 읽을 수 있습니다.
+
+자세한 내용은 [Microsoft 개인정보처리방침](https://www.microsoft.com/privacy/privacystatement)과 [Clarity 개인정보 안내](https://learn.microsoft.com/en-us/clarity/faq#privacy)를 확인해 주세요.
 
 ## Google 광고
 
@@ -18,7 +20,9 @@ Cloudflare Pages의 설명이 충분한 문서 하단에 Google AdSense 광고�
 
 유럽경제지역, 영국, 스위스 등 유럽 규정 적용 방문자는 Google 동의 메시지에서 선택할 수 있습니다. 해당 문서의 `광고 개인정보 설정`을 눌러 동의 화면을 다시 열 수 있습니다. 거부하거나 철회하면 광고 요청을 보류하고 문서의 광고 영역을 제거합니다. 이미 내려온 제3자 자원까지 소급하여 회수하지는 못합니다. 한국 등 Google CMP가 유럽 규정 비적용을 최종 확인한 방문자에게는 비개인화 광고를 요청합니다. 적용 여부를 확인할 수 없으면 광고를 시작하지 않습니다.
 
-Google과 광고 파트너가 광고 제공과 측정을 위해 쿠키, 식별자 등을 사용할 수 있습니다. 비개인화 광고도 쿠키를 사용할 수 있습니다. 자세한 내용은 [Google의 파트너 사이트 정보 사용](https://policies.google.com/technologies/partner-sites)을 참고하세요. 브라우저 쿠키 제한과 [내 광고 센터](https://myadcenter.google.com/)도 사용할 수 있습니다. 광고 여부와 관계없이 문서를 읽을 수 있습니다.
+Google과 광고 파트너가 광고 제공과 측정을 위해 쿠키, 식별자 등을 사용할 수 있습니다. 비개인화 광고도 쿠키를 사용할 수 있습니다.
+
+자세한 내용은 [Google의 파트너 사이트 정보 사용](https://policies.google.com/technologies/partner-sites)을 참고하세요. 브라우저 쿠키 제한과 [내 광고 센터](https://myadcenter.google.com/)도 사용할 수 있습니다. 광고 여부와 관계없이 문서를 읽을 수 있습니다.
 
 ## AI 질문 기능
 
