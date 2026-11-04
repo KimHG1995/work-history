@@ -1,5 +1,6 @@
 import { readdir, readFile, access } from 'node:fs/promises';
 import path from 'node:path';
+import { validateTwoColumnTable } from './validate-markdown-table.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const projectsRoot = path.join(root, 'projects');
@@ -74,6 +75,9 @@ for (const entry of projectEntries) {
 
   const readme = await readFile(readmePath, 'utf8');
   const expectedProjectRows = ['프로젝트 구분', '회사 설명', '참여 기간', '맡은 범위'];
+  const projectBasic = section(readme, '기본 정보');
+  const projectStructure = validateTwoColumnTable(projectBasic, ['프로젝트 구분', '회사 설명', '참여 기간', '맡은 범위']);
+  if (projectStructure) failures.push(relative(readmePath) + ': 기본 정보 표 구조 오류 - ' + projectStructure);
   const actualProjectRows = tableRows(section(readme, '기본 정보')).map(([key]) => key).slice(0, 4);
   if (JSON.stringify(actualProjectRows) !== JSON.stringify(expectedProjectRows)) {
     failures.push(relative(readmePath) + ': 기본 정보 순서는 ' + expectedProjectRows.join(', ') + ' 이어야 합니다.');
@@ -91,10 +95,13 @@ for (const entry of projectEntries) {
   for (const child of children) {
     const taskPath = path.join(dir, child.name);
     const content = await readFile(taskPath, 'utf8');
-    const required = ['기본 정보', '왜 시작했는지', '기술 스택', '어떻게 해결했는지', '결과와 현재 상태'];
+    const required = ['기본 정보', '배경과 과제', '기술 스택', '어떻게 해결했는지', '결과와 현재 상태'];
     for (const heading of required) if (!content.includes('## ' + heading)) failures.push(relative(taskPath) + ': ' + heading + ' 섹션이 없습니다.');
 
     const expectedTaskRows = ['작업 기간', '맡은 범위', '개발 상태', '운영 상태'];
+    const taskBasic = section(content, '기본 정보');
+    const taskStructure = validateTwoColumnTable(taskBasic, expectedTaskRows);
+    if (taskStructure) failures.push(relative(taskPath) + ': 기본 정보 표 구조 오류 - ' + taskStructure);
     const actualTaskRows = tableRows(section(content, '기본 정보')).map(([key]) => key).slice(0, 4);
     if (JSON.stringify(actualTaskRows) !== JSON.stringify(expectedTaskRows)) {
       failures.push(relative(taskPath) + ': 기본 정보 순서는 ' + expectedTaskRows.join(', ') + ' 이어야 합니다.');
