@@ -18,7 +18,7 @@
 
 ## 왜 시작했는지
 
-서로 다른 클라우드 계정의 서버·네트워크·IP·DNS·DB 관계를 공급자 콘솔에서 각각 확인해야 해 자산의 소속과 연결 관계를 추적하기 어려웠습니다. 수기 관리 문서와 실제 인프라의 상태가 달라질 위험도 있었습니다.
+서로 다른 클라우드 계정의 서버, 네트워크, IP, DNS, DB 관계를 공급자 콘솔에서 각각 확인해야 해 자산의 소속과 연결 관계를 추적하기 어려웠습니다. 수기 관리 문서와 실제 인프라의 상태가 달라질 위험도 있었습니다.
 
 별도 자산 관리 UI를 만드는 대신 NetBox를 인프라 관리 기준으로 사용하고, 공급자별 Export 파일을 공통 모델로 변환하는 수집 계층에 집중했습니다.
 
@@ -38,7 +38,7 @@
 
 ### NetBox를 중앙 인프라 장부로 사용
 
-NetBox에 인프라 자산과 관계를 저장하고, PostgreSQL은 Import 작업 큐·실행 상태·Preview·파일 정보 등 제어 데이터만 관리하도록 역할을 분리했습니다. 공통 자산은 NetBox 기본 모델을, 공급자별 개념은 Custom Object를 사용했습니다.
+NetBox에 인프라 자산과 관계를 저장하고, PostgreSQL은 Import 작업 큐, 실행 상태, Preview, 파일 정보 등 제어 데이터만 관리하도록 역할을 분리했습니다. 공통 자산은 NetBox 기본 모델을, 공급자별 개념은 Custom Object를 사용했습니다.
 
 - Region과 Zone
 - VPC와 Subnet
@@ -146,7 +146,7 @@ flowchart TB
 
 ## 결과와 현재 상태
 
-- **구현 범위:** AWS CSV·NCP XLSX·표준 JSON Bundle을 공통 모델로 변환하는 NetBox 수동 Import PoC
-- **안전한 반영:** Preview·Batch hash 승인, 반복 업로드 및 Apply 멱등성, 수동 메타데이터 보존과 불완전한 Export의 자동 삭제 방지
-- **검증:** 합성 Fixture·테스트 계정의 Docker Compose 통합 흐름과 GitHub Actions 기본 품질 검사
-- **남은 범위:** 클라우드 API 자동 Collector, 실제 운영 계정 연결, SSO·Secret Manager 연동. 운영 계정 자동 수집은 구현하지 않음
+- **구현 범위:** AWS CSV, NCP XLSX, 표준 JSON Bundle을 공통 모델로 변환하는 NetBox 수동 Import PoC
+- **안전한 반영:** Preview, Batch hash 승인, 반복 업로드 및 Apply 멱등성, 수동 메타데이터 보존과 불완전한 Export의 자동 삭제 방지
+- **검증:** 합성 Fixture, 테스트 계정의 Docker Compose 통합 흐름과 GitHub Actions 기본 품질 검사
+- **남은 범위:** 클라우드 API 자동 Collector, 실제 운영 계정 연결, SSO, Secret Manager 연동. 운영 계정 자동 수집은 구현하지 않음
