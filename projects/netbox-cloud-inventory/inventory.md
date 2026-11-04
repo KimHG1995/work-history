@@ -18,10 +18,9 @@
 
 ## 왜 시작했는지
 
-클라우드 계정이 늘어나면 서버, VPC, Subnet, IP, Load Balancer, DNS와 데이터베이스 관계를 각 공급자 콘솔에서 따로 확인해야 합니다.
-특정 IP나 Domain이 어느 계정과 네트워크, 서버, 업무 서비스로 이어지는지 한 화면에서 확인하기 어렵고, 사람이 별도 문서로 관리하면 실제 인프라와 기록이 쉽게 어긋날 수 있습니다.
+서로 다른 클라우드 계정의 서버, 네트워크, IP, DNS, DB 관계를 공급자 콘솔에서 각각 확인해야 해 자산의 소속과 연결 관계를 추적하기 어려웠습니다. 수기 관리 문서와 실제 인프라의 상태가 달라질 위험도 있었습니다.
 
-별도의 자산 관리 화면을 처음부터 만들기보다 인프라 Source of Truth 도구인 NetBox의 검색과 관계 기능을 활용하고, 공급자마다 다른 Export 데이터를 안전하게 NetBox 모델로 변환하는 수집 계층에 집중했습니다.
+별도 자산 관리 UI를 만드는 대신 NetBox를 인프라 관리 기준으로 사용하고, 공급자별 Export 파일을 공통 모델로 변환하는 수집 계층에 집중했습니다.
 
 ## 기술 스택
 
@@ -39,10 +38,7 @@
 
 ### NetBox를 중앙 인프라 장부로 사용
 
-자산 자체를 별도 애플리케이션 데이터베이스에 다시 복제하지 않고 NetBox가 정규화된 인프라 자산과 관계를 저장하도록 했습니다.
-PostgreSQL에는 Import 정보, 작업 큐, 실행 상태, Preview 결과와 파일 정보처럼 수집과 반영을 제어하기 위한 데이터만 저장했습니다.
-
-클라우드 공통 자산은 NetBox 기본 모델을 사용하고 공급자 고유 개념은 Custom Object로 확장했습니다.
+NetBox에 인프라 자산과 관계를 저장하고, PostgreSQL은 Import 작업 큐, 실행 상태, Preview, 파일 정보 등 제어 데이터만 관리하도록 역할을 분리했습니다. 공통 자산은 NetBox 기본 모델을, 공급자별 개념은 Custom Object를 사용했습니다.
 
 - Region과 Zone
 - VPC와 Subnet
@@ -146,13 +142,11 @@ flowchart TB
     netbox --> history
 ```
 
-첫 그림에서 저장한 Preview와 Batch hash를 사용자가 확인한 뒤 Apply로 이어진다. 두 그림의 Preview는 동일한 검토 결과다.
+사용자가 첫 그림에서 생성된 Preview와 Batch hash를 확인한 뒤 Apply로 진행합니다. 두 그림의 Preview는 같은 검토 결과입니다.
 
 ## 결과와 현재 상태
 
-- 여러 클라우드 계정의 서버와 네트워크, IP, Load Balancer, DNS, Database, Object Storage 관계를 NetBox에서 조회할 수 있는 공통 모델을 구성했습니다.
-- AWS CSV, NAVER Cloud Platform XLSX와 표준 JSON Bundle을 같은 정규화 흐름으로 처리하는 수동 Import PoC를 구현했습니다.
-- Preview 승인, Batch hash 검증, 반복 업로드와 반복 Apply의 멱등성을 구현했습니다.
-- 불완전한 수동 Export가 기존 자산을 삭제하거나 비활성화하지 않게 하고 Owner 같은 수동 운영 메타데이터를 보존하도록 했습니다.
-- 합성 Fixture와 테스트 계정으로 전체 Docker Compose 흐름을 검증하고 GitHub Actions에서 기본 품질 검사를 수행하도록 구성했습니다.
-- 클라우드 API 자동 Collector, 실제 운영 계정 연결, SSO와 Secret Manager 연동은 후속 작업으로 남아 있습니다.
+- **구현 범위:** AWS CSV, NCP XLSX, 표준 JSON Bundle을 공통 모델로 변환하는 NetBox 수동 Import PoC
+- **안전한 반영:** Preview, Batch hash 승인, 반복 업로드 및 Apply 멱등성, 수동 메타데이터 보존과 불완전한 Export의 자동 삭제 방지
+- **검증:** 합성 Fixture, 테스트 계정의 Docker Compose 통합 흐름과 GitHub Actions 기본 품질 검사
+- **남은 범위:** 클라우드 API 자동 Collector, 실제 운영 계정 연결, SSO, Secret Manager 연동. 운영 계정 자동 수집은 구현하지 않음
